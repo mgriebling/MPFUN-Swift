@@ -13,6 +13,8 @@
 		47EF0A3C2275B3780038855B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 47EF0A3B2275B3780038855B /* Assets.xcassets */; };
 		47EF0A3F2275B3780038855B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 47EF0A3D2275B3780038855B /* LaunchScreen.storyboard */; };
 		47EF0A4A2275B3780038855B /* MPFUN_SwiftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47EF0A492275B3780038855B /* MPFUN_SwiftTests.swift */; };
+		47EF0A562275B3D00038855B /* mpfun.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47EF0A552275B3D00038855B /* mpfun.swift */; };
+		47FC81442277005D00612B55 /* complex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FC81432277005D00612B55 /* complex.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +38,8 @@
 		47EF0A452275B3780038855B /* MPFUN-SwiftTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "MPFUN-SwiftTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		47EF0A492275B3780038855B /* MPFUN_SwiftTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MPFUN_SwiftTests.swift; sourceTree = "<group>"; };
 		47EF0A4B2275B3780038855B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		47EF0A552275B3D00038855B /* mpfun.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mpfun.swift; sourceTree = "<group>"; };
+		47FC81432277005D00612B55 /* complex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = complex.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,6 +81,7 @@
 		47EF0A332275B3760038855B /* MPFUN-Swift */ = {
 			isa = PBXGroup;
 			children = (
+				47EF0A542275B3A30038855B /* MPFUN */,
 				47EF0A342275B3760038855B /* AppDelegate.swift */,
 				47EF0A362275B3760038855B /* ViewController.swift */,
 				47EF0A382275B3760038855B /* Main.storyboard */,
@@ -94,6 +99,15 @@
 				47EF0A4B2275B3780038855B /* Info.plist */,
 			);
 			path = "MPFUN-SwiftTests";
+			sourceTree = "<group>";
+		};
+		47EF0A542275B3A30038855B /* MPFUN */ = {
+			isa = PBXGroup;
+			children = (
+				47EF0A552275B3D00038855B /* mpfun.swift */,
+				47FC81432277005D00612B55 /* complex.swift */,
+			);
+			path = MPFUN;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -197,8 +211,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				47FC81442277005D00612B55 /* complex.swift in Sources */,
 				47EF0A372275B3760038855B /* ViewController.swift in Sources */,
 				47EF0A352275B3760038855B /* AppDelegate.swift in Sources */,
+				47EF0A562275B3D00038855B /* mpfun.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
