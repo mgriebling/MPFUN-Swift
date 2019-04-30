@@ -15,6 +15,7 @@
 		47EF0A4A2275B3780038855B /* MPFUN_SwiftTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47EF0A492275B3780038855B /* MPFUN_SwiftTests.swift */; };
 		47EF0A562275B3D00038855B /* mpfun.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47EF0A552275B3D00038855B /* mpfun.swift */; };
 		47FC81442277005D00612B55 /* complex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FC81432277005D00612B55 /* complex.swift */; };
+		47FC8146227849DE00612B55 /* mpfunc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FC8145227849DE00612B55 /* mpfunc.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +41,7 @@
 		47EF0A4B2275B3780038855B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		47EF0A552275B3D00038855B /* mpfun.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mpfun.swift; sourceTree = "<group>"; };
 		47FC81432277005D00612B55 /* complex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = complex.swift; sourceTree = "<group>"; };
+		47FC8145227849DE00612B55 /* mpfunc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mpfunc.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,6 +106,7 @@
 		47EF0A542275B3A30038855B /* MPFUN */ = {
 			isa = PBXGroup;
 			children = (
+				47FC8145227849DE00612B55 /* mpfunc.swift */,
 				47EF0A552275B3D00038855B /* mpfun.swift */,
 				47FC81432277005D00612B55 /* complex.swift */,
 			);
@@ -215,6 +218,7 @@
 				47EF0A372275B3760038855B /* ViewController.swift in Sources */,
 				47EF0A352275B3760038855B /* AppDelegate.swift in Sources */,
 				47EF0A562275B3D00038855B /* mpfun.swift in Sources */,
+				47FC8146227849DE00612B55 /* mpfunc.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
