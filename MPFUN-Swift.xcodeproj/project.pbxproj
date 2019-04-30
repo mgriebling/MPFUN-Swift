@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2FA565F122786C4100DA1998 /* mpfun.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA565F022786C4100DA1998 /* mpfun.swift */; };
+		2FA565F522786DED00DA1998 /* mpfun.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA565F422786DED00DA1998 /* mpfun.swift */; };
 		47EF0A352275B3760038855B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47EF0A342275B3760038855B /* AppDelegate.swift */; };
 		47EF0A372275B3760038855B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47EF0A362275B3760038855B /* ViewController.swift */; };
 		47EF0A3A2275B3760038855B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 47EF0A382275B3760038855B /* Main.storyboard */; };
@@ -30,6 +30,7 @@
 
 /* Begin PBXFileReference section */
 		2FA565F022786C4100DA1998 /* mpfun.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = mpfun.swift; sourceTree = "<group>"; };
+		2FA565F422786DED00DA1998 /* mpfun.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = mpfun.swift; sourceTree = "<group>"; };
 		47EF0A312275B3760038855B /* MPFUN-Swift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "MPFUN-Swift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		47EF0A342275B3760038855B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		47EF0A362275B3760038855B /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -62,12 +63,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2FA565F322786D9F00DA1998 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				2FA565F022786C4100DA1998 /* mpfun.swift */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
 		47EF0A282275B3760038855B = {
 			isa = PBXGroup;
 			children = (
 				47EF0A332275B3760038855B /* MPFUN-Swift */,
 				47EF0A482275B3780038855B /* MPFUN-SwiftTests */,
 				47EF0A322275B3760038855B /* Products */,
+				2FA565F322786D9F00DA1998 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -106,8 +116,8 @@
 		47EF0A542275B3A30038855B /* MPFUN */ = {
 			isa = PBXGroup;
 			children = (
+				2FA565F422786DED00DA1998 /* mpfun.swift */,
 				47FC8145227849DE00612B55 /* mpfunc.swift */,
-				47EF0A552275B3D00038855B /* mpfun.swift */,
 				47FC81432277005D00612B55 /* complex.swift */,
 			);
 			path = MPFUN;
@@ -214,11 +224,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2FA565F122786C4100DA1998 /* mpfun.swift in Sources */,
 				47FC81442277005D00612B55 /* complex.swift in Sources */,
+				2FA565F522786DED00DA1998 /* mpfun.swift in Sources */,
 				47EF0A372275B3760038855B /* ViewController.swift in Sources */,
 				47EF0A352275B3760038855B /* AppDelegate.swift in Sources */,
-				47EF0A562275B3D00038855B /* mpfun.swift in Sources */,
 				47FC8146227849DE00612B55 /* mpfunc.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
