@@ -8,7 +8,7 @@
 
 import Foundation
 // protocol RealType : FloatingPointType // sadly crashes as of Swift 1.1 :-(
-public protocol RealType {
+public protocol RealType : Hashable {
     // copied from FloatingPointType
     init(_ value: UInt8)
     init(_ value: Int8)
@@ -139,7 +139,7 @@ extension Double : RealType {
 //    var i:Complex<Float>{ return Complex<Float>(0.0 as Float, self) }
 //}
 // el corazon
-struct Complex<T:RealType> : Equatable, /* Printable, */ Hashable {
+struct Complex<T:RealType> : Equatable, Hashable {
 	var re:T
 	var im:T
 	
@@ -187,17 +187,13 @@ struct Complex<T:RealType> : Equatable, /* Printable, */ Hashable {
     }
     /// z * i
     var i:Complex { return Complex(-im, re) }
-    /// .description -- conforms to Printable
-//    var description:String {
-//        let plus = im.isSignMinus ? "" : "+"
-//        return "(\(re)\(plus)\(im).i)"
-//    }
-    /// .hashvalue -- conforms to Hashable
-    var hashValue:Int { // take most significant halves and join
-        let bits = MemoryLayout<Int>.size * 4
-        let mask = bits == 16 ? 0xffff : 0xffffFFFF
-        return (re.hashValue & ~mask) | (im.hashValue >> bits)
+    
+    // Hashable protocol conformance
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(re)
+        hasher.combine(im)
     }
+
 }
 // operator definitions
 
