@@ -337,35 +337,32 @@ extension mpfun {
         return d1
     } //  mpdigin
 
-//    character(32) function mpdigout (a, n)
-//
-//    //   This converts the double precision input A to a character(32) string of
-//    //   nonblank length N.  A must be a whole number, and N must be sufficient
-//    //   to hold it.  This is intended for internal use only.
-//
-//    implicit none
-//    real (mprknd) a, d1, d2
-//    character(32) ca
-//    character(10) digits
-//    parameter (digits = "0123456789")
-//    integer i, k, n
-//
-//    // End of declaration
-//
-//    ca = " "
-//    d1 = abs (a)
-//
-//    for i in n, 1, -1
-//    d2 = aint (d1 / 10.0)
-//    k = 1.0 + (d1 - 10.0 * d2)
-//    d1 = d2
-//    ca[i:i) = digits(k:k)
-//    }
-//
-//    mpdigout = ca
-//    return
-//    end function mpdigout
-//
+    static func mpdigout (_ a : Double, _ n : Int) -> String {
+        
+        //   This converts the double precision input A to a character(32) string of
+        //   nonblank length N.  A must be a whole number, and N must be sufficient
+        //   to hold it.  This is intended for internal use only.
+        
+        var d1, d2 : Double
+        var ca : String
+        let digits = "0123456789"
+        var i, k, n : Int
+        
+        // End of declaration
+        
+        ca = " "
+        d1 = abs (a)
+        
+        for i in 1...n {
+            d2 = aint (d1 / 10.0)
+            k = 1.0 + (d1 - 10.0 * d2)
+            d1 = d2
+            ca = digits[digits.index(digits.startIndex, offsetBy: k)] + ca
+        }
+        
+        return ca
+    } // mpdigout
+
 //    static func mpeformat (a, nb, nd, b, mpnw)
 //
 //    //   Converts the MPR number A into character form in the character(1) array B.
