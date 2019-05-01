@@ -7,8 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2FA565F522786DED00DA1998 /* mpfun.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA565F422786DED00DA1998 /* mpfun.swift */; };
-		472C45242279A7E600BD66D8 /* mpfunc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FC8145227849DE00612B55 /* mpfunc.swift */; };
+		2FA565F522786DED00DA1998 /* funcs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA565F422786DED00DA1998 /* funcs.swift */; };
+		472C45242279A7E600BD66D8 /* consts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FC8145227849DE00612B55 /* consts.swift */; };
+		472C45262279ADEA00BD66D8 /* inout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 472C45252279ADEA00BD66D8 /* inout.swift */; };
 		47EF0A352275B3760038855B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47EF0A342275B3760038855B /* AppDelegate.swift */; };
 		47EF0A372275B3760038855B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47EF0A362275B3760038855B /* ViewController.swift */; };
 		47EF0A3A2275B3760038855B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 47EF0A382275B3760038855B /* Main.storyboard */; };
@@ -29,7 +30,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		2FA565F422786DED00DA1998 /* mpfun.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = mpfun.swift; sourceTree = "<group>"; };
+		2FA565F422786DED00DA1998 /* funcs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = funcs.swift; sourceTree = "<group>"; };
+		472C45252279ADEA00BD66D8 /* inout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = inout.swift; sourceTree = "<group>"; };
+		472C45272279AEB900BD66D8 /* DISCLAIMER.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DISCLAIMER.txt; sourceTree = "<group>"; };
 		47EF0A312275B3760038855B /* MPFUN-Swift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "MPFUN-Swift.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		47EF0A342275B3760038855B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		47EF0A362275B3760038855B /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -41,7 +44,7 @@
 		47EF0A492275B3780038855B /* MPFUN_SwiftTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MPFUN_SwiftTests.swift; sourceTree = "<group>"; };
 		47EF0A4B2275B3780038855B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		47FC81432277005D00612B55 /* complex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = complex.swift; sourceTree = "<group>"; };
-		47FC8145227849DE00612B55 /* mpfunc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mpfunc.swift; sourceTree = "<group>"; };
+		47FC8145227849DE00612B55 /* consts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = consts.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,8 +109,10 @@
 		47EF0A542275B3A30038855B /* MPFUN */ = {
 			isa = PBXGroup;
 			children = (
-				2FA565F422786DED00DA1998 /* mpfun.swift */,
-				47FC8145227849DE00612B55 /* mpfunc.swift */,
+				472C45272279AEB900BD66D8 /* DISCLAIMER.txt */,
+				2FA565F422786DED00DA1998 /* funcs.swift */,
+				472C45252279ADEA00BD66D8 /* inout.swift */,
+				47FC8145227849DE00612B55 /* consts.swift */,
 				47FC81432277005D00612B55 /* complex.swift */,
 			);
 			path = MPFUN;
@@ -215,10 +220,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				47FC81442277005D00612B55 /* complex.swift in Sources */,
-				2FA565F522786DED00DA1998 /* mpfun.swift in Sources */,
+				2FA565F522786DED00DA1998 /* funcs.swift in Sources */,
 				47EF0A372275B3760038855B /* ViewController.swift in Sources */,
+				472C45262279ADEA00BD66D8 /* inout.swift in Sources */,
 				47EF0A352275B3760038855B /* AppDelegate.swift in Sources */,
-				472C45242279A7E600BD66D8 /* mpfunc.swift in Sources */,
+				472C45242279A7E600BD66D8 /* consts.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -380,8 +386,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 37VFB869JC;
+				DEVELOPMENT_TEAM = 6389FT2N69;
 				INFOPLIST_FILE = "MPFUN-Swift/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -389,6 +396,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.c-inspirations.MPFUN-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -398,8 +406,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 37VFB869JC;
+				DEVELOPMENT_TEAM = 6389FT2N69;
 				INFOPLIST_FILE = "MPFUN-Swift/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -407,6 +416,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.c-inspirations.MPFUN-Swift";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
