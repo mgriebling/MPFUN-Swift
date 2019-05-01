@@ -62,21 +62,29 @@ extension mpfun {
         //  zero) must be present; and (c) a period must be present.  An exponent
         //  (with "d" or "e") may optionally follow the numeric value.
         
-        var i1, i2, iexp, isgn, iexpsgn, ix, j, kde, kend, kexpend, kexpst : Int
-        var kexpsgn, knumend1, knumend2, knumst1, knumst2, kper, ksgn, kstart, lexp : Int
+        var i1, i2, iexp, isgn, iexpsgn, ix, j, kde, kend : Int
+        var kper, lexp : Int
         var lnum, lnum1, lnum2, mpnw1, n1, n2 : Int
         var t1, t2 : Double
-        var ai : Character
+        var ai, ksgn, kexpsgn : Character
         var ca : String
+        var kexpst = ""
+        var knumst = ""
+        var knumst2 = ""
         let lexpmx = 9
-        let digits = "0123456789"
+//        let digits = "0123456789"
         let d10w = pow(10.0, Double(mpndpw))
         var f = MPRNumber(repeating: 0, count: 8)
         var s0 = MPRNumber(repeating: 0, count: mpnw+6)
         var s1 = s0; var s2 = s0
+        var a = a.trimmingCharacters(in: CharacterSet.whitespaces)   // mutable version of input string
         
-        // write (6, *) "mpctomp: a, n, mpnw =", n, mpnw
-        // write (6, "(100a1)") "X",(a(i),i=1,n),"X"
+        func abort(_ error: Int) {
+            print ("*** MPCTOMP: Syntax error in input string; code = \(error)",
+                "Restrictions: (a) no embedded blanks; (b) a leading digit (possibly",
+                "zero) must be present; and (c) a period must be present.  An exponent",
+                "(with 'd' or 'e') may optionally follow the numeric value.")
+        }
         
         // End of declaration
         
@@ -97,47 +105,38 @@ extension mpfun {
         
         mpnw1 = mpnw + 1
         kde = 0
-        kend = 0
-        kexpend = 0
-        kexpst = 0
-        kexpsgn = 0
-        knumend1 = 0
-        knumend2 = 0
-        knumst1 = 0
-        knumst2 = 0
+        kend = a.count
         kper = 0
-        ksgn = 0
-        kstart = 0
+        ksgn = " "
+        kexpsgn = "+"
         
         //   Locate:
         //     kstart = index of first nonblank character.
         //     kend = index of last nonblank character.
         
-        for i in 1...n {
-            if (a[i] != " ")  { goto 100 }
-        }
-        
+//        for i in 1...n {
+//            if (a[i] != " ")  { goto 100 }
+//        }
+//
         //   Input is completely blank.
-        
-        print ("*** MPCTOMP: Syntax error in input string; code = \(i4)",
-            "Restrictions: (a) no embedded blanks; (b) a leading digit (possibly",
-            "zero) must be present; and (c) a period must be present.  An exponent",
-            "(with "d" or "e") may optionally follow the numeric value.")
-        mpabrt (41)
-        
-        100 continue
-        
-        kstart = i
-        
-        for i in n, kstart, -1 {
-            if (a[i] /= " ") goto 110
+        if a.isEmpty {
+            abort(4)
+            mpabrt (41)
         }
         
-        i = kstart
-        
-        110 continue
-        
-        kend = i
+//        100 continue
+//
+//        kstart = i
+//
+//        for i in n, kstart, -1 {
+//            if (a[i] /= " ") goto 110
+//        }
+//
+//        i = kstart
+//
+//        110 continue
+//
+//        kend = i
         
         //   Scan input for:
         //     kde = index of "d" or "e".
@@ -151,55 +150,51 @@ extension mpfun {
         //     kper = index of period.
         //     ksgn = index of sign of number.
         
-        for i in kstart...kend {
-            if (a[i] == " ") {
-                write (6, 2) 2
+        for (i, ch) in a.enumerated() {
+            if ch.isWhitespace {
+                abort(2)
                 mpabrt (41)
-            } else if (a[i] == "+" || a[i] == "-") {
-                if (i == kstart) {
-                    ksgn = i
-                } else if (kde > 0 .and. kexpsgn == 0 .and. kexpst == 0 .and. i < kend) {
-                    kexpsgn = i
+            } else if ch == "+" || ch == "-" {
+                if i == 0 {
+                    ksgn = ch
+                } else if kde > 0 && kexpst.isEmpty && i < kend {
+                    kexpsgn = ch
                 } else {
-                    write (6, 2) 3
+                    abort(3)
                     mpabrt (41)
                 }
-            } else if (a[i] == "e" || a[i] == "E" || a[i] == "d" || a[i] == "D") {
-                if (kde == 0 .and. kper > 0 .and. i < kend) {
+            } else if ch == "e" || ch == "E" || ch == "d" || ch == "D" {
+                if kde == 0 && kper > 0 && i < kend {
                     kde = i
-                    knumend2 = i - 1
                 } else {
-                    write (6, 2) 4
+                    abort(4)
                     mpabrt (41)
                 }
-            } else if (a[i] == ".") {
-                if (kper == 0 .and. kde == 0 .and. knumst1 > 0 .and. knumst2 == 0) {
+            } else if ch == "." {
+                if kper == 0 && kde == 0 && !knumst.isEmpty { // knumst1 > 0 && knumst2 == 0 {
                     kper = i
-                    knumend1 = i - 1
                 } else {
-                    write (6, 2) 5
+                    abort(5)
                     mpabrt (41)
                 }
-            } else if (index (digits, a[i]) > 0) {
-                if (knumst1 == 0) {
-                    knumst1 = i
-                } else if (kper > 0 .and. knumst2 == 0 .and. kde ==  0) {
-                    knumst2 = i
-                } else if (kde > 0 .and. kexpst == 0) {
-                    kexpst = i
-                }
-                if (i == kend) {
-                    if (knumst2 > 0 .and. kde == 0) {
-                        knumend2 = i
-                    } else if (kexpst > 0) {
-                        kexpend = i
+            } else if ch.isNumber {
+                if kexpst.isEmpty {
+                    if kper == 0 {
+                        knumst.append(ch)
                     } else {
-                        write (6, 2) 6
+                        knumst2.append(ch)
+                    }
+                } else {
+                    kexpst.append(ch)
+                }
+                if i == kend {
+                    if kde != 0 && kexpst.isEmpty {
+                        abort(6)
                         mpabrt (41)
                     }
                 }
             } else {
-                write (6, 2) 7
+                abort(7)
                 mpabrt (41)
             }
         }
@@ -210,65 +205,59 @@ extension mpfun {
         
         //   Decode exponent.
         
-        if (kexpst > 0) {
-            lexp = kexpend - kexpst + 1
+        if !kexpst.isEmpty {
+            lexp = kexpst.count
             if (lexp > lexpmx) {
                 print ("*** MPCTOMP: exponent string is too long.")
                 mpabrt (85)
             }
             
-            for i in 1, lexp {
-                ca[i:i] = a[i+kexpst-1)
-            }
+//            for i in 1...lexp {
+//                ca[i:i] = a[i+kexpst-1]
+//            }
             
-            iexp = mpdigin (ca, lexp)
-            if (kexpsgn > 0) {
-                if (a[kexpsgn] == "-") iexp = -iexp
-            }
+            iexp = Int(mpdigin (kexpst, lexp))
+            if kexpsgn == "-" { iexp = -iexp }
         } else {
             iexp = 0
         }
         
         //   Determine sign of number.
         
-        if (ksgn == 0) {
+        if ksgn == " " {
             isgn = 1
-        } else if (a[ksgn] == "+") {
+        } else if ksgn == "+" {
             isgn = 1
-        } else if (a[ksgn] == "-") {
+        } else if ksgn == "-" {
             isgn = -1
         }
         
         //   Determine lengths of two sections of number.
         
-        lnum1 = knumend1 - knumst1 + 1
-        if (knumst2 > 0) {
-            lnum2 = knumend2 - knumst2 + 1
-        } else {
-            lnum2 = 0
-        }
+        lnum1 = knumst.count
+        lnum2 = knumst2.count
         lnum = lnum1 + lnum2
+        knumst += knumst2       // combine numerical strings
         
         // write (6, *) "iexp, lnum1, lnum2 =", iexp, lnum1, lnum2
         
         //   Determine the number of chunks of digits and the left-over.
         
         n1 = lnum / mpndpw
-        n2 = mod (lnum, mpndpw)
+        n2 = lnum % mpndpw
         
         //   Construct first (left-over) portion, right-justified in CA.
-        
-        ca[1:mpndpw - n2] = " "
-        ix = knumst1 - 1
-        
-        for i in 1, n2 {
-            ix = ix + 1
-            if (ix == kper) ix = ix + 1
-            ca[i+mpndpw-n2:i+mpndpw-n2] = a[ix]
-        }
+    
+//        ix = knumst1 - 1
+        ca = String(knumst.prefix(n2))
+        knumst = String(knumst.dropFirst(n2))
+//        for i in 1...n2 {
+//            ix = ix + 1
+//            ca[i+mpndpw-n2:i+mpndpw-n2] = a[ix]
+//        }
         
         t1 = mpdigin (ca, mpndpw)
-        if (t1 > 0) {
+        if t1 > 0 {
             f[2] = 1.0
             f[3] = 0.0
             f[4] = t1
@@ -277,16 +266,18 @@ extension mpfun {
             f[3] = 0.0
             f[4] = 0.0
         }
-        mpeq (f, s0, mpnw1)
+        mpeq (f, &s0, mpnw1)
         
         //   Process remaining chunks of digits.
         
-        for j = 1, n1 {
-            for i in 1, mpndpw {
-                ix = ix + 1
-                if (ix == kper) ix = ix + 1
-                ca[i:i] = a[ix]
-            }
+        for _ in 1...n1 {
+//            for i in 1...mpndpw {
+//                ix = ix + 1
+//                if (ix == kper) { ix = ix + 1 }
+//                ca[i:i] = a[ix]
+//            }
+            ca = String(knumst.prefix(mpndpw))
+            knumst = String(knumst.dropFirst(mpndpw))
             
             t1 = mpdigin (ca, mpndpw)
             if (t1 > 0) {
@@ -299,8 +290,8 @@ extension mpfun {
                 f[4] = 0.0
             }
             
-            mpmuld (s0, d10w, s1, mpnw1)
-            mpadd (s1, f, s0, mpnw1)
+            mpmuld (s0, d10w, &s1, mpnw1)
+            mpadd (s1, f, &s0, mpnw1)
         }
         
         //  Correct exponent.
@@ -309,55 +300,43 @@ extension mpfun {
         f[2] = 1.0
         f[3] = 0.0
         f[4] = 10.0
-        mpnpwr (f, iexp, s1, mpnw1)
-        mpmul (s0, s1, s2, mpnw1)
-        if (ksgn > 0) {
-            if (a[ksgn] == "-") { s2[2] = -s2[2] }
-        }
+        mpnpwr (f, iexp, &s1, mpnw1)
+        mpmul (s0, s1, &s2, mpnw1)
+        if ksgn == "-" { s2[2] = -s2[2] }
         
         //   Restore original precision and exit.
         
-        mproun (s2, mpnw)
-        mpeq (s2, b, mpnw)
+        mproun (&s2, mpnw)
+        mpeq (s2, &b, mpnw)
         
         // write (6, *) "mpctomp: output ="
         // mpout (6, 420, 400, b, mpnw)
         
     } // mpctomp
     
-//real (mprknd) function mpdigin (ca, n) {
-//
-//    //   This converts the string CA of nonblank length N to double precision.
-//    //   CA may only be modest length and may only contain digits.  Blanks are ignored.
-//    //   This is intended for internal use only.
-//
-//    implicit none
-//    real (mprknd) d1
-//    character(*) ca
-//    character(10) digits
-//    integer i, k, n
-//    parameter (digits = "0123456789")
-//
-//    // End of declaration
-//
-//    d1 = 0.0
-//
-//    for i in 1, n
-//    if (ca[i:i) /= " ") {
-//    k = index (digits, ca[i:i)) - 1
-//    if (k < 0) {
-//    write (mpldb, 1) ca[i:i)
-//    1       format ("*** MPDIGIN: non-digit in character string = ",a)
-//    mpabrt (86)
-//    } else if (k <= 9) {
-//    d1 = 10.0 * d1 + k
-//    }
-//    }
-//    }
-//
-//    mpdigin = d1
-//    end function mpdigin
-//
+    static func mpdigin (_ ca : String, _ n : Int) -> Double {
+        
+        //   This converts the string CA of nonblank length N to double precision.
+        //   CA may only be modest length and may only contain digits.  Blanks are ignored.
+        //   This is intended for internal use only.
+        var k : Int
+        
+        var d1 = 0.0
+        for ch in ca {
+            if !ch.isWhitespace {
+                k = ch.wholeNumberValue ?? -1
+                if k < 0 {
+                    print ("*** MPDIGIN: non-digit in character string = \(ch)")
+                    mpabrt (86)
+                } else if k <= 9 {
+                    d1 = 10.0 * d1 + Double(k)
+                }
+            }
+        }
+        
+        return d1
+    } //  mpdigin
+
 //    character(32) function mpdigout (a, n)
 //
 //    //   This converts the double precision input A to a character(32) string of
@@ -514,7 +493,7 @@ extension mpfun {
 //    //   Insert the digits of the remaining words.
 //
 //    for j = 1, nl
-//    if (s1(2) /= 0.0 .and. s1(3) == 0.0) {
+//    if (s1(2) /= 0.0 && s1(3) == 0.0) {
 //    an = s1(4)
 //    f(2) = 1.0
 //    f(3) = 0.0
@@ -866,7 +845,7 @@ extension mpfun {
 //    for i in 1, ln1
 //    if (line1(i:i) == "\") goto 100
 //    i1 = index (validc, line1(i:i))
-//    if (i1 == 0 .and. line1(i:i) /= " ") {
+//    if (i1 == 0 && line1(i:i) /= " ") {
 //    write (6, 2) line1(i:i)
 //    2     format ("*** MPINP: Invalid input character = ",a)
 //    mpabrt (87)

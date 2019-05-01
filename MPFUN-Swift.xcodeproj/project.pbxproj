@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2F4246B92279C55300977451 /* consts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FC8145227849DE00612B55 /* consts.swift */; };
 		2FA565F522786DED00DA1998 /* funcs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FA565F422786DED00DA1998 /* funcs.swift */; };
-		472C45242279A7E600BD66D8 /* consts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FC8145227849DE00612B55 /* consts.swift */; };
 		472C45262279ADEA00BD66D8 /* inout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 472C45252279ADEA00BD66D8 /* inout.swift */; };
 		47EF0A352275B3760038855B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47EF0A342275B3760038855B /* AppDelegate.swift */; };
 		47EF0A372275B3760038855B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47EF0A362275B3760038855B /* ViewController.swift */; };
@@ -224,7 +224,7 @@
 				47EF0A372275B3760038855B /* ViewController.swift in Sources */,
 				472C45262279ADEA00BD66D8 /* inout.swift in Sources */,
 				47EF0A352275B3760038855B /* AppDelegate.swift in Sources */,
-				472C45242279A7E600BD66D8 /* consts.swift in Sources */,
+				2F4246B92279C55300977451 /* consts.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
