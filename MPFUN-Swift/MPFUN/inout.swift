@@ -774,86 +774,81 @@ extension mpfun {
         }
     } // mpfformat
 
-// static func mpinp (iu, a, mpnw) {
-//
-//    //   This routine reads the MPR number A from logical unit IU.  The digits of A
-//    //   may span more than one line, provided that a "\" appears at the end of
-//    //   a line to be continued (any characters after the "\" on the same line
-//    //   are ignored).  Individual input lines may not exceed 2048 characters in
-//    //   length, although this limit can be changed in the system parameters
-//    //   (parameter mpnstr) in module MPFUNA.  Embedded blanks are allowed anywhere.
-//    //   An exponent with "e" or "d" may optionally follow the numeric value.
-//
-//    //   A scratch array below (CHR1) holds character data for input to mpctomp.
-//    //   It is dimensioned MPNW * (MPNDPW + 1) + 1000 (see below).  If more nonblank
-//    //   input characters than this are input, they are ignored.
-//
-//    implicit none
-//    integer i, i1, iu, lnc1, lncx, ln1, mpnw
-//    character(mpnstr) line1
-//    character(18) validc
-//    parameter (validc = " 0123456789+-.dDeE")
-//    character(1) chr1(mpnw*(mpndpw+1)+1000)
-//    real (mprknd) a[0:)
-//
-//    // End of declaration
-//
-//    if (mpnw < 4 || a[0) < mpnw + 6) {
-//    write (mpldb, 1)
-//    1 format ("*** MPINP: uninitialized or inadequately sized arrays")
-//    mpabrt (99)
-//    }
-//
-//    lnc1 = 0
-//    lncx = mpnw * (mpndpw + 1) + 1000
-//
-//    100 continue
-//
-//    read (iu, "(a)", end = 200) line1
-//
-//    //   Find the last nonblank character.
-//
-//    for i in mpnstr, 1, -1
-//    if (line1(i:i) /= " ") goto 110
-//    }
-//
-//    //   Input line is blank -- ignore.
-//
-//    goto 100
-//
-//    110 continue
-//
-//    ln1 = i
-//
-//    //   Scan input line, looking for valid characters.
-//
-//    for i in 1, ln1
-//    if (line1(i:i) == "\") goto 100
-//    i1 = index (validc, line1(i:i))
-//    if (i1 == 0 && line1(i:i) /= " ") {
-//    write (6, 2) line1(i:i)
-//    2     format ("*** MPINP: Invalid input character = ",a)
-//    mpabrt (87)
-//    } else if (line1(i:i) .ne. " ") {
-//    if (lnc1 < lncx) {
-//    lnc1 = lnc1 + 1
-//    chr1(lnc1) = line1(i:i)
-//    }
-//    }
-//    }
-//
-//    mpctomp (chr1, lnc1, a, mpnw)
-//    goto 300
-//
-//    200  continue
-//
-//    write (mpldb, 4)
-//    4 format ("*** MPINP: End-of-file encountered.")
-//    mpabrt (72)
-//
-//    300 return
-//    } // mpinp
-//
+    static func mpinp (_ iu : URL, _ a : MPRNumber, _ mpnw : Int) {
+        
+        //   This routine reads the MPR number A from file URL IU.  The digits of A
+        //   may span more than one line, provided that a "\" appears at the end of
+        //   a line to be continued (any characters after the "\" on the same line
+        //   are ignored).  Individual input lines may not exceed 2048 characters in
+        //   length, although this limit can be changed in the system parameters
+        //   (parameter mpnstr) in module MPFUNA.  Embedded blanks are allowed anywhere.
+        //   An exponent with "e" or "d" may optionally follow the numeric value.
+        
+        //   A scratch array below (CHR1) holds character data for input to mpctomp.
+        //   It is dimensioned MPNW * (MPNDPW + 1) + 1000 (see below).  If more nonblank
+        //   input characters than this are input, they are ignored.
+        
+        var i1, iu, lnc1, lncx, ln1 : Int
+        var line1, chr1 : String
+        let validc = " 0123456789+-.dDeE"
+        
+        // End of declaration
+        
+        if mpnw < 4 || a[0] < Double(mpnw + 6) {
+            print ("*** MPINP: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        lnc1 = 0
+        lncx = mpnw * (mpndpw + 1) + 1000
+        
+        //100 continue
+        lab1:
+            while true {
+                read (iu, "(a)", end = 200) line1
+                
+                //   Find the last nonblank character.
+                
+                for i in mpnstr, 1, -1 {
+                    if (line1[i] != " ") { break lab1 /* goto 110 */ }
+                }
+                
+                //   Input line is blank -- ignore.
+                
+                // goto 100
+        }
+        
+        //110 continue
+        
+        ln1 = i
+        
+        //   Scan input line, looking for valid characters.
+        
+        for i in 1...ln1 {
+            if (line1[i] == "\\") { /* goto 100 */ }
+            i1 = index (validc, line1[i])
+            if (i1 == 0 && line1[i] != " ") {
+                print ("*** MPINP: Invalid input character = \(line1[i])")
+                mpabrt (87)
+            } else if (line1[i] != " ") {
+                if (lnc1 < lncx) {
+                    lnc1 = lnc1 + 1
+                    chr1[lnc1] = line1[i]
+                }
+            }
+        }
+        
+        mpctomp (chr1, lnc1, a, mpnw)
+        return
+            
+        200  continue
+        
+        print ("*** MPINP: End-of-file encountered.")
+        mpabrt (72)
+        
+        //300 return
+    } // mpinp
+
 //    static func mpout (iu, ln, nd, a, mpnw)
 //
 //    //   This routine writes MPR number A to logical unit IU in E(LN,ND) format.
