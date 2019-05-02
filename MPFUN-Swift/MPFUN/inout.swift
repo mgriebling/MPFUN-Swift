@@ -346,250 +346,257 @@ extension mpfun {
         var d1, d2 : Double
         var ca : String
         let digits = "0123456789"
-        var i, k, n : Int
+        var k : Int
         
         // End of declaration
         
         ca = " "
         d1 = abs (a)
         
-        for i in 1...n {
+        for _ in 1...n {
             d2 = aint (d1 / 10.0)
-            k = 1.0 + (d1 - 10.0 * d2)
+            k = Int(d1 - 10.0 * d2)
             d1 = d2
-            ca = digits[digits.index(digits.startIndex, offsetBy: k)] + ca
+            ca = String(digits[digits.index(digits.startIndex, offsetBy: k)]) + ca
         }
         
         return ca
     } // mpdigout
 
-//    static func mpeformat (a, nb, nd, b, mpnw)
-//
-//    //   Converts the MPR number A into character form in the character(1) array B.
-//    //   NB (input) is the length of the output string, and ND (input) is the
-//    //   number of digits after the decimal point.  The format is analogous to
-//    //   Fortran E format.  The result is left-justified among the NB cells of B.
-//    //   The condition NB >= ND + 10 must hold or an error message will result.
-//    //   NB cells must be available in array B.
-//
-//    implicit none
-//    integer i, ia, ix, ixp, i1, i2, j, k, mpnw, mpnw1, na, nb, nd, nexp, nl
-//    character(1) b(nb), b2(nb+50)
-//    character(10) digits
-//    parameter (digits = "0123456789")
-//    character(32) ca
-//    real (mprknd) aa, an, t1, t2
-//    real (mprknd) a[0:), f(0:8), s0(0:mpnw+6), s1(0:mpnw+6), d10w
-//
-//    // End of declaration
-//
-//    if (mpnw < 4 || a[0) < abs (a[2)) + 4 || nb < nd + 10) {
-//    write (mpldb, 1)
-//    1 format ("*** MPEFORMAT: uninitialized or inadequately sized arrays")
-//    mpabrt (99)
-//    }
-//
-//    d10w = 10.0**mpndpw
-//    ia = sign (1.0, a[2))
-//    na = min (int (abs (a[2))), mpnw)
-//    s0(0) = mpnw + 7
-//    s1(0) = mpnw + 7
-//    mpnw1 = mpnw + 1
-//
-//    //   Set f = 10.
-//
-//    f(0) = 9.0
-//    f(1) = mpnw1
-//    f(2) = 1.0
-//    f(3) = 0.0
-//    f(4) = 10.0
-//    f(5) = 0.0
-//    f(6) = 0.0
-//
-//    //   Determine power of ten for exponent, and scale input to within 1 and 10.
-//
-//    if (na > 0) {
-//    aa = a[4)
-//    if (na .ge. 2) aa = aa + mprdx * a[5)
-//    if (na .ge. 3) aa = aa + mprx2 * a[6)
-//    t1 = log10 (2.0) * mpnbt * a[3) + log10 (aa)
-//
-//    if (t1 .ge. 0.0) {
-//    nexp = t1
-//    } else {
-//    nexp = t1 - 1.0
-//    }
-//
-//    if (nexp == 0) {
-//    mpeq (a, s1, mpnw1)
-//    } else if (nexp > 0) {
-//    mpnpwr (f, nexp, s0, mpnw1)
-//    mpdiv (a, s0, s1, mpnw1)
-//    } else if (nexp < 0) {
-//    mpnpwr (f, - nexp, s0, mpnw1)
-//    mpmul (a, s0, s1, mpnw1)
-//    }
-//
-//    //   If we didn"t quite get it exactly right, multiply or divide by 10 to fix.
-//
-//    100 continue
-//
-//    if (s1(3) < 0.0) {
-//    nexp = nexp - 1
-//    mpmuld (s1, 10.0, s0, mpnw1)
-//    mpeq (s0, s1, mpnw1)
-//    goto 100
-//    } else if (s1(4) >= 10.0) {
-//    nexp = nexp + 1
-//    mpdivd (s1, 10.0, s0, mpnw1)
-//    mpeq (s0, s1, mpnw1)
-//    goto 100
-//    }
-//
-//    s1(2) = abs (s1(2))
-//    } else {
-//    nexp = 0
-//    mpeq (a, s1, mpnw1)
-//    }
-//
-//    //   Insert sign and first digit.
-//
-//    ix = 0
-//    if (ia == -1) {
-//    ix = ix + 1
-//    b2(ix) = "-"
-//    }
-//    if (na > 0) {
-//    an = s1(4)
-//    } else {
-//    an = 0.0
-//    }
-//    ca = mpdigout (an, 1)
-//    ix = ix + 1
-//    b2(ix) = ca[1:1)
-//    ix = ix + 1
-//    b2(ix) = "."
-//    ixp = ix
-//
-//    //   Set f = an.
-//
-//    f(0) = 9.0
-//    f(1) = mpnw1
-//    f(2) = 1.0
-//    f(3) = 0.0
-//    f(4) = an
-//    f(5) = 0.0
-//    f(6) = 0.0
-//    mpsub (s1, f, s0, mpnw1)
-//    mpmuld (s0, d10w, s1, mpnw1)
-//
-//    //   Calculate the number of remaining chunks.
-//
-//    nl = nd / mpndpw + 1
-//
-//    //   Insert the digits of the remaining words.
-//
-//    for j = 1, nl
-//    if (s1(2) /= 0.0 && s1(3) == 0.0) {
-//    an = s1(4)
-//    f(2) = 1.0
-//    f(3) = 0.0
-//    f(4) = an
-//    else
-//    f(2) = 0.0
-//    f(3) = 0.0
-//    f(4) = 0.0
-//    an = 0.0
-//    }
-//
-//    ca = mpdigout (an, mpndpw)
-//
-//    for i in 1, mpndpw
-//    ix = ix + 1
-//    if (ix > nb + 50) {
-//    write (6, 2)
-//    2     format ("MPEFORMAT: Insufficient space in B2 array.")
-//    mpabrt (84)
-//    }
-//    b2(ix) = ca[i:i)
-//    }
-//
-//    mpsub (s1, f, s0, mpnw1)
-//    mpmuld (s0, d10w, s1, mpnw1)
-//    }
-//
-//    //   Round the result.
-//
-//    if (ix >= nd + 1) {
-//    i1 = index (digits, b2(nd+1)) - 1
-//    if (i1 >= 5) {
-//
-//    //   Perform rounding, beginning at the last digit (position ND).  If the rounded
-//    //   digit is 9, set to 0, then repeat at position one digit to left.  Continue
-//    //   rounding if necessary until the decimal point is reached.
-//
-//    for i in nd, ixp + 1, -1
-//    i2 = index (digits, b2(i)) - 1
-//    if (i2 <= 8) {
-//    b2(i) = digits(i2+2:i2+2)
-//    goto 180
-//    else
-//    b2(i) = "0"
-//    }
-//    }
-//
-//    //   We have rounded up all digits to the right of the decimal point.  If the
-//    //   digit to the left of the decimal point is a 9, { set that digit to 1
-//    //   and increase the exponent by one; otherwise increase that digit by one.
-//
-//    if (b2(ixp-1) == "9") {
-//    b2(ixp-1) = "1"
-//    nexp = nexp + 1
-//    else
-//    i1 = index (digits, b2(ixp-1)) - 1
-//    b2(ixp-1) = digits(i1+2:i1+2)
-//    }
-//    }
-//    }
-//
-//    180 continue
-//
-//    //   Done with mantissa.  Insert exponent.
-//
-//    ix = nd + 1
-//    b2(ix) = "e"
-//    if (nexp < 0) {
-//    ix = ix + 1
-//    b2(ix) = "-"
-//    }
-//    ca = mpdigout (dble (abs (nexp)), 10)
-//
-//    for k = 1, 10
-//    if (ca[k:k) /= "0") goto 190
-//    }
-//
-//    k = 10
-//
-//    190 continue
-//
-//    for i in k, 10
-//    ix = ix + 1
-//    b2(ix) = ca[i:i)
-//    }
-//
-//    for i in ix + 1, nb
-//    b2(i) = " "
-//    }
-//
-//    //   Copy entire b2 array to B.
-//
-//    for i in 1, nb
-//    b(i) = b2(i)
-//    }
-//
-//    return
-//    } // mpeformat
-//
+    static func mpeformat (_ a : MPRNumber, _ nb : Int, _ nd : Int, _ b : inout String, _ mpnw : Int) {
+        
+        //   Converts the MPR number A into character form in the character(1) array B.
+        //   NB (input) is the length of the output string, and ND (input) is the
+        //   number of digits after the decimal point.  The format is analogous to
+        //   Fortran E format.  The result is left-justified among the NB cells of B.
+        //   The condition NB >= ND + 10 must hold or an error message will result.
+        //   NB cells must be available in array B.
+        
+        var ia, ix, ixp, i1, i2, mpnw1, na, nexp, nl : Int
+        var ca, b2 : String
+        let digits = "0123456789"
+        var aa, an, t1, d10w : Double
+        var f = MPRNumber(repeating: 0, count: 8)
+        var s0 = MPRNumber(repeating: 0, count: mpnw+6)
+        var s1 = s0
+        
+        // End of declaration
+        
+        if mpnw < 4 || a[0] < abs (a[2]) + 4 || nb < (nd + 10) {
+            print ("*** MPEFORMAT: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        d10w = pow(10, Double(mpndpw))
+        ia = sign (1.0, a[2])
+        na = min (Int (abs (a[2])), mpnw)
+        s0[0] = Double(mpnw + 7)
+        s1[0] = Double(mpnw + 7)
+        mpnw1 = mpnw + 1
+        
+        //   Set f = 10.
+        
+        f[0] = 9.0
+        f[1] = Double(mpnw1)
+        f[2] = 1.0
+        f[3] = 0.0
+        f[4] = 10.0
+        f[5] = 0.0
+        f[6] = 0.0
+        
+        //   Determine power of ten for exponent, and scale input to within 1 and 10.
+        
+        if (na > 0) {
+            aa = a[4]
+            if (na >= 2) { aa = aa + mprdx * a[5] }
+            if (na >= 3) { aa = aa + mprx2 * a[6] }
+            t1 = log10 (2.0) * Double(mpnbt) * a[3] + log10 (aa)
+            
+            if (t1 >= 0.0) {
+                nexp = Int(t1)
+            } else {
+                nexp = Int(t1 - 1.0)
+            }
+            
+            if (nexp == 0) {
+                mpeq (a, &s1, mpnw1)
+            } else if (nexp > 0) {
+                mpnpwr (f, nexp, &s0, mpnw1)
+                mpdiv (a, s0, &s1, mpnw1)
+            } else if (nexp < 0) {
+                mpnpwr (f, -nexp, &s0, mpnw1)
+                mpmul (a, s0, &s1, mpnw1)
+            }
+            
+            //   If we didn"t quite get it exactly right, multiply or divide by 10 to fix.
+            
+            // 100 continue
+            repeat {
+                if (s1[3] < 0.0) {
+                    nexp = nexp - 1
+                    mpmuld (s1, 10.0, &s0, mpnw1)
+                    mpeq (s0, &s1, mpnw1)
+                    // goto 100
+                } else if (s1[4] >= 10.0) {
+                    nexp = nexp + 1
+                    mpdivd (s1, 10.0, &s0, mpnw1)
+                    mpeq (s0, &s1, mpnw1)
+                    // goto 100
+                } else {
+                    break
+                }
+            } while true
+            
+            s1[2] = abs (s1[2])
+        } else {
+            nexp = 0
+            mpeq (a, &s1, mpnw1)
+        }
+        
+        //   Insert sign and first digit.
+        
+        b2 = ""
+        if ia == -1 {
+            b2.append("-")
+        }
+        if na > 0 {
+            an = s1[4]
+        } else {
+            an = 0.0
+        }
+        ca = mpdigout (an, 1)
+        b2.append(ca.first!)
+        b2.append(".")
+        ixp = b2.count-1
+        
+        //   Set f = an.
+        
+        f[0] = 9.0
+        f[1] = Double(mpnw1)
+        f[2] = 1.0
+        f[3] = 0.0
+        f[4] = an
+        f[5] = 0.0
+        f[6] = 0.0
+        mpsub (s1, f, &s0, mpnw1)
+        mpmuld (s0, d10w, &s1, mpnw1)
+        
+        //   Calculate the number of remaining chunks.
+        
+        nl = nd / mpndpw + 1
+        
+        //   Insert the digits of the remaining words.
+        
+        for _ in 1...nl {
+            if (s1[2] != 0.0 && s1[3] == 0.0) {
+                an = s1[4]
+                f[2] = 1.0
+                f[3] = 0.0
+                f[4] = an
+            } else {
+                f[2] = 0.0
+                f[3] = 0.0
+                f[4] = 0.0
+                an = 0.0
+            }
+            
+            ca = mpdigout (an, mpndpw)
+            b2 += ca
+//            for i in 1...mpndpw {
+//                ix = ix + 1
+//                if ix > nb + 50 {
+//                    print ("MPEFORMAT: Insufficient space in B2 array.")
+//                    mpabrt (84)
+//                }
+//                b2[ix] = ca[i]
+//            }
+            
+            mpsub (s1, f, &s0, mpnw1)
+            mpmuld (s0, d10w, &s1, mpnw1)
+        }
+        
+        //   Round the result.
+        
+        if b2.count >= nd + 1 {
+            i1 = b2[b2.index(b2.startIndex, offsetBy: nd+1)].wholeNumberValue ?? 0
+            if i1 >= 5 {
+                
+                //   Perform rounding, beginning at the last digit (position ND).  If the rounded
+                //   digit is 9, set to 0, then repeat at position one digit to left.  Continue
+                //   rounding if necessary until the decimal point is reached.
+                var flag = false
+                for i in stride(from:nd-1, to:0, by:-1) {
+                    // manipulating characters in a Swift string is ... awkward
+                    let ix = b2.index(b2.startIndex, offsetBy: i)
+                    let r = Range(uncheckedBounds: (lower: ix, upper: ix))
+                    i2 = b2[ix].wholeNumberValue ?? 0  //index (digits, b2[i]) - 1
+                    if i2 <= 8 {
+                        b2.replaceSubrange(r, with: String(digits[digits.index(digits.startIndex, offsetBy: i2+1)]))
+//                        b2.remove(at: ix)
+//                        b2.insert(digits[digits.index(digits.startIndex, offsetBy: i2+1)], at: ix)
+//                        b2[i] = digits[i2+2]
+                        flag = true; break // goto 180
+                    } else {
+                        b2.replaceSubrange(r, with: "0")
+                    }
+                }
+                
+                //   We have rounded up all digits to the right of the decimal point.  If the
+                //   digit to the left of the decimal point is a 9, { set that digit to 1
+                //   and increase the exponent by one; otherwise increase that digit by one.
+                if !flag {
+                    let ix = b2.index(b2.startIndex, offsetBy: ixp-1)
+                    let r = Range(uncheckedBounds: (lower: ix, upper: ix))
+                    if b2[ix] == "9" {
+                        b2.replaceSubrange(r, with: "1")
+                        nexp = nexp + 1
+                    } else {
+                        i1 = b2[ix].wholeNumberValue ?? 0
+                        let ix = digits.index(digits.startIndex, offsetBy: i1+1)
+                        b2.replaceSubrange(r, with: String(digits[ix]))
+                    }
+                }
+            }
+        }
+        
+        // 180 continue
+        
+        //   Done with mantissa.  Insert exponent.
+        
+        ix = nd + 1
+        b2.append("e")
+        if nexp < 0 {
+            ix = ix + 1
+            b2.append("-")
+        }
+        ca = mpdigout (Double(abs (nexp)), 10)
+        
+        var gk = 10
+        for k in 0..<10 {
+            let ik = ca.index(ca.startIndex, offsetBy: k)
+            if ca[ik] != "0"  { gk = k; break /* goto 190 */ }
+        }
+        
+//        gk = 10
+        
+        // 190 continue
+        
+        for i in gk..<10 {
+            let ik = ca.index(ca.startIndex, offsetBy: i)
+            b2.append(ca[ik])
+        }
+        
+        for _ in 1...nb {
+            b2.append(" ")
+        }
+        
+        //   Copy entire b2 array to B.
+        b = b2
+//        for i in 1...nb {
+//            b[i] = b2[i]
+//        }
+    } // mpeformat
+
 //static func mpfformat (a, nb, nd, b, mpnw) {
 //
 //    //   Converts the MPR number A into character form in the character(1) array B.
@@ -607,7 +614,7 @@ extension mpfun {
 //    character(1) b(nb), b2(nb+20)
 //    character(16) ca
 //    real (mprknd) aa, an, an1, t1
-//    real (mprknd) a[0:), f(0:8), s0(0:mpnw+6), s1(0:mpnw+6)
+//    real (mprknd) a[0:), f[0:8), s0(0:mpnw+6), s1[0:mpnw+6)
 //    // character(16) mpdigout
 //
 //    // End of declaration
@@ -621,18 +628,18 @@ extension mpfun {
 //    ia = sign (1.0, a[2))
 //    na = min (int (abs (a[2))), mpnw)
 //    s0(0) = mpnw + 7
-//    s1(0) = mpnw + 7
+//    s1[0) = mpnw + 7
 //    mpnw1 = mpnw + 1
 //
 //    //   Set f = 10.
 //
-//    f(0) = 9.0
-//    f(1) = mpnw1
-//    f(2) = 1.0
-//    f(3) = 0.0
-//    f(4) = 10.0
-//    f(5) = 0.0
-//    f(6) = 0.0
+//    f[0) = 9.0
+//    f[1) = mpnw1
+//    f[2) = 1.0
+//    f[3) = 0.0
+//    f[4) = 10.0
+//    f[5) = 0.0
+//    f[6) = 0.0
 //
 //    nb2 = nb + 20
 //    mpeformat (a, nb2, nb, b2, mpnw+1)
