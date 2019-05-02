@@ -372,7 +372,7 @@ extension mpfun {
         //   The condition NB >= ND + 10 must hold or an error message will result.
         //   NB cells must be available in array B.
         
-        var ia, ix, ixp, i1, i2, mpnw1, na, nexp, nl : Int
+        var ia, ixp, i1, i2, mpnw1, na, nexp, nl : Int
         var ca, b2 : String
         let digits = "0123456789"
         var aa, an, t1, d10w : Double
@@ -563,10 +563,9 @@ extension mpfun {
         
         //   Done with mantissa.  Insert exponent.
         
-        ix = nd + 1
+        // ix = nd + 1
         b2.append("e")
         if nexp < 0 {
-            ix = ix + 1
             b2.append("-")
         }
         ca = mpdigout (Double(abs (nexp)), 10)
@@ -597,203 +596,185 @@ extension mpfun {
 //        }
     } // mpeformat
 
-//static func mpfformat (a, nb, nd, b, mpnw) {
+    
+    static func mpfformat (_ a : MPRNumber, _ nb : Int, _ nd : Int, _ b : inout String, _ mpnw : Int) {
+        
+        //   Converts the MPR number A into character form in the character(1) array B.
+        //   NB (input) is the length of the output string, and ND (input) is the
+        //   number of digits after the decimal point.  The format is analogous to
+        //   Fortran F format; the result is right-justified among the NB cells of B.
+        //   The condition NB >= ND + 10 must hold or an error message will result.
+        //   However, if it is found during execution that there is not sufficient space,
+        //   to hold all digits, the entire output field will be filled with asterisks.
+        //   NB cells of type character(1) must be available in B.
+        
+        var ixp, j, mpnw1, nb2, nexp : Int
+        var b2, ca : String
+        var t1 : Double
+        var f = MPRNumber(repeating: 0, count: 8)
+        var s0 = MPRNumber(repeating: 0, count: mpnw+6)
+        var s1 = s0
+        
+        // End of declaration
+        
+        if (mpnw < 4 || a[0] < abs (a[2]) + 4 || nb < nd + 10) {
+            print ("*** MPFFORMAT: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        // ia = sign (1.0, a[2])
+        // na = min (Int (abs (a[2])), mpnw)
+        s0[0] = Double(mpnw + 7)
+        s1[0] = Double(mpnw + 7)
+        mpnw1 = mpnw + 1
+        
+        //   Set f = 10.
+        
+        f[0] = 9.0
+        f[1] = Double(mpnw1)
+        f[2] = 1.0
+        f[3] = 0.0
+        f[4] = 10.0
+        f[5] = 0.0
+        f[6] = 0.0
+        
+        nb2 = nb + 20
+        b2 = ""
+        mpeformat (a, nb2, nb, &b2, mpnw+1)
+        
+        //   Trim off trailing blanks.
+        b2 = b2.trimmingCharacters(in: .whitespaces)
+        //        for i in stride(from:nb2, to:1, by:-1) {
+        //            if b2[i] != " " { goto 90 }
+        //        }
+        //
+        //        90 continue
+        
+        nb2 = b2.count
+        
+        //   Look for the "e" in B2.
+        var k = b2.startIndex
+        if let index = b2.firstIndex(of: "e") {
+            k = index
+        } else {
+            //        for k in 1...nb2 {
+            //            if b2[k] == "e" { goto 100 }
+            //        }
+            print ("*** MPFFORMAT: Syntax error in output of mpeformat")
+            mpabrt (84)
+        }
+        
+        // 100 continue
+        
+        //   Check the sign of the exponent.
+        k = b2.index(k, offsetBy: 1) //   k = k + 1
+        if b2[k] == "-" {
+            ixp = -1
+            k = b2.index(k, offsetBy: 1) // k = k + 1
+        } else {
+            ixp = 1
+        }
+        j = 0
+        ca = " "
+        
+        //   Copy the exponent into CA.
+        
+        while k < b2.endIndex {
+            k = b2.index(k, offsetBy: 1)
+            j = j + 1
+            if (j <= 16) { ca.append(b2[k]) }
+        }
+        
+        t1 = mpdigin (ca, j)
+        
+        //   Check if there is enough space in the ouput array for all digits.
+        b = ""
+        if Int(t1) + nd + 3 > nb {
+            b = b.padding(toLength: nb, withPad: "*", startingAt: 0)
+//            for i in 1...nb {
+//                b[i] = "*"
+//            }
+            
+            // goto 200
+        } else {
+            nexp = ixp * Int(t1)
+            
+            //   Insert the sign of the number, if any.
+            
+            if b2.first! == "-" {
+                b.append(b2.removeFirst())
+            }
+            
+            if nexp == 0 {
+                
+                //   Exponent is zero.  Copy first digit, period and ND more digits.
+                
+                for _ in 1...nd + 2 {
+                    b.append(b2.removeFirst())
+                }
+                
+                //  goto 200
+            } else if nexp > 0 {
+                
+                //   Exponent is positive.  Copy first digit, skip the period, then copy
+                //   nexp digits.
+                
+                b.append(b2.removeFirst())
+                b2.removeFirst()            // skip decimal point
+                
+                for _ in 1...nexp {
+                    b.append(b2.removeFirst())
+                }
+                
+                //   Insert the period.
+                
+                b.append(".")
+                
+                //   Copy nd more digits.
+                
+                for _ in 1...nd {
+                    b.append(b2.removeFirst())
+                }
+                
+                //goto 200
+            } else {
+                
+                //   Exponent is negative.  Insert a zero, then a period, then nexp - 1
+                //   zeroes, then the first digit, then the remaining digits up to ND total
+                //   fractional digits.
+                
+                b.append("0")
+                b.append(".")
+                
+                for _ in 1...nexp - 1 {
+                    b.append("0")
+                }
+                
+                b.append(b2.removeFirst())
+                b2.removeFirst()            // skip decimal point
+                
+                for _ in nexp...nd {
+                    b.append(b2.removeFirst())
+                }
+            }
+        }
+        
+        //200 continue
+        
+        //   Right-justify in field.
+        
+        let ki = nb - b.count
+        
+//        for i in 1...i1 {
+//            b[nb-i+1] = b[nb-i-ki+1]
+//        }
 //
-//    //   Converts the MPR number A into character form in the character(1) array B.
-//    //   NB (input) is the length of the output string, and ND (input) is the
-//    //   number of digits after the decimal point.  The format is analogous to
-//    //   Fortran F format; the result is right-justified among the NB cells of B.
-//    //   The condition NB >= ND + 10 must hold or an error message will result.
-//    //   However, if it is found during execution that there is not sufficient space,
-//    //   to hold all digits, the entire output field will be filled with asterisks.
-//    //   NB cells of type character(1) must be available in B.
-//
-//    implicit none
-//    integer i, ia, ix, ixp, i1, i2, j, k, mpnw, mpnw1, na, nb, nb2, nd, &
-//    nexp, nl, n2
-//    character(1) b(nb), b2(nb+20)
-//    character(16) ca
-//    real (mprknd) aa, an, an1, t1
-//    real (mprknd) a[0:), f[0:8), s0(0:mpnw+6), s1[0:mpnw+6)
-//    // character(16) mpdigout
-//
-//    // End of declaration
-//
-//    if (mpnw < 4 || a[0) < abs (a[2)) + 4 || nb < nd + 10) {
-//    write (mpldb, 1)
-//    1 format ("*** MPFFORMAT: uninitialized or inadequately sized arrays")
-//    mpabrt (99)
-//    }
-//
-//    ia = sign (1.0, a[2))
-//    na = min (int (abs (a[2))), mpnw)
-//    s0(0) = mpnw + 7
-//    s1[0) = mpnw + 7
-//    mpnw1 = mpnw + 1
-//
-//    //   Set f = 10.
-//
-//    f[0) = 9.0
-//    f[1) = mpnw1
-//    f[2) = 1.0
-//    f[3) = 0.0
-//    f[4) = 10.0
-//    f[5) = 0.0
-//    f[6) = 0.0
-//
-//    nb2 = nb + 20
-//    mpeformat (a, nb2, nb, b2, mpnw+1)
-//
-//    //   Trim off trailing blanks.
-//
-//    for i in nb2, 1, -1
-//    if (b2(i) /= " ") goto 90
-//    }
-//
-//    90 continue
-//
-//    nb2 = i
-//
-//    //   Look for the "e" in B2.
-//
-//    for k = 1, nb2
-//    if (b2(k) == "e") goto 100
-//    }
-//
-//    write (6, 2)
-//    2 format ("*** MPFFORMAT: Syntax error in output of mpeformat")
-//    mpabrt (84)
-//
-//    100 continue
-//
-//    //   Check the sign of the exponent.
-//
-//    k = k + 1
-//    if (b2(k) == "-") {
-//    ixp = -1
-//    k = k + 1
-//    else
-//    ixp = 1
-//    }
-//    j = 0
-//    ca = " "
-//
-//    //   Copy the exponent into CA.
-//
-//    for i in k, nb2
-//    j = j + 1
-//    if (j <= 16) ca[j:j) = b2(i)
-//    }
-//
-//    t1 = mpdigin (ca, j)
-//
-//    //   Check if there is enough space in the ouput array for all digits.`//
-//    if (t1 + nd + 3 > nb) {
-//    for i in 1, nb
-//    b(i) = "*"
-//    }
-//
-//    goto 200
-//    }
-//    nexp = ixp * t1
-//
-//    //   Insert the sign of the number, if any.
-//
-//    i1 = 0
-//    i2 = 0
-//    if (b2(1) == "-") {
-//    i1 = i1 + 1
-//    b(i1) = "-"
-//    i2 = i2 + 1
-//    }
-//
-//    if (nexp == 0) {
-//
-//    //   Exponent is zero.  Copy first digit, period and ND more digits.
-//
-//    for i in 1, nd + 2
-//    i1 = i1 + 1
-//    i2 = i2 + 1
-//    b(i1) = b2(i2)
-//    }
-//
-//    goto 200
-//    } else if (nexp > 0) {
-//
-//    //   Exponent is positive.  Copy first digit, skip the period, then copy
-//    //   nexp digits.
-//
-//    i1 = i1 + 1
-//    i2 = i2 + 1
-//    b(i1) = b2(i2)
-//    i2 = i2 + 1
-//
-//    for i in 1, nexp
-//    i1 = i1 + 1
-//    i2 = i2 + 1
-//    b(i1) = b2(i2)
-//    }
-//
-//    //   Insert the period.
-//
-//    i1 = i1 + 1
-//    b(i1) = "."
-//
-//    //   Copy nd more digits.
-//
-//    for i in 1, nd
-//    i1 = i1 + 1
-//    i2 = i2 + 1
-//    b(i1) = b2(i2)
-//    }
-//
-//    goto 200
-//    else
-//
-//    //   Exponent is negative.  Insert a zero, then a period, then nexp - 1
-//    //   zeroes, then the first digit, then the remaining digits up to ND total
-//    //   fractional digits.
-//
-//    i1 = i1 + 1
-//    b(i1) = "0"
-//    i1 = i1 + 1
-//    b(i1) = "."
-//
-//    for i in 1, nexp - 1
-//    i1 = i1 + 1
-//    b(i1) = "0"
-//    }
-//
-//    i1 = i1 + 1
-//    i2 = i2 + 1
-//    b(i1) = b2(i2)
-//    i2 = i2 + 1
-//
-//    for i in nexp, nd
-//    i1 = i1 + 1
-//    i2 = i2 + 1
-//    b(i1) = b2(i2)
-//    }
-//    }
-//
-//    200 continue
-//
-//    //   Right-justify in field.
-//
-//    k = nb - i1
-//
-//    for i in 1, i1
-//    b(nb-i+1) = b(nb-i-k+1)
-//    }
-//
-//    for i in 1, k
-//    b(i) = " "
-//    }
-//
-//    return
-//    } // mpfformat
-//
-//static func mpinp (iu, a, mpnw) {
+        for _ in 1...ki {
+            b.insert(" ", at: b.startIndex)
+        }
+    } // mpfformat
+
+// static func mpinp (iu, a, mpnw) {
 //
 //    //   This routine reads the MPR number A from logical unit IU.  The digits of A
 //    //   may span more than one line, provided that a "\" appears at the end of
