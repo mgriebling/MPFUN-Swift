@@ -55,9 +55,9 @@ import Foundation
 
 extension mpfun {
     
-    static func mpctomp (_ a: String, _ n: Int, _ b: inout MPRNumber, _ mpnw: Int) {
+    static func mpctomp (_ a: String, _ b: inout MPRNumber, _ mpnw: Int) {
         
-        //  Converts the character(1) array A of length N into the MPR number B.
+        //  Converts the string A into the MPR number B.
         //  Restrictions: (a) no embedded blanks; (b) a leading digit (possibly
         //  zero) must be present; and (c) a period must be present.  An exponent
         //  (with "d" or "e") may optionally follow the numeric value.
@@ -861,7 +861,7 @@ extension mpfun {
             }
         }
         
-        mpctomp (chr1, chr1.count, &a, mpnw)
+        mpctomp (chr1, &a, mpnw)
         
         //300 return
     } // mpinp

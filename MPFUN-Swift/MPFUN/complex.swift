@@ -139,7 +139,7 @@ extension Double : RealType {
 //    var i:Complex<Float>{ return Complex<Float>(0.0 as Float, self) }
 //}
 // el corazon
-struct Complex<T:RealType> : Equatable, Hashable {
+public struct Complex<T:RealType> : Equatable, Hashable {
 	var re:T
 	var im:T
 	
@@ -189,7 +189,7 @@ struct Complex<T:RealType> : Equatable, Hashable {
     var i:Complex { return Complex(-im, re) }
     
     // Hashable protocol conformance
-    func hash(into hasher: inout Hasher) {
+    public func hash(into hasher: inout Hasher) {
         hasher.combine(re)
         hasher.combine(im)
     }
@@ -207,13 +207,13 @@ infix operator =~ : ComparisonPrecedence
 infix operator !~ : ComparisonPrecedence
 
 // != is auto-generated thanks to Equatable
-func == <T>(lhs:Complex<T>, rhs:Complex<T>) -> Bool {
+public func == <T>(lhs:Complex<T>, rhs:Complex<T>) -> Bool {
     return lhs.re == rhs.re && lhs.im == rhs.im
 }
-func == <T>(lhs:Complex<T>, rhs:T) -> Bool {
+public func == <T>(lhs:Complex<T>, rhs:T) -> Bool {
     return lhs.re == rhs && lhs.im == T(0)
 }
-func == <T>(lhs:T, rhs:Complex<T>) -> Bool {
+public func == <T>(lhs:T, rhs:Complex<T>) -> Bool {
     return rhs.re == lhs && rhs.im == T(0)
 }
 // +, +=
@@ -466,7 +466,7 @@ func !~ <T>(lhs:T, rhs:Complex<T>) -> Bool {
     return !(lhs =~ rhs)
 }
 // typealiases
-typealias Complex64 = Complex<Double>
+public typealias Complex64 = Complex<Double>
 //typealias Complex32 = Complex<Float>
 
 

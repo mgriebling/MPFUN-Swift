@@ -51,7 +51,7 @@
 
 import Foundation
 
-class mpfun {
+public class mpfun {
     
     //----------------------------------------------------------------------------
     

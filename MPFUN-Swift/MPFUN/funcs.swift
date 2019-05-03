@@ -20,8 +20,8 @@ extension mpfun {
         return Double(Int(a))
     }
     
-    typealias MPRNumber = Array<Double>
-    typealias MPRComplex = Array<Complex64>
+    public typealias MPRNumber = Array<Double>
+    public typealias MPRComplex = Array<Complex64>
     
     static func mpabrt (_ ier : Int) {
         //  This routine terminates execution.  Users may wish to replace the
