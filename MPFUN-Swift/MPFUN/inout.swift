@@ -774,7 +774,7 @@ extension mpfun {
         }
     } // mpfformat
 
-    static func mpinp (_ iu : InputStream, _ a : MPRNumber, _ mpnw : Int) {
+    static func mpinp (_ iu : InputStream, _ a : inout MPRNumber, _ mpnw : Int) {
         
         //   This routine reads the MPR number A from InputStream IU.  The digits of A
         //   may span more than one line, provided that a "\" appears at the end of
@@ -800,6 +800,23 @@ extension mpfun {
             return Character(UnicodeScalar(buffer[0]))
         }
         
+        func getLine() -> String {
+            var line = ""
+            if !iu.hasBytesAvailable {
+                print ("*** MPINP: End-of-file encountered.")
+                mpabrt (72)
+                return ""
+            } else {
+                // find non-blank character
+                var ch : Character
+                repeat {
+                    ch = get()
+                    if !ch.isWhitespace { line.append(ch) }
+                } while (!ch.isNewline || line.isEmpty) && iu.hasBytesAvailable
+                return line
+            }
+        }
+        
         // End of declaration
         
         if mpnw < 4 || a[0] < Double(mpnw + 6) {
@@ -811,20 +828,7 @@ extension mpfun {
         lncx = mpnw * (mpndpw + 1) + 1000
         
         //100 continue
-        if !iu.hasBytesAvailable {
-            // 200  continue
-            
-            print ("*** MPINP: End-of-file encountered.")
-            mpabrt (72)
-        } else {
-            // find non-blank character
-            var ch : Character
-            line1 = ""
-            repeat {
-                ch = get()
-                if ch.isASCII { line1.append(ch) }
-            } while !ch.isNewline && iu.hasBytesAvailable
-        }
+
 //        lab1: while true {
 //                read (iu, "(a)", end = 200) line1
 //
@@ -841,64 +845,64 @@ extension mpfun {
         
         //110 continue
         
-        ln1 = i
+        // ln1 = i
         
         //   Scan input line, looking for valid characters.
-        
-        for i in 1...ln1 {
-            if (line1[i] == "\\") { /* goto 100 */ }
-            i1 = index (validc, line1[i])
-            if (i1 == 0 && line1[i] != " ") {
-                print ("*** MPINP: Invalid input character = \(line1[i])")
+        chr1 = ""
+        line1 = getLine()
+        for ch in line1 {
+//            if ch == "\\" { line1 = getLine() /* goto 100 */ }
+            let x = validc.firstIndex(of: ch)
+            if x == nil && !ch.isWhitespace {
+                print ("*** MPINP: Invalid input character = '\(ch)'")
                 mpabrt (87)
-            } else if (line1[i] != " ") {
-                if (lnc1 < lncx) {
-                    lnc1 = lnc1 + 1
-                    chr1[lnc1] = line1[i]
-                }
+            } else if !ch.isWhitespace {
+                chr1.append(ch)
             }
         }
         
-        mpctomp (chr1, lnc1, a, mpnw)
+        mpctomp (chr1, chr1.count, &a, mpnw)
         
         //300 return
     } // mpinp
 
-//    static func mpout (iu, ln, nd, a, mpnw)
-//
-//    //   This routine writes MPR number A to logical unit IU in E(LN,ND) format.
-//    //   This is output on MPOUTL characters per line.  The value of MPOUTL is set
-//    //   in the system parameters at the start of module MPFUNA.
-//
-//    implicit none
-//    integer i, iu, ln, ln1, mpnw, nd
-//    character(1) chr1(ln)
-//    character(32) cform1, cform2
-//    real (mprknd) a[0:)
-//
-//    // End of declaration
-//
-//    mpeformat (a, ln, nd, chr1, mpnw)
-//
-//    write (cform1, 1) mpoutl
-//    1 format ("(",i8,"a1)")
-//    write (cform2, 2) mpoutl
-//    2 format ("(",i8,"a1,"\")")
-//
-//    if (ln <= mpoutl) {
-//    write (iu, fmt = cform1) (chr1(i), i = 1, ln)
-//    } else if (mod (ln, mpoutl) == 0) {
-//    ln1 = mpoutl * (ln / mpoutl) - mpoutl
-//    write (iu, fmt = cform2) (chr1(i), i = 1, ln1)
-//    write (iu, fmt = cform1) (chr1(i), i = ln1 + 1, ln)
-//    } else {
-//    ln1 = mpoutl * (ln / mpoutl)
-//    write (iu, fmt = cform2) (chr1(i), i = 1, ln1)
-//    write (iu, fmt = cform1) (chr1(i), i = ln1 + 1, ln)
-//    }
-//
-//    return
-//    } // mpout
+    static func mpout (_ iu : OutputStream, _ ln : Int, _ nd : Int, _ a : MPRNumber, _ mpnw : Int) {
+        
+        //   This routine writes MPR number A to logical unit IU in E(LN,ND) format.
+        //   This is output on MPOUTL characters per line.  The value of MPOUTL is set
+        //   in the system parameters at the start of module MPFUNA.
+
+        var chr1 = ""
+        
+        // End of declaration
+        
+        mpeformat (a, ln, nd, &chr1, mpnw)
+        
+        //        write (cform1, 1) mpoutl
+        //        1 format ("(",i8,"a1)")
+        //        write (cform2, 2) mpoutl
+        //        2 format ("(",i8,"a1,"\")")
+        // convert the numeric string to ascii bytes
+        if let d = chr1.data(using: .ascii) {
+            // output the data string as bytes
+            let bytes = Array<UInt8>(d)
+//            if ln <= mpoutl {
+            iu.write(bytes, maxLength: ln)
+//               write (iu, fmt = cform1) (chr1(i), i = 1, ln)
+//            } else if ln % mpoutl == 0 {
+//                ln1 = mpoutl * (ln / mpoutl) - mpoutl
+//                write (iu, fmt = cform2) (chr1(i), i = 1, ln1)
+//                write (iu, fmt = cform1) (chr1(i), i = ln1 + 1, ln)
+//            } else {
+//                ln1 = mpoutl * (ln / mpoutl)
+//                write (iu, fmt = cform2) (chr1(i), i = 1, ln1)
+//                write (iu, fmt = cform1) (chr1(i), i = ln1 + 1, ln)
+//            }
+        } else {
+            print ("*** MPOUT: Invalid ASCII character in string = '\(chr1)'")
+            mpabrt (87)
+        }
+    } // mpout
 
     
     
