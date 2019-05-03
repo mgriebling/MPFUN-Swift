@@ -774,9 +774,9 @@ extension mpfun {
         }
     } // mpfformat
 
-    static func mpinp (_ iu : URL, _ a : MPRNumber, _ mpnw : Int) {
+    static func mpinp (_ iu : InputStream, _ a : MPRNumber, _ mpnw : Int) {
         
-        //   This routine reads the MPR number A from file URL IU.  The digits of A
+        //   This routine reads the MPR number A from InputStream IU.  The digits of A
         //   may span more than one line, provided that a "\" appears at the end of
         //   a line to be continued (any characters after the "\" on the same line
         //   are ignored).  Individual input lines may not exceed 2048 characters in
@@ -788,9 +788,17 @@ extension mpfun {
         //   It is dimensioned MPNW * (MPNDPW + 1) + 1000 (see below).  If more nonblank
         //   input characters than this are input, they are ignored.
         
-        var i1, iu, lnc1, lncx, ln1 : Int
+        var i1, lnc1, lncx, ln1 : Int
         var line1, chr1 : String
         let validc = " 0123456789+-.dDeE"
+        
+        func get() -> Character {
+            // returns 0 for errors and end-of-file
+            // Note: Only works for 8-bit ASCII
+            var buffer = Array<UInt8>(repeating: 0, count: 1)
+            let _ = iu.read(&buffer, maxLength: 1)
+            return Character(UnicodeScalar(buffer[0]))
+        }
         
         // End of declaration
         
@@ -803,20 +811,33 @@ extension mpfun {
         lncx = mpnw * (mpndpw + 1) + 1000
         
         //100 continue
-        lab1:
-            while true {
-                read (iu, "(a)", end = 200) line1
-                
-                //   Find the last nonblank character.
-                
-                for i in mpnstr, 1, -1 {
-                    if (line1[i] != " ") { break lab1 /* goto 110 */ }
-                }
-                
-                //   Input line is blank -- ignore.
-                
-                // goto 100
+        if !iu.hasBytesAvailable {
+            // 200  continue
+            
+            print ("*** MPINP: End-of-file encountered.")
+            mpabrt (72)
+        } else {
+            // find non-blank character
+            var ch : Character
+            line1 = ""
+            repeat {
+                ch = get()
+                if ch.isASCII { line1.append(ch) }
+            } while !ch.isNewline && iu.hasBytesAvailable
         }
+//        lab1: while true {
+//                read (iu, "(a)", end = 200) line1
+//
+//                //   Find the last nonblank character.
+//
+//                for i in mpnstr, 1, -1 {
+//                    if (line1[i] != " ") { break lab1 /* goto 110 */ }
+//                }
+//
+//                //   Input line is blank -- ignore.
+//
+//                // goto 100
+//        }
         
         //110 continue
         
@@ -839,12 +860,6 @@ extension mpfun {
         }
         
         mpctomp (chr1, lnc1, a, mpnw)
-        return
-            
-        200  continue
-        
-        print ("*** MPINP: End-of-file encountered.")
-        mpabrt (72)
         
         //300 return
     } // mpinp
