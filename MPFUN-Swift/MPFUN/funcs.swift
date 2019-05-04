@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension mpfun {
+extension MPFUN {
     
     static public func sign (_ a: Double, _ b: Double) -> Int {
         let a = Int(abs(a))
@@ -93,11 +93,11 @@ extension mpfun {
         
         //   Reduce AA to within 1 and MPBDX.
         
-        if (aa >= mpbdx) {
+        if aa >= mpbdx {
             
             for k in 1...100 {
                 aa = mprdx * aa
-                if (aa < mpbdx) {
+                if aa < mpbdx {
                     n1 = n1 + k
                     break
                     //goto 120
@@ -108,7 +108,7 @@ extension mpfun {
             
             for k in 1...100 {
                 aa = mpbdx * aa
-                if (aa >= 1) {
+                if aa >= 1 {
                     n1 = n1 - k
                     break
                     //goto 120
@@ -131,9 +131,9 @@ extension mpfun {
         b[8] = 0
         
         gi = 0
-        for i in stride(from: 6, to: 3, by: -1) {
+        for i in stride(from: 6, through: 3, by: -1) {
             gi = i
-            if (b[i+1] != 0) {
+            if b[i+1] != 0{
                 break //goto 140
             }
         }
@@ -172,7 +172,7 @@ extension mpfun {
         
         t1 = mpb13x * abs (a)
         t2 = abs (abs (a) + t1) - abs (t1)
-        if (t2 == abs (a)) {
+        if t2 == abs (a) {
             mpdmc (a, n, &b, mpnw)
         } else {
             print("*** MPDMC40: DP value has more than 40 significant bits:",
@@ -240,7 +240,7 @@ extension mpfun {
         ia = sign (1, a[2])
         na = min (Int (abs (a[2])), mpnw)
         ma = Int(a[3])
-        if (na == 0)  {
+        if na == 0  {
             b[1] = Double(mpnw)
             b[2] = 0
             b[3] = 0
@@ -251,7 +251,7 @@ extension mpfun {
             //goto 120
         }
         
-        if (ma >= mpnw - 1) {
+        if ma >= mpnw - 1 {
             print("*** MPINFR: Argument is too large.")
             mpabrt (40)
         }
@@ -259,7 +259,7 @@ extension mpfun {
         //   Place integer part in  B.
         
         nb = min (max (ma + 1, 0), na)
-        if (nb == 0) {
+        if nb == 0 {
             b[1] = Double(mpnw)
             b[2] = 0.0
             b[3] = 0.0
@@ -278,7 +278,7 @@ extension mpfun {
         //   Place fractional part in C.
         
         nc = na - nb
-        if (nc <= 0) {
+        if nc <= 0 {
             c[1] = Double(mpnw)
             c[2] = 0.0
             c[3] = 0.0
@@ -370,23 +370,23 @@ extension mpfun {
             m4 = min (max (na, ish), mpnw + 1)
             m5 = min (max (na, nb + ish), mpnw + 1)
             
-            for i in 1...m1 {
+            for i in 0..<m1 {
                 d[i+3] = a[i+3]
             }
             
-            for i in m1+1...m2 {
+            for i in m1..<m2 {
                 d[i+3] = a[i+3] + db * b[i+2-ish+1]
             }
             
-            for i in m2+1...m3 {
+            for i in m2..<m3 {
                 d[i+3] = a[i+3]
             }
             
-            for i in m3+1...m4 {
+            for i in m3..<m4 {
                 d[i+3] = 0
             }
             
-            for i in m4 + 1...m5 {
+            for i in m4..<m5 {
                 d[i+3] = db * b[i+2-ish+1]
             }
             
@@ -405,23 +405,23 @@ extension mpfun {
             m4 = min (max (nb, nsh), mpnw + 1)
             m5 = min (max (nb, na + nsh), mpnw + 1)
             
-            for i in 1...m1 {
+            for i in 0..<m1 {
                 d[i+3] = db * b[i+3]
             }
             
-            for i in m1 + 1...m2 {
+            for i in m1..<m2 {
                 d[i+3] = a[i+2-nsh+1] + db * b[i+3]
             }
             
-            for i in  m2 + 1...m3 {
+            for i in  m2..<m3 {
                 d[i+3] = db * b[i+3]
             }
             
-            for i in m3 + 1...m4 {
+            for i in m3..<m4 {
                 d[i+3] = 0
             }
             
-            for i in m4 + 1...m5 {
+            for i in m4..<m5 {
                 d[i+3] = a[i+2-nsh+1]
             }
             
@@ -455,7 +455,7 @@ extension mpfun {
         var i1, i2, j3, ia, ib, na, nb, nc, n2 : Int
         let mpnwx = 200
         var a1, a2, c1, c2, dc, d2, t1, t2 : Double
-        var d = MPRNumber(repeating: 0, count: mpnw+5)
+        var d = MPRNumber(repeating: 0, count: mpnw+6)
         var b1 = d; var b2 = d
         
         // End of declaration
@@ -471,7 +471,7 @@ extension mpfun {
         nb = min (Int (abs (b[2])), mpnw)
         nc = min (na + nb, mpnw)
         
-        if (na == 0 || nb == 0) {
+        if na == 0 || nb == 0 {
             
             //   One of the inputs is zero -- result is zero.
             
@@ -481,7 +481,7 @@ extension mpfun {
             return
         }
         
-        if (na == 1 && a[4] == 1.0) {
+        if na == 1 && a[4] == 1.0 {
             
             //   A is 1 or -1 -- result is B or -B.
             
@@ -494,7 +494,7 @@ extension mpfun {
             }
             return
             
-        } else if (nb == 1 && b[4] == 1.0) {
+        } else if nb == 1 && b[4] == 1.0 {
             
             //   B is 1 or -1 -- result is A or -A.
             
@@ -508,7 +508,7 @@ extension mpfun {
             return
         }
         
-        if (na > mpnwx && nb > mpnwx) {
+        if na > mpnwx && nb > mpnwx {
             
             //   Precision levels of both arguments are higher than mpnwx, so call mpmulx.
             
@@ -564,10 +564,10 @@ extension mpfun {
         
         //   If D(3) is nonzero, shift the result one cell right.
         
-        if (d[3] != 0.0) {
+        if d[3] != 0.0 {
             d2 = d2 + 1.0
             
-            for i in stride(from:nc + 4, to:3, by:-1) {
+            for i in stride(from:nc + 4, through:3, by:-1) {
                 d[i+1] = d[i]
             }
         }
@@ -612,7 +612,7 @@ extension mpfun {
         ia = sign (1.0, a[2])
         na = min (Int(abs (a[2])), mpnw)
         ib = sign (1.0, b)
-        if (na == 0 || b == 0.0) {
+        if na == 0 || b == 0.0 {
             c[1] = Double(mpnw)
             c[2] = 0.0
             c[3] = 0.0
@@ -623,18 +623,18 @@ extension mpfun {
         
         //   Reduce BB to within 1 and MPBDX.
         
-        if (bb >= mpbdx){
+        if bb >= mpbdx {
             for k in 1...100 {
                 bb = mprdx * bb
-                if (bb < mpbdx) {
+                if bb < mpbdx {
                     n1 = n1 + k
                     break // goto 120
                 }
             }
-        } else if (bb < 1.0) {
+        } else if bb < 1.0 {
             for k in 1...100 {
                 bb = mpbdx * bb
-                if (bb >= 1.0) {
+                if bb >= 1.0 {
                     n1 = n1 - k
                     break // goto 120
                 }
@@ -645,7 +645,7 @@ extension mpfun {
         
         // 120  continue
         
-        if (bb != aint (bb)) {
+        if bb != aint (bb) {
             bb = Double(sign (bb, b))
             d[0] = Double(mpnw + 6)
             d[1] = Double(mpnw)
@@ -678,8 +678,8 @@ extension mpfun {
         
         //   If d(3) is nonzero, shift all words right by one.
         
-        if (d[3] > 0.0) {
-            for i in stride(from:na + 3, to:3, by:-1) {
+        if d[3] > 0.0 {
+            for i in stride(from:na + 3, through:3, by:-1) {
                 d[i+1] = d[i]
             }
             
@@ -723,7 +723,7 @@ extension mpfun {
         
         t1 = mpb13x * abs (b)
         t2 = abs (abs (b) + t1) - abs (t1)
-        if (t2 == abs (b)) {
+        if t2 == abs (b) {
             mpmuld (a, b, &c, mpnw)
         } else {
            print ("*** MPMULD40: DP value has more than 40 significant bits: \(b)",
@@ -743,7 +743,7 @@ extension mpfun {
         var i2, i3, ia, ib, ij, iss, j, j3, md, na, nb, nc : Int
         let mpnwx = 200
         var a1, a2, b1, b2, c1, c2, dc, rb, t0, t1, t2 : Double
-        var d = MPRNumber(repeating: 0, count: mpnw+5)
+        var d = MPRNumber(repeating: 0, count: mpnw+6)
         
         // End of declaration
         
@@ -759,7 +759,7 @@ extension mpfun {
         
         //   Check if dividend is zero.
         
-        if (na == 0) {
+        if na == 0 {
             c[1] = Double(mpnw)
             c[2] = 0.0
             c[3] = 0.0
@@ -770,12 +770,12 @@ extension mpfun {
         
         //   Check if divisor is zero.
         
-        if (nb == 0) {
+        if nb == 0 {
             print ("*** MPDIV: Divisor is zero.")
             mpabrt (31)
         }
         
-        if (na > mpnwx && nb > mpnwx) {
+        if na > mpnwx && nb > mpnwx {
             
             //   Precision is very high, so call mpdivx.
             
@@ -787,8 +787,8 @@ extension mpfun {
         //   Compute double precision approximation to trial divisor and its reciprocal.
         
         t0 = mpbdx * b[4]
-        if (nb >= 2) { t0 = t0 + b[5] }
-        if (nb >= 3) { t0 = t0 + mprdx * b[6] }
+        if nb >= 2 { t0 = t0 + b[5] }
+        if nb >= 3 { t0 = t0 + mprdx * b[6] }
         rb = 1.0 / t0
         
         md = min (na + nb, mpnw)
@@ -811,7 +811,7 @@ extension mpfun {
             //   Compute trial dividend and trial quotient term.
             
             t1 = mpbdx**2 * d[j] + mpbdx * d[j+1] + d[j+2]
-            if (j <= mpnw + 2) { t1 = t1 + mprdx * d[j+3] }
+            if j <= mpnw + 2 { t1 = t1 + mprdx * d[j+3] }
             t0 = aint (rb * t1)
             
             //   Split trial quotient term into high and low order halves, 24-bits each.
@@ -854,8 +854,8 @@ extension mpfun {
             //  Continue computing quotient terms past the end of the input dividend, until
             //  trial running dividend is zero.
             
-            if (j >= na + 2) {
-                if (ij <= mpnw + 1) { d[ij+4] = 0.0 }
+            if j >= na + 2 {
+                if ij <= mpnw + 1 { d[ij+4] = 0.0 }
             }
         }
         
@@ -866,7 +866,7 @@ extension mpfun {
         // 170 continue
         
         d[j+1] = 0.0
-        if (d[2] == 0.0) {
+        if d[2] == 0.0 {
             iss = 1
         } else {
             iss = 2
@@ -875,7 +875,7 @@ extension mpfun {
         d[nc+4] = 0.0
         d[nc+5] = 0.0
         
-        for i in stride(from: j + 1, to: 3, by: -1) {
+        for i in stride(from: j + 1, through: 3, by: -1) {
             d[i+1] = d[i-iss+1]
         }
         
@@ -922,7 +922,7 @@ extension mpfun {
         
         //   Check if dividend is zero.
         
-        if (na == 0) {
+        if na == 0 {
             c[1] = Double(mpnw)
             c[2] = 0.0
             c[3] = 0.0
@@ -931,7 +931,7 @@ extension mpfun {
         
         //   Check if divisor is zero.
         
-        if (b == 0.0) {
+        if b == 0.0 {
             print ("*** MPDIVD: Divisor is zero.")
             mpabrt (32)
         }
@@ -941,21 +941,21 @@ extension mpfun {
         
         //   Reduce BB to within 1 and MPBDX.
         
-        if (bb >= mpbdx) {
+        if bb >= mpbdx {
             
             for k in 1...100 {
                 bb = mprdx * bb
-                if (bb < mpbdx) {
+                if bb < mpbdx {
                     n1 = n1 + k
                     break // goto 120
                 }
             }
             
-        } else if (bb < 1.0) {
+        } else if bb < 1.0 {
             
             for k in 1...100 {
                 bb = mpbdx * bb
-                if (bb >= 1.0) {
+                if bb >= 1.0 {
                     n1 = n1 - k
                     break // goto 120
                 }
@@ -967,7 +967,7 @@ extension mpfun {
         
         //   If B cannot be represented exactly in a single mantissa word, use MPDIV.
         
-        if (bb != aint (bb)) {
+        if bb != aint (bb) {
             bb = Double(sign (bb, b))
             d[0] = Double(mpnw + 6)
             d[1] = Double(mpnw)
@@ -1004,7 +1004,7 @@ extension mpfun {
             //   Compute trial dividend and trial quotient term.
             
             t1 = mpbdx**2 * d[j] + mpbdx * d[j+1] + d[j+2]
-            if (j <= mpnw + 2) { t1 = t1 + mprdx * d[j+3] }
+            if j <= mpnw + 2 { t1 = t1 + mprdx * d[j+3] }
             t0 = aint (rb * t1)
             
             //   Split trial quotient term into high and low order halves, 24-bits each.
@@ -1026,8 +1026,8 @@ extension mpfun {
             //  Continue computing quotient terms past the end of the input dividend, until
             //  trial running dividend is zero.
             
-            if (j >= na + 2) {
-                if (j <= mpnw + 1) { d[j+4] = 0.0 }
+            if j >= na + 2 {
+                if j <= mpnw + 1 { d[j+4] = 0.0 }
             }
         }
         
@@ -1038,7 +1038,7 @@ extension mpfun {
         // 170 continue
         
         d[j+1] = 0.0
-        if (d[2] == 0.0) {
+        if d[2] == 0.0 {
             iss = 1
         } else {
             iss = 2
@@ -1047,7 +1047,7 @@ extension mpfun {
         d[nc+4] = 0.0
         d[nc+5] = 0.0
         
-        for i in stride(from: j+1, to: 3, by: -1) {
+        for i in stride(from: j+1, through: 3, by: -1) {
             d[i+1] = d[i-iss+1]
         }
         
@@ -1089,7 +1089,7 @@ extension mpfun {
         
         t1 = mpb13x * abs (b)
         t2 = abs (abs (b) + t1) - abs (t1)
-        if (t2 == abs (b)) {
+        if t2 == abs (b) {
             mpdivd (a, b, &c, mpnw)
         } else {
             print ("*** MPDIVD40: DP value has more than 40 significant bits:",
@@ -1109,12 +1109,12 @@ extension mpfun {
         
         // End of declaration
         
-        if (mpnw < 4 || a[0] < abs (a[2]) + 4) {
+        if mpnw < 4 || a[0] < abs (a[2]) + 4 {
             print ("*** MPMDC: uninitialized or inadequately sized arrays")
             mpabrt (99)
         }
         
-        if (a[2] == 0)  {
+        if a[2] == 0  {
             b = 0
             n = 0
             return
@@ -1122,9 +1122,9 @@ extension mpfun {
         
         na = Int(abs (a[2]))
         aa = a[4]
-        if (na >= 2) { aa = aa + mprdx * a[5] }
-        if (na >= 3) { aa = aa + mprx2 * a[6] }
-        if (na >= 4) { aa = aa + mprdx * mprx2 * a[7] }
+        if na >= 2 { aa = aa + mprdx * a[5] }
+        if na >= 3 { aa = aa + mprx2 * a[6] }
+        if na >= 4 { aa = aa + mprdx * mprx2 * a[7] }
         
         n = mpnbt * Int(a[3])
         b = Double(sign (aa, Double(a[2])))
@@ -1134,10 +1134,10 @@ extension mpfun {
         na = Int(log (abs (b)) / log (2.0) + mprdx)
         b = b / pow(2.0, Double(na))
         n = n + na
-        if (abs (b) < 1) {
+        if abs (b) < 1 {
             b = 2 * b
             n = n - 1
-        } else if (abs (b) > 2) {
+        } else if abs (b) > 2 {
             b = 0.5 * b
             n = n + 1
         }
@@ -1165,7 +1165,7 @@ extension mpfun {
         ia = sign (1.0, a[2])
         na = min (Int (abs (a[2])), mpnw)
         ma = Int(a[3])
-        if (na == 0) {
+        if na == 0 {
             
             //   A is zero -- result is zero.
             
@@ -1175,7 +1175,7 @@ extension mpfun {
             return
         }
         
-        if (ma >= mpnw){
+        if ma >= mpnw {
             
             //   A cannot be represented exactly as an integer.
             
@@ -1190,7 +1190,7 @@ extension mpfun {
         s1[0] = Double(mpnw + 6)
         
         mpdmc (0.5, 0, &s0, mpnw)
-        if (ia == 1) {
+        if ia == 1 {
             mpadd (a, s0, &s1, mpnw)
         } else {
             mpsub (a, s0, &s1, mpnw)
@@ -1222,7 +1222,7 @@ extension mpfun {
         
         ia = sign (1, d[2])
         na = min (Int(abs(d[2])), mpnw)
-        if (na == 0)  {
+        if na == 0  {
             a[1] = Double(mpnw)
             a[2] = 0
             a[3] = 0
@@ -1235,17 +1235,17 @@ extension mpfun {
         repeat {
             t1 = 0
             
-            for i in stride(from: n4, to: 3, by: -1) {
+            for i in stride(from: n4, through: 3, by: -1) {
                 t3 = t1 + d[i+1]
                 t2 = mprdx * (t3)
                 t1 = Double(Int(t2))
-                if (t2 < 0 && t1 != t2) { t1 = t1 - 1 }
+                if t2 < 0 && t1 != t2 { t1 = t1 - 1 }
                 d[i+1] = t3 - t1 * mpbdx
             }
             
             d[3] = d[3] + t1
             
-            if (d[3] < 0) {
+            if d[3] < 0 {
                 
                 //   D(2) is negative -- negate all words and re-normalize.
                 
@@ -1256,13 +1256,13 @@ extension mpfun {
                 for i in 2...n4 {
                     d[i+1] = -d[i+1]
                 }
-            } else if (d[3] > 0) {
+            } else if d[3] > 0 {
                 
                 //   The fixup loops above "spilled" a nonzero number into D(2).  Shift the
                 //   entire number right one cell.  The exponent and length of the result
                 //   are increased by one.
                 
-                for i in stride(from: n4, to: 3, by: -1) {
+                for i in stride(from: n4, through: 3, by: -1) {
                     a[i+1] = d[i]
                 }
                 
@@ -1296,12 +1296,12 @@ extension mpfun {
         var i, j, k, kk, kn, k0, k1, k2, mn, mpnw1, na, nn, nws : Int
         var t1 : Double
         let cl2 = 1.4426950408889633e0; let mprxx = 1e-14
-        var s0 = MPRNumber(repeating: 0, count: mpnw+6)
+        var s0 = MPRNumber(repeating: 0, count: mpnw+7)
         var s1 = s0
         var s2 = s0
         
         func reciprocal() {
-            if (n < 0) {
+            if n < 0 {
                 mpdmc (1, 0, &s1, mpnw1)
                 mpdiv (s1, s2, &s0, mpnw1)
                 mpeq (s0, &s2, mpnw1)
@@ -1419,27 +1419,27 @@ extension mpfun {
         ia = sign (1, a[2])
         na = min (Int (abs (a[2])), mpnw)
         
-        if (na == 0) {
+        if na == 0 {
             b[2] = 0
             b[3] = 0
             return
         }
-        if (ia < 0) {
+        if ia < 0 {
             print ("*** MPNRTR: Argument is negative.")
             mpabrt (59)
         }
         
-        if (n <= 0 || n > n30) {
+        if n <= 0 || n > n30 {
             print ("*** MPNRTR: Improper value of N")
             mpabrt (60)
         }
         
         //   If N = 1 or 2, call MPEQ or MPSQRT instead.
         
-        if (n == 1) {
+        if n == 1 {
             mpeq (a, &b, mpnw)
             return
-        } else if (n == 2) {
+        } else if n == 2 {
             mpsqrt (a, &b, mpnw)
             return
         }
@@ -1461,7 +1461,7 @@ extension mpfun {
         //   Check how close A is to 1.
         
         mpsub (a, f1, &s0, mpnw1)
-        if (s0[2] == 0) {
+        if s0[2] == 0 {
             mpeq (f1, &b, mpnw)
             return
         }
@@ -1471,7 +1471,7 @@ extension mpfun {
         t1 = t1 * pow(0.5, Double(n2))
         n1 = n1 + n2
         
-        if (n1 <= -30) {
+        if n1 <= -30 {
             t2 = Double(n)
             n2 = Int(cl2 * log (t2) + 1 + mprxx)
             n3 = -mpnbt * mpnw1 / n1
@@ -1520,7 +1520,7 @@ extension mpfun {
         //   changing precision level MPNW (one greater than powers of two).
         
         for k in 1...mq {
-            if (k > 2) { mpnw1 = min (2 * mpnw1 - 2, mpnw) + 1 }
+            if k > 2 { mpnw1 = min (2 * mpnw1 - 2, mpnw) + 1 }
             
             repeat {
  //               110  continue
@@ -1531,7 +1531,7 @@ extension mpfun {
                 mpdivd (s1, tn, &s0, mpnw1)
                 mpadd (s2, s0, &s1, mpnw1)
                 mpeq (s1, &s2, mpnw1)
-                if (k == mq - nit && iq == 0) {
+                if k == mq - nit && iq == 0 {
                     iq = 1
 //                    goto 110
                 } else {
@@ -1590,7 +1590,7 @@ extension mpfun {
         na = min (Int(abs (a[2])), mpnw)
         n4 = na + 4
         
-        if (a[4] == 0) {
+        if a[4] == 0 {
             
             //   Find the first nonzero word and shift the entire number left.  The length
             //   of the result is reduced by the length of the shift.
@@ -1598,7 +1598,7 @@ extension mpfun {
             var gi = 0
             for i in 4...n4 {
                 gi = i
-                if (a[i+1] != 0)  {
+                if a[i+1] != 0  {
                     flag = true
                     break // goto 110
                 }
@@ -1625,13 +1625,13 @@ extension mpfun {
         
         //   Perform rounding.
         
-        if (na == mpnw) {
-            if (a[na+4] >= 0.5 * mpbdx) { a[na+3] = a[na+3] + 1 }
+        if na == mpnw {
+            if a[na+4] >= 0.5 * mpbdx { a[na+3] = a[na+3] + 1 }
             
             //   Release carries as far as necessary due to rounding.
             var flag = false
-            for i in stride(from: na+2, to: 3, by: -1) { // na+2, 3, -1 {
-                if (a[i+1] < mpbdx) { flag = true; break /* goto 140 */ }
+            for i in stride(from: na+2, through: 3, by: -1) { // na+2, 3, -1 {
+                if a[i+1] < mpbdx { flag = true; break /* goto 140 */ }
                 a[i+1] = a[i+1] - mpbdx
                 a[i] = a[i] + 1
             }
@@ -1647,15 +1647,15 @@ extension mpfun {
         
         // 140 continue
         
-        if (a[na+3] == 0) {
+        if a[na+3] == 0 {
             
             //   At least the last mantissa word is zero.  Find the last nonzero word
             //   and adjust the length of the result accordingly.
             var flag = false
             var gi = 0
-            for i in stride(from: na + 2, to: 3, by:-1) {
+            for i in stride(from: na + 2, through: 3, by:-1) {
                 gi = i
-                if (a[i+1] != 0)  {
+                if a[i+1] != 0  {
                     flag = true
                     //  goto 160
                 }
@@ -1674,17 +1674,17 @@ extension mpfun {
         
         //   Check for overflow and underflow.
         
-        if (a2 < -mpexpmx) {
+        if a2 < -mpexpmx {
             print ("*** MPROUN: Exponent underflow.")
             mpabrt (68)
-        } else if (a2 > mpexpmx) {
+        } else if a2 > mpexpmx {
             print ("*** MPROUN: Exponent overflow.")
             mpabrt (69)
         }
         
         //   Check for zero.
         
-        if (a[4] == 0) {
+        if a[4] == 0 {
             a[1] = Double(mpnw)
             a[2] = 0
             a[3] = 0
@@ -1739,13 +1739,13 @@ extension mpfun {
         ia = sign (1, a[2])
         na = min (Int (abs (a[2])), mpnw)
         
-        if (na == 0) {
+        if na == 0 {
             b[1] = Double(mpnw)
             b[2] = 0
             b[3] = 0
             return
         }
-        if (ia < 0) {
+        if ia < 0 {
             print("*** MPSQRT: Argument is negative.")
             mpabrt (70)
             return
@@ -1779,7 +1779,7 @@ extension mpfun {
         //   changing precision level MPNW (one greater than powers of two).
         
         for k in 1...mq - 1 {
-            if (k > 2) {
+            if k > 2 {
                 nw1 = mpnw1
                 mpnw1 = min (2 * mpnw1 - 2, mpnw) + 1
                 nw2 = mpnw1
@@ -1795,7 +1795,7 @@ extension mpfun {
                 mpadd (s2, s0, &s1, nw2)
                 mpeq (s1, &s2, nw2)
                 
-                if (k == mq - nit && iq == 0) {
+                if k == mq - nit && iq == 0 {
                     iq = 1
                     // goto 100
                 } else {
@@ -1843,9 +1843,9 @@ extension mpfun {
         nb = min (abs (Int (b[2])), mpnw)
         s[0] = Double(mpnw + 6)
         s[1] = Double(mpnw)
-        if (b[2] == 0) {
+        if b[2] == 0 {
             s[2] = 0
-        } else if (b[2] > 0) {
+        } else if b[2] > 0 {
             s[2] = Double(-nb)
         } else {
             s[2] = Double(nb)
@@ -1900,14 +1900,14 @@ extension mpfun {
         na = min (Int (abs (a[2])), mpnw)
         nb = min (Int (abs (b[2])), mpnw)
         
-        if (na == 0) {
+        if na == 0 {
             // Note: Original code assigned to b[] which would do nothing
             c[1] = Double(mpnw)
             c[2] = 0
             c[3] = 0
             return
         }
-        if (nb == 0) {
+        if nb == 0 {
             print ("*** MPDIVX: Divisor is zero.")
             mpabrt (33)
         }
@@ -1939,7 +1939,7 @@ extension mpfun {
         //   changing precision level MPNW (one greater than powers of two).
         
         for k in 1...mq - 1 {
-            if (k > 2) {
+            if k > 2 {
                 nw1 = mpnw1
                 mpnw1 = min (2 * mpnw1 - 2, mpnw) + 1
                 nw2 = mpnw1
@@ -1952,7 +1952,7 @@ extension mpfun {
                 mpmul (s2, s0, &s1, nw1)
                 mpadd (s2, s1, &s0, nw2)
                 mpeq (s0, &s2, nw2)
-                if (k == mq - nit && iq == 0) {
+                if k == mq - nit && iq == 0 {
                     iq = 1
                     // goto 100
                 } else {

@@ -53,7 +53,7 @@
 
 import Foundation
 
-extension mpfun {
+extension MPFUN {
     
     static func mpctomp (_ a: String, _ b: inout MPRNumber, _ mpnw: Int) {
         
@@ -72,10 +72,10 @@ extension mpfun {
         var knumst = ""
         var knumst2 = ""
         let lexpmx = 9
-//        let digits = "0123456789"
+
         let d10w = pow(10.0, Double(mpndpw))
-        var f = MPRNumber(repeating: 0, count: 8)
-        var s0 = MPRNumber(repeating: 0, count: mpnw+6)
+        var f = MPRNumber(repeating: 0, count: 9)
+        var s0 = MPRNumber(repeating: 0, count: mpnw+7)
         var s1 = s0; var s2 = s0
         var a = a.trimmingCharacters(in: CharacterSet.whitespaces)   // mutable version of input string
         
@@ -99,9 +99,9 @@ extension mpfun {
         f[0] = 9.0
         f[1] = Double(mpnw)
         
-        for i in 2...8 {
-            f[i] = 0
-        }
+//        for i in 2...8 {
+//            f[i] = 0
+//        }
         
         mpnw1 = mpnw + 1
         kde = 0
@@ -270,7 +270,7 @@ extension mpfun {
         
         //   Process remaining chunks of digits.
         
-        for _ in 1...n1 {
+        for _ in 0..<n1 {
 //            for i in 1...mpndpw {
 //                ix = ix + 1
 //                if (ix == kper) { ix = ix + 1 }
@@ -376,8 +376,8 @@ extension mpfun {
         var ca, b2 : String
         let digits = "0123456789"
         var aa, an, t1, d10w : Double
-        var f = MPRNumber(repeating: 0, count: 8)
-        var s0 = MPRNumber(repeating: 0, count: mpnw+6)
+        var f = MPRNumber(repeating: 0, count: 9)
+        var s0 = MPRNumber(repeating: 0, count: mpnw+7)
         var s1 = s0
         
         // End of declaration
@@ -525,7 +525,7 @@ extension mpfun {
                 //   digit is 9, set to 0, then repeat at position one digit to left.  Continue
                 //   rounding if necessary until the decimal point is reached.
                 var flag = false
-                for i in stride(from:nd-1, to:0, by:-1) {
+                for i in stride(from:nd-1, through:0, by:-1) {
                     // manipulating characters in a Swift string is ... awkward
                     let ix = b2.index(b2.startIndex, offsetBy: i)
                     let r = Range(uncheckedBounds: (lower: ix, upper: ix))
@@ -570,7 +570,7 @@ extension mpfun {
         }
         ca = mpdigout (Double(abs (nexp)), 10)
         
-        var gk = 10
+        var gk = 9
         for k in 0..<10 {
             let ik = ca.index(ca.startIndex, offsetBy: k)
             if ca[ik] != "0"  { gk = k; break /* goto 190 */ }
@@ -679,7 +679,7 @@ extension mpfun {
         
         //   Copy the exponent into CA.
         
-        while k < b2.endIndex {
+        while b2.index(k, offsetBy: 1) < b2.endIndex {
             k = b2.index(k, offsetBy: 1)
             j = j + 1
             if (j <= 16) { ca.append(b2[k]) }
