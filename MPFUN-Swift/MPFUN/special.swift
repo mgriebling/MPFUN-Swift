@@ -226,343 +226,344 @@ extension MPFUN {
         
     } //  mpbesseljr
 
-//    subroutine mpgammar (t, z, mpnw)
-//
-//    //   This evaluates the gamma function, using an algorithm of R. W. Potter.
-//    //   The argument t must not exceed 10^8 in size (this limit is set below),
-//    //   must not be zero, and if negative must not be integer.
-//
-//    //   In the parameter statement below:
-//    //     itrmx = limit of number of iterations in series; default = 100000.
-//    //     con1 = 1/2 * log (10) to DP accuracy.
-//    //     dmax = maximum size of input argument.
-//
-//    implicit none
-//    integer i, itrmx, j, k, mpnw, mpnw1, ndp, neps, nt, n1, n2, n3
-//    real (mprknd) alpha, al2, dmax, d1, d2, d3
-//    parameter (al2 = 0.69314718055994530942d0, dmax = 1d8, itrmx = 100000)
-//    real (mprknd) t(0:), z(0:), f1(0:8), sum1(0:mpnw+6), &
-//    sum2(0:mpnw+6), tn(0:mpnw+6), t1(0:mpnw+6), t2[0:mpnw+6), t3(0:mpnw+6), &
-//    t4(0:mpnw+6), t5(0:mpnw+6), t6(0:mpnw+6)
-//
-//    // End of declaration
-//
-//    if (mpnw < 4 || t(0) < mpnw + 4 || t(0) < abs (t(2)) + 4 || &
-//    z(0) < mpnw + 6) {
-//    write (mpldb, 1)
-//    1 format ("*** MPGAMMAR: uninitialized or inadequately sized arrays")
-//    mpabrt (99)
-//    }
-//
-//    if (t(2) == 0 || t(3) > 0 || (t(3) == 0 && t(4) > dmax) || &
-//    (t(2) < 0.0 && t(3) == 0.0 && abs (t(2)) == 1.0)) {
-//    write (6, 2) dmax
-//    2 format ("*** MPGAMMAR: input argument must have absolute value <=",f10.0,","/ &
-//    "must not be zero, and if negative must not be an integer.")
-//    mpabrt (65)
-//    }
-//
-//    mpnw1 = mpnw + 1
-//    f1(0) = 9.0
-//    f1(1) = mpnw1
-//    f1(2) = 1.0
-//    f1(3) = 0.0
-//    f1(4) = 1.0
-//    f1(5) = 0.0
-//    f1(6) = 0.0
-//    sum1(0) = mpnw + 7
-//    sum2(0) = mpnw + 7
-//    tn(0) = mpnw + 7
-//    t1(0) = mpnw + 7
-//    t2[0) = mpnw + 7
-//    t3[0) = mpnw + 7
-//    t4(0) = mpnw + 7
-//    t5(0) = mpnw + 7
-//    t6(0) = mpnw + 7
-//
-//    //   Find the integer and fractional parts of t.
-//
-//    mpinfr (t, t2, t3, mpnw1)
-//
-//    if (t3[2) == 0.0) {
-//
-//    //   If t is a positive integer, then apply the usual factorial recursion.
-//
-//    mpmdc (t2, d2, n2, mpnw1)
-//    nt = d2 * 2.0 ** n2
-//    mpeq (f1, t1, mpnw1)
-//
-//    do i = 2, nt - 1
-//    mpmuld (t1, Double(i), t2, mpnw1)
-//    mpeq (t2, t1, mpnw1)
-//    }
-//
-//    mproun (t1, mpnw)
-//    mpeq (t1, z, mpnw)
-//    goto 120
-//    } else if (t(2) > 0.0) {
-//
-//    //   Apply the identity Gamma[t+1] = t * Gamma[t] to reduce the input argument
-//    //   to the unit interval.
-//
-//    mpmdc (t2, d2, n2, mpnw1)
-//    nt = d2 * 2.0 ** n2
-//    mpeq (f1, t1, mpnw1)
-//    mpeq (t3, tn, mpnw1)
-//
-//    do i = 1, nt
-//    mpdmc (Double(i), 0, t4, mpnw1)
-//    mpsub (t, t4, t5, mpnw1)
-//    mpmul (t1, t5, t6, mpnw1)
-//    mpeq (t6, t1, mpnw1)
-//    }
-//    } else {
-//
-//    //   Apply the gamma identity to reduce a negative argument to the unit interval.
-//
-//    mpsub (f1, t, t4, mpnw1)
-//    mpinfr (t4, t3, t5, mpnw1)
-//    mpmdc (t3, d3, n3, mpnw1)
-//    nt = d3 * 2.0 ** n3
-//
-//    mpeq (f1, t1, mpnw1)
-//    mpsub (f1, t5, t2, mpnw1)
-//    mpeq (t2, tn, mpnw1)
-//
-//    do i = 0, nt - 1
-//    //    t1 = t1 / (t + Double(i))
-//    mpdmc (Double(i), 0, t4, mpnw1)
-//    mpadd (t, t4, t5, mpnw1)
-//    mpdiv (t1, t5, t6, mpnw1)
-//    mpeq (t6, t1, mpnw1)
-//    }
-//    }
-//
-//    //   Calculate alpha = bits of precision * log(2) / 2, then take the nearest integer
-//    //   value, so that d2 = 0.25 * alpha^2 can be calculated exactly in DP.
-//
-//    alpha = anint (0.5d0 * mpnbt * al2 * (mpnw1 + 1))
-//    d2 = 0.25d0 * alpha**2
-//
-//    mpeq (tn, t2, mpnw1)
-//    mpdiv (f1, t2, t3, mpnw1)
-//    mpeq (t3, sum1, mpnw1)
-//
-//    //   Evaluate the series with t.
-//
-//    do j = 1, itrmx
-//    mpdmc (Double(j), 0, t6, mpnw1)
-//    mpadd (t2, t6, t4, mpnw1)
-//    mpmuld (t4, Double(j), t5, mpnw1)
-//    mpdiv (t3, t5, t6, mpnw1)
-//    mpmuld (t6, d2, t3, mpnw1)
-//    mpadd (sum1, t3, t4, mpnw1)
-//    mpeq (t4, sum1, mpnw1)
-//    if (t3[2) == 0.0 || t3[3) < sum1(3) - mpnw1) goto 100
-//    }
-//
-//    write (6, 3) 1, itrmx
-//    3 format ("*** MPGAMMAR: iteration limit execeeded",2i10)
-//    mpabrt (67)
-//
-//    100 continue
-//
-//    mpeq (tn, t2, mpnw1)
-//    t2[2) = - t2[2)
-//    mpdiv (f1, t2, t3, mpnw1)
-//    mpeq (t3, sum2, mpnw1)
-//
-//    //   Evaluate the same series with -t.
-//
-//    do j = 1, itrmx
-//    mpdmc (Double(j), 0, t6, mpnw1)
-//    mpadd (t2, t6, t4, mpnw1)
-//    mpmuld (t4, Double(j), t5, mpnw1)
-//    mpdiv (t3, t5, t6, mpnw1)
-//    mpmuld (t6, d2, t3, mpnw1)
-//    mpadd (sum2, t3, t4, mpnw1)
-//    mpeq (t4, sum2, mpnw1)
-//    if (t3[2) == 0.0 || t3[3) < sum2(3) - mpnw1) goto 110
-//    }
-//
-//    write (6, 3) 2, itrmx
-//    mpabrt (67)
-//
-//    110 continue
-//
-//    //   Compute sqrt (mppic * sum1 / (tn * sin (mppic * tn) * sum2))
-//    //   and (alpha/2)^tn terms.
-//
-//    mpeq (mppicon, t2, mpnw1)
-//    mpmul (t2, tn, t3, mpnw1)
-//    mpcssnr (t3, t4, t5, mpnw1)
-//    mpmul (t5, sum2, t6, mpnw1)
-//    mpmul (tn, t6, t5, mpnw1)
-//    mpmul (t2, sum1, t3, mpnw1)
-//    mpdiv (t3, t5, t6, mpnw1)
-//    t6(2) = - t6(2)
-//    mpsqrt (t6, t2, mpnw1)
-//
-//    mpdmc (0.5d0 * alpha, 0, t3, mpnw1)
-//    mplog (t3, t4, mpnw1)
-//    mpmul (tn, t4, t5, mpnw1)
-//    mpexp (t5, t6, mpnw1)
-//    mpmul (t2, t6, t3, mpnw1)
-//
-//    mpmul (t1, t3, t4, mpnw1)
-//
-//    //   Round to mpnw words precision.
-//
-//    mproun (t4, mpnw)
-//    mpeq (t4, z, mpnw)
-//
-//    120 continue
-//
-//    return
-//    end subroutine mpgammar
-//
-//    subroutine mpincgammar (s, z, g, mpnw)
-//
-//    //  This returns the incomplete gamma function, using a combination of formula
-//    //  8.7.3 of the DLMF (for modest-sized z) and formula 8.11.2 (for large z).
-//
-//    implicit none
-//    integer i, itrmax, k, mpnw, mpnw1, n
-//    real (mprknd) dmax
-//    parameter (dmax = 40.0, itrmax = 1000000)
-//    real (mprknd) g(0:), s(0:), t0(0:mpnw+6), t1(0:mpnw+6), &
-//    t2[0:mpnw+6), t3(0:mpnw+6), t4(0:mpnw+6), t5(0:mpnw+6), t6(0:mpnw+6), &
-//    z(0:), f1(0:8)
-//
-//    // End of declaration
-//
-//    if (mpnw < 4 || s(0) < mpnw + 4 || s(0) < abs (s(2)) + 4 || &
-//    z(0) < mpnw + 4 || z(0) < abs (z(2)) + 4 || g(0) < mpnw + 6) {
-//    write (mpldb, 1)
-//    1 format ("*** MPINCGAMMAR: uninitialized or inadequately sized arrays")
-//    mpabrt (99)
-//    }
-//
-//    mpnw1 = mpnw + 1
-//    t0[0) = mpnw + 7
-//    t1(0) = mpnw + 7
-//    t2[0) = mpnw + 7
-//    t3[0) = mpnw + 7
-//    t4(0) = mpnw + 7
-//    t5(0) = mpnw + 7
-//    t6(0) = mpnw + 7
-//    f1(0) = 9.0
-//    f1(1) = mpnw1
-//    f1(2) = 1.0
-//    f1(3) = 0.0
-//    f1(4) = 1.0
-//    f1(5) = 0.0
-//    f1(6) = 0.0
-//
-//    // if (abs (z) < dmax * mpnw) {
-//
-//    if (z(3) < 0.0 || (z(3) == 0.0 && z(4) < dmax * mpnw)) {
-//
-//    //  t1 = gamma (s)
-//
-//    mpgammar (s, t1, mpnw1)
-//
-//    //  t2 = 1.0 / (s * t1)
-//
-//    mpmul (s, t1, t3, mpnw1)
-//    mpdiv (f1, t3, t2, mpnw1)
-//
-//    //   t0 = t2
-//
-//    mpeq (t2, t0, mpnw1)
-//
-//    do k = 1, itrmax
-//
-//    //    t2 = t2 * z / (s + Double(k))
-//
-//    mpmul (t2, z, t5, mpnw1)
-//    mpdmc (Double(k), 0, t3, mpnw1)
-//    mpadd (s, t3, t4, mpnw1)
-//    mpdiv (t5, t4, t2, mpnw1)
-//
-//    //    t0 = t0 + t2
-//
-//    mpadd (t0, t2, t3, mpnw1)
-//    mpeq (t3, t0, mpnw1)
-//
-//    if (t2[2) == 0.0 || t2[3) < t0[3) - mpnw) goto 100
-//    }
-//
-//    write (mpldb, 2) 1, itrmax
-//    2 format ("*** MPINCGAMMAR: iteration limit exceeded:",2i10)
-//    mpabrt (101)
-//
-//    100 continue
-//
-//    //   gammainc = t1 * (1.0 - z ** s / exp (z) * t0)
-//
-//    mppower (z, s, t2, mpnw1)
-//    mpexp (z, t3, mpnw1)
-//    mpdiv (t2, t3, t4, mpnw1)
-//    mpmul (t4, t0, t5, mpnw1)
-//    mpsub (f1, t5, t2, mpnw1)
-//    mpmul (t1, t2, t3, mpnw1)
-//    mpeq (t3, t1, mpnw1)
-//    } else {
-//    //  t0 = mpreal (1.0, mpnw)
-//
-//    t0[2) = 1.0
-//    t0[3) = 0.0
-//    t0[4) = 1.0
-//    t0[5) = 0.0
-//    t0[6) = 0.0
-//
-//    //  t1 = mpreal (1.0, mpnw)
-//
-//    t1(2) = 1.0
-//    t1(3) = 0.0
-//    t1(4) = 1.0
-//    t1(5) = 0.0
-//    t1(6) = 0.0
-//
-//    do k = 1, itrmax
-//    //    t1 = t1 * (s - Double(k)) / z
-//
-//    mpdmc (Double(k), 0, t2, mpnw1)
-//    mpsub (s, t2, t3, mpnw1)
-//    mpmul (t1, t3, t4, mpnw1)
-//    mpdiv (t4, z, t1, mpnw1)
-//
-//    //    t0 = t0 + t1
-//
-//    mpadd (t0, t1, t2, mpnw1)
-//    mpeq (t2, t0, mpnw1)
-//
-//    if (t1(2) == 0.0 || t1(3) < t0[3) - mpnw) goto 110
-//    }
-//
-//    write (mpldb, 2) 2, itrmax
-//    mpabrt (101)
-//
-//    110 continue
-//
-//    //  gammainc = z ** (s - 1.0) / exp (z) * t0
-//
-//    mpsub (s, f1, t2, mpnw1)
-//    mppower (z, t2, t3, mpnw1)
-//    mpexp (z, t4, mpnw1)
-//    mpdiv (t3, t4, t2, mpnw1)
-//    mpmul (t2, t0, t1, mpnw1)
-//    }
-//
-//    200 continue
-//
-//    mproun (t1, mpnw)
-//    mpeq (t1, g, mpnw)
-//
-//    return
-//    end subroutine mpincgammar
-//
+    static func mpgammar (_ t : MPRNumber, _ z: inout MPRNumber, _ mpnw : Int) {
+        
+        //   This evaluates the gamma function, using an algorithm of R. W. Potter.
+        //   The argument t must not exceed 10^8 in size (this limit is set below),
+        //   must not be zero, and if negative must not be integer.
+        
+        //   In the parameter statement below:
+        //     itrmx = limit of number of iterations in series; default = 100000.
+        //     con1 = 1/2 * log (10) to DP accuracy.
+        //     dmax = maximum size of input argument.
+        
+        var j, k, mpnw1, ndp, neps, nt, n1, n2, n3 : Int
+        var alpha, d1, d2, d3 : Double
+        let al2 = 0.69314718055994530942; let dmax = 1.0e8; let itrmx = 100000
+        var f1 = MPRNumber(repeating:0, count:9)
+        var sum1 = MPRNumber(repeating:0, count:mpnw+7)
+        var sum2 = sum1; var tn = sum1; var t1 = sum1; var t2 = sum1; var t3 = sum1
+        var t4 = sum1; var t5 = sum1; var t6 = sum1
+        
+        // End of declaration
+        
+        if mpnw < 4 || t[0] < Double(mpnw + 4) || t[0] < abs (t[2]) + 4 || z[0] < Double(mpnw + 6) {
+            print ("*** MPGAMMAR: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        if (t[2] == 0 || t[3] > 0 || (t[3] == 0 && t[4] > dmax) || (t[2] < 0.0 && t[3] == 0.0 && abs(t[2]) == 1.0)) {
+            print("*** MPGAMMAR: input argument must have absolute value <= \(dmax)",
+                "must not be zero, and if negative must not be an integer.")
+            mpabrt (65)
+        }
+        
+        mpnw1 = mpnw + 1
+        f1[0] = 9.0
+        f1[1] = Double(mpnw1)
+        f1[2] = 1.0
+        f1[3] = 0.0
+        f1[4] = 1.0
+        f1[5] = 0.0
+        f1[6] = 0.0
+        sum1[0] = Double(mpnw + 7)
+        sum2[0] = Double(mpnw + 7)
+        tn[0] = Double(mpnw + 7)
+        t1[0] = Double(mpnw + 7)
+        t2[0] = Double(mpnw + 7)
+        t3[0] = Double(mpnw + 7)
+        t4[0] = Double(mpnw + 7)
+        t5[0] = Double(mpnw + 7)
+        t6[0] = Double(mpnw + 7)
+        
+        //   Find the integer and fractional parts of t.
+        
+        mpinfr (t, &t2, &t3, mpnw1)
+        
+        if t3[2] == 0.0 {
+            
+            //   If t is a positive integer, then apply the usual factorial recursion.
+            
+            mpmdc (t2, &d2, &n2, mpnw1)
+            nt = Int(d2 * pow(2, Double(n2)))
+            mpeq (f1, &t1, mpnw1)
+            
+            for i in 2...nt - 1 {
+                mpmuld (t1, Double(i), &t2, mpnw1)
+                mpeq (t2, &t1, mpnw1)
+            }
+            
+            mproun (&t1, mpnw)
+            mpeq (t1, &z, mpnw)
+            return // goto 120
+        } else if t[2] > 0.0 {
+            
+            //   Apply the identity Gamma[t+1] = t * Gamma[t] to reduce the input argument
+            //   to the unit interval.
+            
+            mpmdc (t2, &d2, &n2, mpnw1)
+            nt = Int(d2 * pow(2, Double(n2)))
+            mpeq (f1, &t1, mpnw1)
+            mpeq (t3, &tn, mpnw1)
+            
+            for i in 1...nt {
+                mpdmc (Double(i), 0, &t4, mpnw1)
+                mpsub (t, t4, &t5, mpnw1)
+                mpmul (t1, t5, &t6, mpnw1)
+                mpeq (t6, &t1, mpnw1)
+            }
+        } else {
+            
+            //   Apply the gamma identity to reduce a negative argument to the unit interval.
+            
+            mpsub (f1, t, &t4, mpnw1)
+            mpinfr (t4, &t3, &t5, mpnw1)
+            mpmdc (t3, &d3, &n3, mpnw1)
+            nt = Int(d3 * pow(2, Double(n3)))
+            
+            mpeq (f1, &t1, mpnw1)
+            mpsub (f1, t5, &t2, mpnw1)
+            mpeq (t2, &tn, mpnw1)
+            
+            for i in 0...nt - 1 {
+                //    t1 = t1 / (t + Double(i))
+                mpdmc (Double(i), 0, &t4, mpnw1)
+                mpadd (t, t4, &t5, mpnw1)
+                mpdiv (t1, t5, &t6, mpnw1)
+                mpeq (t6, &t1, mpnw1)
+            }
+        }
+        
+        //   Calculate alpha = bits of precision * log(2) / 2, then take the nearest integer
+        //   value, so that d2 = 0.25 * alpha^2 can be calculated exactly in DP.
+        
+        alpha = aint (0.5 * Double(mpnbt) * al2 * Double(mpnw1 + 1))
+        d2 = 0.25 * alpha*alpha
+        
+        mpeq (tn, &t2, mpnw1)
+        mpdiv (f1, t2, &t3, mpnw1)
+        mpeq (t3, &sum1, mpnw1)
+        
+        //   Evaluate the series with t.
+        
+        var flag = false
+        for j in 1...itrmx {
+            mpdmc (Double(j), 0, &t6, mpnw1)
+            mpadd (t2, t6, &t4, mpnw1)
+            mpmuld (t4, Double(j), &t5, mpnw1)
+            mpdiv (t3, t5, &t6, mpnw1)
+            mpmuld (t6, d2, &t3, mpnw1)
+            mpadd (sum1, t3, &t4, mpnw1)
+            mpeq (t4, &sum1, mpnw1)
+            if t3[2] == 0.0 || t3[3] < sum1[3] - Double(mpnw1) { break; flag = true /* goto 100 */ }
+        }
+        
+        if !flag {
+            print ("*** MPGAMMAR: iteration limit execeeded \(itrmx)")
+            mpabrt (67)
+        }
+        
+        // 100 continue
+        
+        mpeq (tn, &t2, mpnw1)
+        t2[2] = -t2[2]
+        mpdiv (f1, t2, &t3, mpnw1)
+        mpeq (t3, &sum2, mpnw1)
+        
+        //   Evaluate the same series with -t.
+        
+        flag = false
+        for j in 1...itrmx {
+            mpdmc (Double(j), 0, &t6, mpnw1)
+            mpadd (t2, t6, &t4, mpnw1)
+            mpmuld (t4, Double(j), &t5, mpnw1)
+            mpdiv (t3, t5, &t6, mpnw1)
+            mpmuld (t6, d2, &t3, mpnw1)
+            mpadd (sum2, t3, &t4, mpnw1)
+            mpeq (t4, &sum2, mpnw1)
+            if t3[2] == 0.0 || t3[3] < sum2[3] - Double(mpnw1) {  break; flag = true /* goto 110 */ }
+        }
+        
+        if !flag {
+            print ("*** MPGAMMAR: iteration limit execeeded \(itrmx)")
+            mpabrt (67)
+        }
+        
+        // 110 continue
+        
+        //   Compute sqrt (mppic * sum1 / (tn * sin (mppic * tn) * sum2))
+        //   and (alpha/2)^tn terms.
+        
+        mpeq (mppicon, &t2, mpnw1)
+        mpmul (t2, tn, &t3, mpnw1)
+        mpcssnr (t3, t4, t5, mpnw1)
+        mpmul (t5, sum2, &t6, mpnw1)
+        mpmul (tn, t6, &t5, mpnw1)
+        mpmul (t2, sum1, &t3, mpnw1)
+        mpdiv (t3, t5, &t6, mpnw1)
+        t6[2] = -t6[2]
+        mpsqrt (t6, &t2, mpnw1)
+        
+        mpdmc (0.5 * alpha, 0, &t3, mpnw1)
+        mplog (t3, t4, mpnw1)
+        mpmul (tn, t4, &t5, mpnw1)
+        mpexp (t5, t6, mpnw1)
+        mpmul (t2, t6, &t3, mpnw1)
+        
+        mpmul (t1, t3, &t4, mpnw1)
+        
+        //   Round to mpnw words precision.
+        
+        mproun (&t4, mpnw)
+        mpeq (t4, &z, mpnw)
+        
+        // 120 continue
+        
+    } // mpgammar
+
+    static func mpincgammar (_ s : MPRNumber, _ z : MPRNumber, _ g : inout MPRNumber, _ mpnw : Int) {
+        
+        //  This returns the incomplete gamma function, using a combination of formula
+        //  8.7.3 of the DLMF (for modest-sized z) and formula 8.11.2 (for large z).
+        
+        var mpnw1, n : Int
+        let dmax = 40.0; let itrmax = 1000000
+        var f1 = MPRNumber(repeating:0, count:9)
+        var t0 = MPRNumber(repeating:0, count:mpnw+7)
+        var t1 = t0; var t2 = t0; var t3 = t0
+        var t4 = t0; var t5 = t0; var t6 = t0
+        
+        // End of declaration
+        
+        if mpnw < 4 || s[0] < Double(mpnw+4) || s[0] < abs(s[2]) + 4 || z[0] < Double(mpnw+4) || z[0] < abs(z[2]) + 4 || g[0] < Double(mpnw+6) {
+            print ("*** MPINCGAMMAR: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        mpnw1 = mpnw + 1
+        t0[0] = Double(mpnw + 7)
+        t1[0] = Double(mpnw + 7)
+        t2[0] = Double(mpnw + 7)
+        t3[0] = Double(mpnw + 7)
+        t4[0] = Double(mpnw + 7)
+        t5[0] = Double(mpnw + 7)
+        t6[0] = Double(mpnw + 7)
+        f1[0] = 9.0
+        f1[1] = Double(mpnw1)
+        f1[2] = 1.0
+        f1[3] = 0.0
+        f1[4] = 1.0
+        f1[5] = 0.0
+        f1[6] = 0.0
+        
+        // if (abs (z) < dmax * mpnw) {
+        
+        if z[3] < 0.0 || (z[3] == 0.0 && z[4] < dmax * Double(mpnw)) {
+            
+            //  t1 = gamma (s)
+            
+            mpgammar (s, &t1, mpnw1)
+            
+            //  t2 = 1.0 / (s * t1)
+            
+            mpmul (s, t1, &t3, mpnw1)
+            mpdiv (f1, t3, &t2, mpnw1)
+            
+            //   t0 = t2
+            
+            mpeq (t2, &t0, mpnw1)
+            
+            var flag = false
+            for k in 1...itrmax {
+                
+                //    t2 = t2 * z / (s + Double(k))
+                
+                mpmul (t2, z, &t5, mpnw1)
+                mpdmc (Double(k), 0, &t3, mpnw1)
+                mpadd (s, t3, &t4, mpnw1)
+                mpdiv (t5, t4, &t2, mpnw1)
+                
+                //    t0 = t0 + t2
+                
+                mpadd (t0, t2, &t3, mpnw1)
+                mpeq (t3, &t0, mpnw1)
+                
+                if t2[2] == 0.0 || t2[3] < t0[3] - Double(mpnw)  { flag = true; break /* goto 100 */ }
+            }
+            
+            if !flag {
+                print ("*** MPINCGAMMAR: iteration limit exceeded: \(itrmax)")
+                mpabrt (101)
+            }
+            
+            // 100 continue
+            
+            //   gammainc = t1 * (1.0 - z ** s / exp (z) * t0)
+            
+            mppower (z, s, &t2, mpnw1)
+            mpexp (z, t3, mpnw1)
+            mpdiv (t2, t3, &t4, mpnw1)
+            mpmul (t4, t0, &t5, mpnw1)
+            mpsub (f1, t5, &t2, mpnw1)
+            mpmul (t1, t2, &t3, mpnw1)
+            mpeq (t3, &t1, mpnw1)
+        } else {
+            //  t0 = mpreal (1.0, mpnw)
+            
+            t0[2] = 1.0
+            t0[3] = 0.0
+            t0[4] = 1.0
+            t0[5] = 0.0
+            t0[6] = 0.0
+            
+            //  t1 = mpreal (1.0, mpnw)
+            
+            t1[2] = 1.0
+            t1[3] = 0.0
+            t1[4] = 1.0
+            t1[5] = 0.0
+            t1[6] = 0.0
+            
+            var flag = false
+            for k in 1...itrmax {
+                //    t1 = t1 * (s - Double(k)) / z
+                
+                mpdmc (Double(k), 0, &t2, mpnw1)
+                mpsub (s, t2, &t3, mpnw1)
+                mpmul (t1, t3, &t4, mpnw1)
+                mpdiv (t4, z, &t1, mpnw1)
+                
+                //    t0 = t0 + t1
+                
+                mpadd (t0, t1, &t2, mpnw1)
+                mpeq (t2, &t0, mpnw1)
+                
+                if t1[2] == 0.0 || t1[3] < t0[3] - Double(mpnw) { flag = true; break /* goto 110 */ }
+            }
+            
+            if !flag {
+                print ("*** MPINCGAMMAR: iteration limit exceeded: \(itrmax)")
+                mpabrt (101)
+            }
+            
+            // 110 continue
+            
+            //  gammainc = z ** (s - 1.0) / exp (z) * t0
+            
+            mpsub (s, f1, &t2, mpnw1)
+            mppower (z, t2, &t3, mpnw1)
+            mpexp (z, t4, mpnw1)
+            mpdiv (t3, t4, &t2, mpnw1)
+            mpmul (t2, t0, &t1, mpnw1)
+        }
+        
+        // 200 continue
+        
+        mproun (&t1, mpnw)
+        mpeq (t1, &g, mpnw)
+        
+    } // mpincgammar
+
 //    subroutine mpzetar (ss, zz, mpnw)
 //
 //    //   This returns the zeta function at positive real argument SS using an algorithm
@@ -588,35 +589,35 @@ extension MPFUN {
 //
 //    //   Check if argument is 1 -- undefined.
 //
-//    if (ss(2) == 1.0 && ss(3) == 0.0 && ss(4) == 1.0) {
+//    if (ss(2] == 1.0 && ss(3] == 0.0 && ss(4] == 1.0) {
 //    write (mpldb, 2)
 //    2 format ("*** MPZETAR: argument is 1")
 //    mpabrt (63)
 //    }
 //
 //    mpnw1 = mpnw + 1
-//    s(0) = mpnw + 7
-//    t1(0) = mpnw + 7
-//    t2[0) = mpnw + 7
-//    t3[0) = mpnw + 7
-//    t4(0) = mpnw + 7
-//    t5(0) = mpnw + 7
-//    tn(0) = mpnw + 7
-//    tt(0) = mpnw + 7
+//    s(0] = mpnw + 7
+//    t1(0] = mpnw + 7
+//    t2[0] = mpnw + 7
+//    t3[0] = mpnw + 7
+//    t4(0] = mpnw + 7
+//    t5(0] = mpnw + 7
+//    tn(0] = mpnw + 7
+//    tt[0] = mpnw + 7
 //
 //    //   Set f1 = 1.
 //
-//    f1(0) = 9.0
-//    f1(1) = mpnw1
-//    f1(2) = 1.0
-//    f1(3) = 0.0
-//    f1(4) = 1.0
-//    f1(5) = 0.0
-//    f1(6) = 0.0
+//    f1[0] = 9.0
+//    f1[1] = mpnw1
+//    f1[2] = 1.0
+//    f1[3] = 0.0
+//    f1[4] = 1.0
+//    f1[5] = 0.0
+//    f1[6] = 0.0
 //
 //    //   Check if argument is zero.  If so, the result is -1/2.
 //
-//    if (ss(2) == 0.0) {
+//    if (ss(2] == 0.0) {
 //    mpdmc (-0.5d0, 0, t1, mpnw1)
 //    goto 200
 //    }
@@ -629,11 +630,11 @@ extension MPFUN {
 //
 //    mpmuld (ss, 0.5d0, t1, mpnw1)
 //    mpinfr (t1, t2, t3, mpnw1)
-//    if (t3[2) == 0.0) {
-//    t1(1) = mpnw1
-//    t1(2) = 0.0
-//    t1(3) = 0.0
-//    t1(4) = 0.0
+//    if (t3[2] == 0.0) {
+//    t1(1] = mpnw1
+//    t1(2] = 0.0
+//    t1(3] = 0.0
+//    t1(4] = 0.0
 //    goto 200
 //    }
 //
@@ -649,16 +650,16 @@ extension MPFUN {
 //    // if (tt .gt. mpreald (dlogb * mpnw / log (32.0 * mpnw), mpnw)) {
 //
 //    d1 = dlogb * mpnw / log (32.0 * mpnw)
-//    if (tt(2) >= 1.0 && (tt(3) > 1.0 || tt(3) == 0.0 && tt(4) > d1)) {
+//    if (tt[2) >= 1.0 && (tt[3) > 1.0 || tt[3] == 0.0 && tt[4) > d1)) {
 //
 //    //  t1 = mpreal (1.0, mpnw)
 //
-//    t1(1) = mpnw1
-//    t1(2) = 1.0
-//    t1(3) = 0.0
-//    t1(4) = 1.0
-//    t1(5) = 0.0
-//    t1(6) = 0.0
+//    t1(1] = mpnw1
+//    t1(2] = 1.0
+//    t1(3] = 0.0
+//    t1(4] = 1.0
+//    t1(5] = 0.0
+//    t1(6] = 0.0
 //
 //    do i = 2, itrmax
 //
@@ -676,7 +677,7 @@ extension MPFUN {
 //    mpadd (t1, t3, t2, mpnw1)
 //    mpeq (t2, t1, mpnw1)
 //
-//    if (t3[2) == 0.0 || t3[3) < - mpnw) goto 200
+//    if (t3[2] == 0.0 || t3[3) < - mpnw) goto 200
 //    }
 //
 //    write (mpldb, 3) 1, itrmax
@@ -688,26 +689,26 @@ extension MPFUN {
 //
 //    // tn = mpreal (2.0, mpnw) ** n
 //
-//    tn(0) = mpnw + 7
+//    tn(0] = mpnw + 7
 //    mpdmc (1.0, n, tn, mpnw1)
 //
 //    // t1 = - tn
 //
 //    mpeq (tn, t1, mpnw1)
-//    t1(2) = - t1(2)
+//    t1(2] = - t1(2)
 //
 //    // t2 = mpreal (0.0, mpnw)
 //
-//    t2[2) = 0.0
-//    t2[3) = 0.0
-//    t2[4) = 0.0
+//    t2[2] = 0.0
+//    t2[3] = 0.0
+//    t2[4] = 0.0
 //
 //    // s = mpreal (0.0, mpnw)
 //
-//    s(1) = mpnw1
-//    s(2) = 0.0
-//    s(3) = 0.0
-//    s(4) = 0.0
+//    s(1] = mpnw1
+//    s(2] = 0.0
+//    s(3] = 0.0
+//    s(4] = 0.0
 //
 //    sgn = 1.0
 //
@@ -720,7 +721,7 @@ extension MPFUN {
 //    //  s = s + sgn * t1 / t3
 //
 //    mpdiv (t1, t3, t4, mpnw1)
-//    if (sgn < 0.0) t4(2) = - t4(2)
+//    if (sgn < 0.0) t4(2] = - t4(2)
 //    mpadd (s, t4, t5, mpnw1)
 //    mpeq (t5, s, mpnw1)
 //
@@ -729,18 +730,18 @@ extension MPFUN {
 //    if (j .lt. n - 1) {
 //    //    t2 = mpreal (0.0, mpnw)
 //
-//    t2[2) = 0.0
-//    t2[3) = 0.0
-//    t2[4) = 0.0
+//    t2[2] = 0.0
+//    t2[3] = 0.0
+//    t2[4] = 0.0
 //
 //    } else if (j .eq. n - 1) {
 //    //    t2 = mpreal (1.0, mpnw)
 //
-//    t2[2) = 1.0
-//    t2[3) = 0.0
-//    t2[4) = 1.0
-//    t2[5) = 0.0
-//    t2[6) = 0.0
+//    t2[2] = 1.0
+//    t2[3] = 0.0
+//    t2[4] = 1.0
+//    t2[5] = 0.0
+//    t2[6] = 0.0
 //
 //    } else {
 //    //     t2 = t2 * Double(2 * n - j) / Double(j + 1 - n)
@@ -758,16 +759,16 @@ extension MPFUN {
 //    // t1 = - s / (tn * (1.0 - mpreal (2.0, mpnw) ** (1.0 - tt)))
 //
 //    mpsub (f1, tt, t3, mpnw1)
-//    t2[2) = 1.0
-//    t2[3) = 0.0
-//    t2[4) = 2.0
-//    t2[5) = 0.0
-//    t2[6) = 0.0
+//    t2[2] = 1.0
+//    t2[3] = 0.0
+//    t2[4] = 2.0
+//    t2[5] = 0.0
+//    t2[6] = 0.0
 //    mppower (t2, t3, t4, mpnw1)
 //    mpsub (f1, t4, t2, mpnw1)
 //    mpmul (tn, t2, t3, mpnw1)
 //    mpdiv (s, t3, t1, mpnw1)
-//    t1(2) = - t1(2)
+//    t1(2] = - t1(2)
 //
 //    //   If original argument was negative, apply the reflection formula.
 //
@@ -820,7 +821,7 @@ extension MPFUN {
 //
 //    //   Check if argument is 1 -- undefined.
 //
-//    if (s(2) == 1.0 && s(3) == 0.0 && s(4) == 1.0) {
+//    if (s(2] == 1.0 && s(3] == 0.0 && s(4] == 1.0) {
 //    write (mpldb, 2)
 //    2 format ("*** MPZETAEMR: argument is 1")
 //    mpabrt (63)
@@ -840,31 +841,31 @@ extension MPFUN {
 //    i = 0
 //    k = 0
 //    mpnw1 = mpnw + 1
-//    t0[0) = mpnw + 7
-//    t1(0) = mpnw + 7
-//    t2[0) = mpnw + 7
-//    t3[0) = mpnw + 7
-//    t4(0) = mpnw + 7
-//    t5(0) = mpnw + 7
-//    t6(0) = mpnw + 7
-//    t7(0) = mpnw + 7
-//    t8(0) = mpnw + 7
-//    t9(0) = mpnw + 7
-//    tt(0) = mpnw + 7
+//    t0[0] = mpnw + 7
+//    t1(0] = mpnw + 7
+//    t2[0] = mpnw + 7
+//    t3[0] = mpnw + 7
+//    t4(0] = mpnw + 7
+//    t5(0] = mpnw + 7
+//    t6(0] = mpnw + 7
+//    t7(0] = mpnw + 7
+//    t8(0] = mpnw + 7
+//    t9(0] = mpnw + 7
+//    tt[0] = mpnw + 7
 //
 //    //   Set f1 = 1.
 //
-//    f1(0) = 9.0
-//    f1(1) = mpnw1
-//    f1(2) = 1.0
-//    f1(3) = 0.0
-//    f1(4) = 1.0
-//    f1(5) = 0.0
-//    f1(6) = 0.0
+//    f1[0] = 9.0
+//    f1[1] = mpnw1
+//    f1[2] = 1.0
+//    f1[3] = 0.0
+//    f1[4] = 1.0
+//    f1[5] = 0.0
+//    f1[6] = 0.0
 //
 //    //   Check if argument is zero.  If so, result is - 1/2.
 //
-//    if (s(2) == 0.0) {
+//    if (s(2] == 0.0) {
 //    mpdmc (-0.5d0, 0, t1, mpnw)
 //    goto 200
 //    }
@@ -877,11 +878,11 @@ extension MPFUN {
 //
 //    mpmuld (s, 0.5d0, t1, mpnw1)
 //    mpinfr (t1, t2, t3, mpnw1)
-//    if (t3[2) == 0.0) {
-//    t1(1) = mpnw1
-//    t1(2) = 0.0
-//    t1(3) = 0.0
-//    t1(4) = 0.0
+//    if (t3[2] == 0.0) {
+//    t1(1] = mpnw1
+//    t1(2] = 0.0
+//    t1(3] = 0.0
+//    t1(4] = 0.0
 //    goto 200
 //    }
 //
@@ -897,16 +898,16 @@ extension MPFUN {
 //    // if (tt .gt. mpreald (dlogb * mpnw / log (32.0 * mpnw), mpnw)) {
 //
 //    d1 = dlogb * mpnw / log (32.0 * mpnw)
-//    if (tt(3) > 1.0 || (tt(3) == 0.0 && tt(4) > d1)) {
+//    if (tt[3) > 1.0 || (tt[3] == 0.0 && tt[4) > d1)) {
 //
 //    //  t1 = mpreal (1.0, mpnw)
 //
-//    t1(1) = mpnw1
-//    t1(2) = 1.0
-//    t1(3) = 0.0
-//    t1(4) = 1.0
-//    t1(5) = 0.0
-//    t1(6) = 0.0
+//    t1(1] = mpnw1
+//    t1(2] = 1.0
+//    t1(3] = 0.0
+//    t1(4] = 1.0
+//    t1(5] = 0.0
+//    t1(6] = 0.0
 //
 //    do i = 2, itrmax
 //
@@ -924,7 +925,7 @@ extension MPFUN {
 //    mpadd (t1, t3, t2, mpnw1)
 //    mpeq (t2, t1, mpnw1)
 //
-//    if (t3[2) == 0.0 || t3[3) < - mpnw) goto 200
+//    if (t3[2] == 0.0 || t3[3) < - mpnw) goto 200
 //    }
 //
 //    write (mpldb, 4) 1, itrmax
@@ -934,12 +935,12 @@ extension MPFUN {
 //
 //    // t0 = mpreal (1.0, mpnw)
 //
-//    t0[1) = mpnw1
-//    t0[2) = 1.0
-//    t0[3) = 0.0
-//    t0[4) = 1.0
-//    t0[5) = 0.0
-//    t0[6) = 0.0
+//    t0[1] = mpnw1
+//    t0[2] = 1.0
+//    t0[3] = 0.0
+//    t0[4] = 1.0
+//    t0[5] = 0.0
+//    t0[6] = 0.0
 //
 //    nn = dfrac * mpnw1
 //
@@ -1014,15 +1015,15 @@ extension MPFUN {
 //
 //    ia = sign (1.0, berne(2,k))
 //    na = min (int (abs (berne(2,k))), mpnw1)
-//    t8(1) = mpnw1
-//    t8(2) = sign (na, ia)
+//    t8(1] = mpnw1
+//    t8(2] = sign (na, ia)
 //
 //    do i = 2, na + 2
-//    t8(i+1) = berne(i+1,k)
+//    t8(i+1] = berne(i+1,k)
 //    }
 //
-//    t8(na+4) = 0.0
-//    t8(na+5) = 0.0
+//    t8(na+4] = 0.0
+//    t8(na+5] = 0.0
 //    mpmul (t3, t8, t4, mpnw1)
 //    //+
 //    mpmuld (t5, Double(2 * k), t6, mpnw1)
@@ -1033,7 +1034,7 @@ extension MPFUN {
 //    mpadd (t2, t7, t4, mpnw1)
 //    mpeq (t4, t2, mpnw1)
 //
-//    if (t7(2) == 0.0 || t7(3) < t2[3) - mpnw) goto 110
+//    if (t7(2] == 0.0 || t7(3) < t2[3) - mpnw) goto 110
 //    }
 //
 //    write (mpldb, 3) 2, min (nb2, itrmax)
