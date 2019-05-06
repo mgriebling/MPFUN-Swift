@@ -466,7 +466,7 @@ public class MPFUN {
         0,                0
     )
     
-    let mppicon = Array<Double>(arrayLiteral:
+    static let mppicon = Array<Double>(arrayLiteral:
         // Entries 0,   199
         1366,             1360,             1360,                0,
         3,   39854788871587,    9702651562542,    3781505098761,
