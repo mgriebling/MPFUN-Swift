@@ -26,8 +26,10 @@ public struct MPReal {
     
     init(_ numberWords : Int = mpwds6) {
         //   Set initial number = 0
-        number = MPFUN.MPRNumber(arrayLiteral: Double(numberWords), 7, 1, 0, 0, 0, 0)
-        number.reserveCapacity(numberWords)
+        number = MPFUN.MPRNumber(repeating: 0, count: numberWords)
+        number[0] = Double(numberWords)
+        number[1] = 7
+        number[2] = 1
     }
     
     

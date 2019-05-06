@@ -35,7 +35,7 @@ extension MPFUN {
         //   result is of type MPR).
         
         var la, mpnw1 : Int
-        var s0 = MPRNumber(repeating: 0, count: mpnw+6)
+        var s0 = MPRNumber(repeating: 0, count: mpnw+7)
         var s1 = s0; var s2 = s0
         
         // End of declaration
@@ -188,17 +188,13 @@ extension MPFUN {
         
         //   Sets the MPR number B equal to the MPR number A.
         
-        var ia, na : Int
-        
-        // End of declaration
-        
         if mpnw < 4 || a[0] < abs (a[2]) + 4 || b[0] < Double(mpnw + 6) {
             print ("*** MPEQ: uninitialized or inadequately sized arrays")
             mpabrt (99)
         }
         
-        ia = sign (1, a[2])
-        na = min (Int (abs (a[2])), mpnw)
+        let ia = sign (1, a[2])
+        let na = min (Int (abs (a[2])), mpnw)
         if na == 0  {
             b[1] = Double(mpnw)
             b[2] = 0
@@ -308,7 +304,7 @@ extension MPFUN {
         //   This routine adds MPR numbers A and B to yield C.
         
         var ia, ib, ish, ixa, ixb, ixd, m1, m2, m3, m4, m5, na, nb, nd, nsh : Int
-        var d = MPRNumber(repeating: 0, count: mpnw+6)
+        var d = MPRNumber(repeating: 0, count: mpnw+7)
         var db : Double
         
         // End of declaration
@@ -370,24 +366,34 @@ extension MPFUN {
             m4 = min (max (na, ish), mpnw + 1)
             m5 = min (max (na, nb + ish), mpnw + 1)
             
-            for i in 0..<m1 {
-                d[i+3] = a[i+3]
+            if m1 >= 1 {
+                for i in 1...m1 {
+                    d[i+3] = a[i+3]
+                }
             }
             
-            for i in m1..<m2 {
-                d[i+3] = a[i+3] + db * b[i+2-ish+1]
+            if m2 >= m1+1 {
+                for i in m1+1...m2 {
+                    d[i+3] = a[i+3] + db * b[i+2-ish+1]
+                }
             }
             
-            for i in m2..<m3 {
-                d[i+3] = a[i+3]
+            if m3 >= m2+1 {
+                for i in m2+1...m3 {
+                    d[i+3] = a[i+3]
+                }
             }
             
-            for i in m3..<m4 {
-                d[i+3] = 0
+            if m2 >= m3+1 {
+                for i in m3+1...m4 {
+                    d[i+3] = 0
+                }
             }
             
-            for i in m4..<m5 {
-                d[i+3] = db * b[i+2-ish+1]
+            if m5 >= m4+1 {
+                for i in m4+1...m5 {
+                    d[i+3] = db * b[i+2-ish+1]
+                }
             }
             
             nd = m5
@@ -405,24 +411,34 @@ extension MPFUN {
             m4 = min (max (nb, nsh), mpnw + 1)
             m5 = min (max (nb, na + nsh), mpnw + 1)
             
-            for i in 0..<m1 {
-                d[i+3] = db * b[i+3]
+            if m1 >= 1 {
+                for i in 1...m1 {
+                    d[i+3] = db * b[i+3]
+                }
             }
             
-            for i in m1..<m2 {
-                d[i+3] = a[i+2-nsh+1] + db * b[i+3]
+            if m2 >= m1+1 {
+                for i in m1+1...m2 {
+                    d[i+3] = a[i+2-nsh+1] + db * b[i+3]
+                }
             }
             
-            for i in  m2..<m3 {
-                d[i+3] = db * b[i+3]
+            if m3 >= m2+1 {
+                for i in m2+1...m3 {
+                    d[i+3] = db * b[i+3]
+                }
             }
             
-            for i in m3..<m4 {
-                d[i+3] = 0
+            if m2 >= m3+1 {
+                for i in m3+1...m4 {
+                    d[i+3] = 0
+                }
             }
             
-            for i in m4..<m5 {
-                d[i+3] = a[i+2-nsh+1]
+            if m5 >= m4+1 {
+                for i in m4+1...m5 {
+                    d[i+3] = a[i+2-nsh+1]
+                }
             }
             
             nd = m5
@@ -438,7 +454,7 @@ extension MPFUN {
         d[2] = Double(sign (Double(nd), Double(ia)))
         d[3] = Double(ixd)
         
-        mpnorm (&d, &c, mpnw)
+        mpnorm (d, &c, mpnw)
     }
     
     static func mpmul (_ a : MPRNumber, _ b : MPRNumber, _ c : inout MPRNumber, _ mpnw : Int) {
@@ -520,6 +536,7 @@ extension MPFUN {
         d[0] = Double(mpnw + 6)
         d[1] = Double(mpnw)
         
+        // probably not needed since we already zeroed d
         for i in 1...nc + 4 {
             d[i+1] = 0.0
         }
@@ -576,7 +593,7 @@ extension MPFUN {
         
         //   Fix up result, since some words may be negative or exceed MPBDX.
         
-        mpnorm (&d, &c, mpnw)
+        mpnorm (d, &c, mpnw)
         
         //    200 continue
         
@@ -598,7 +615,7 @@ extension MPFUN {
         
         var ia, ib, na, n1 : Int
         var a1, a2, bb, b1, b2, c1, c2, dc : Double
-        var d = MPRNumber(repeating: 0, count: mpnw+5)
+        var d = MPRNumber(repeating: 0, count: mpnw+6)
         
         // End of declaration
         
@@ -690,7 +707,7 @@ extension MPFUN {
         
         //   Fix up the result.
         
-        mpnorm (&d, &c, mpnw)
+        mpnorm (d, &c, mpnw)
         
         d[3] = a[3] + Double(n1)
         
@@ -743,7 +760,7 @@ extension MPFUN {
         var i2, i3, ia, ib, ij, iss, j, j3, md, na, nb, nc : Int
         let mpnwx = 200
         var a1, a2, b1, b2, c1, c2, dc, rb, t0, t1, t2 : Double
-        var d = MPRNumber(repeating: 0, count: mpnw+6)
+        var d = MPRNumber(repeating: 0, count: mpnw+7)
         
         // End of declaration
         
@@ -887,7 +904,7 @@ extension MPFUN {
         
         //   Call mpnorm to fix up any remaining bugs and perform rounding.
         
-        mpnorm (&d, &c, mpnw)
+        mpnorm (d, &c, mpnw)
         
         //190 continue
         //200 continue
@@ -907,7 +924,7 @@ extension MPFUN {
         
         var iss, ia, ib, j, md, na, nc, n1 : Int
         var a1, a2, bb, b1, b2, c1, c2, dc, rb, t0, t1 : Double
-        var d = MPRNumber(repeating: 0, count: mpnw+5)
+        var d = MPRNumber(repeating: 0, count: mpnw+6)
         
         // End of declaration
         
@@ -1059,7 +1076,7 @@ extension MPFUN {
         
         //   Call mpnorm to fix up any remaining bugs and perform rounding.
         
-        mpnorm (&d, &c, mpnw)
+        mpnorm (d, &c, mpnw)
         
         //190 continue
         //return
@@ -1152,7 +1169,7 @@ extension MPFUN {
         //   Examples:  If A = 1.49, B = 1.; if A = 3.5, B = 4; if A = -2.5, B = -3.
         
         var ia, ma, na : Int
-        var s0 = MPRNumber(repeating: 0, count: mpnw+5)
+        var s0 = MPRNumber(repeating: 0, count: mpnw+6)
         var s1 = s0
         
         // End of declaration
@@ -1201,7 +1218,7 @@ extension MPFUN {
         //return
     } // mpnint
     
-    static func mpnorm (_ d: inout MPRNumber, _ a: inout MPRNumber, _ mpnw : Int) {
+    static func mpnorm (_ d: MPRNumber, _ a: inout MPRNumber, _ mpnw : Int) {
         
         //   This converts the MP number in array D to the standard normalized form
         //   in A.
@@ -1212,6 +1229,7 @@ extension MPFUN {
         
         var ia, na, n4 : Int
         var a2, t1, t2, t3 : Double
+        var d = d  // create a local mutable copy
         
         // End of declaration
         
@@ -1595,13 +1613,13 @@ extension MPFUN {
             //   Find the first nonzero word and shift the entire number left.  The length
             //   of the result is reduced by the length of the shift.
             var flag = false
-            var gi = 0
-            for i in 4...n4 {
-                gi = i
+            var i = 4
+            while i <= n4 {
                 if a[i+1] != 0  {
                     flag = true
                     break // goto 110
                 }
+                i += 1
             }
             
             if !flag {
@@ -1612,9 +1630,9 @@ extension MPFUN {
             
             // 110 continue
             
-            k = gi - 3
+            k = i - 3
             
-            for i in 3...n4 - k {
+            for i in 3...n4-k {
                 a[i+1] = a[i+k+1]
             }
             
@@ -1626,7 +1644,7 @@ extension MPFUN {
         //   Perform rounding.
         
         if na == mpnw {
-            if a[na+4] >= 0.5 * mpbdx { a[na+3] = a[na+3] + 1 }
+            if a[na+4] >= 0.5 * mpbdx { a[na+3] += 1 }
             
             //   Release carries as far as necessary due to rounding.
             var flag = false
@@ -1652,13 +1670,12 @@ extension MPFUN {
             //   At least the last mantissa word is zero.  Find the last nonzero word
             //   and adjust the length of the result accordingly.
             var flag = false
-            var gi = 0
-            for i in stride(from: na + 2, through: 3, by:-1) {
-                gi = i
+            var i = na + 2
+            while i >= 3 {
                 if a[i+1] != 0  {
-                    flag = true
-                    //  goto 160
+                    flag = true; break //  goto 160
                 }
+                i -= 1
             }
             
             if !flag {
@@ -1669,7 +1686,7 @@ extension MPFUN {
             
             // 160  continue
             
-            na = gi - 2
+            na = i - 2
         }
         
         //   Check for overflow and underflow.
@@ -1831,7 +1848,7 @@ extension MPFUN {
         //   This routine subtracts MPR numbers A and B to yield C.
         
         var nb : Int
-        var s = MPRNumber(repeating: 0, count: mpnw+5)
+        var s = MPRNumber(repeating: 0, count: mpnw+6)
         
         // End of declaration
         

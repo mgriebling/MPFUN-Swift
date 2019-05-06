@@ -18,8 +18,8 @@ class ViewController: UIViewController {
         var a = MPReal()
         var b = ""
         
-        MPFUN.mpctomp("1.0", &a.number, 10)
-        MPFUN.mpfformat(a.number, 20, 10, &b, 10)
+        MPFUN.mpctomp("1.0e100", &a.number, 10)
+        MPFUN.mpfformat(a.number, 140, 10, &b, 10)
 
     }
 

@@ -96,12 +96,10 @@ extension MPFUN {
         s0[0] = Double(mpnw + 7)
         s1[0] = Double(mpnw + 7)
         s2[0] = Double(mpnw + 7)
+        
+        // other digits were zeroed above
         f[0] = 9.0
         f[1] = Double(mpnw)
-        
-//        for i in 2...8 {
-//            f[i] = 0
-//        }
         
         mpnw1 = mpnw + 1
         kde = 0
@@ -109,34 +107,12 @@ extension MPFUN {
         kper = 0
         ksgn = " "
         kexpsgn = "+"
-        
-        //   Locate:
-        //     kstart = index of first nonblank character.
-        //     kend = index of last nonblank character.
-        
-//        for i in 1...n {
-//            if (a[i] != " ")  { goto 100 }
-//        }
-//
+ 
         //   Input is completely blank.
         if a.isEmpty {
             abort(4)
             mpabrt (41)
         }
-        
-//        100 continue
-//
-//        kstart = i
-//
-//        for i in n, kstart, -1 {
-//            if (a[i] /= " ") goto 110
-//        }
-//
-//        i = kstart
-//
-//        110 continue
-//
-//        kend = i
         
         //   Scan input for:
         //     kde = index of "d" or "e".
@@ -178,7 +154,7 @@ extension MPFUN {
                     mpabrt (41)
                 }
             } else if ch.isNumber {
-                if kexpst.isEmpty {
+                if kde == 0 {
                     if kper == 0 {
                         knumst.append(ch)
                     } else {
@@ -199,22 +175,14 @@ extension MPFUN {
             }
         }
         
-        // write (6, *) "kde, kend, kexpend, kexpst =", kde, kend, kexpend, kexpst
-        // write (6, *) "kexpsgn, numend1, knumend2, knumst1 =", kexpsgn, knumend1, knumend2, knumst1
-        // write (6, *) "knumst2, kper, ksgn, kstart =", knumst2, kper, ksgn, kstart
-        
         //   Decode exponent.
         
         if !kexpst.isEmpty {
             lexp = kexpst.count
-            if (lexp > lexpmx) {
+            if lexp > lexpmx {
                 print ("*** MPCTOMP: exponent string is too long.")
                 mpabrt (85)
             }
-            
-//            for i in 1...lexp {
-//                ca[i:i] = a[i+kexpst-1]
-//            }
             
             iexp = Int(mpdigin (kexpst, lexp))
             if kexpsgn == "-" { iexp = -iexp }
@@ -248,13 +216,8 @@ extension MPFUN {
         
         //   Construct first (left-over) portion, right-justified in CA.
     
-//        ix = knumst1 - 1
         ca = String(knumst.prefix(n2))
         knumst = String(knumst.dropFirst(n2))
-//        for i in 1...n2 {
-//            ix = ix + 1
-//            ca[i+mpndpw-n2:i+mpndpw-n2] = a[ix]
-//        }
         
         t1 = mpdigin (ca, mpndpw)
         if t1 > 0 {
@@ -271,16 +234,11 @@ extension MPFUN {
         //   Process remaining chunks of digits.
         
         for _ in 0..<n1 {
-//            for i in 1...mpndpw {
-//                ix = ix + 1
-//                if (ix == kper) { ix = ix + 1 }
-//                ca[i:i] = a[ix]
-//            }
             ca = String(knumst.prefix(mpndpw))
             knumst = String(knumst.dropFirst(mpndpw))
             
             t1 = mpdigin (ca, mpndpw)
-            if (t1 > 0) {
+            if t1 > 0 {
                 f[2] = 1.0
                 f[3] = 0.0
                 f[4] = t1
@@ -333,6 +291,7 @@ extension MPFUN {
                 }
             }
         }
+//        print("mpdigin: ca = '\(ca)', out = \(d1)")
         
         return d1
     } //  mpdigin
@@ -360,6 +319,7 @@ extension MPFUN {
             ca = String(digits[digits.index(digits.startIndex, offsetBy: k)]) + ca
         }
         
+//        print("mpdigout: a = \(a), out = '\(ca)'")
         return ca
     } // mpdigout
 
@@ -401,15 +361,13 @@ extension MPFUN {
         f[2] = 1.0
         f[3] = 0.0
         f[4] = 10.0
-        f[5] = 0.0
-        f[6] = 0.0
         
         //   Determine power of ten for exponent, and scale input to within 1 and 10.
         
-        if (na > 0) {
+        if na > 0 {
             aa = a[4]
-            if (na >= 2) { aa = aa + mprdx * a[5] }
-            if (na >= 3) { aa = aa + mprx2 * a[6] }
+            if na >= 2 { aa = aa + mprdx * a[5] }
+            if na >= 3 { aa = aa + mprx2 * a[6] }
             t1 = log10 (2.0) * Double(mpnbt) * a[3] + log10 (aa)
             
             if (t1 >= 0.0) {
@@ -679,10 +637,10 @@ extension MPFUN {
         
         //   Copy the exponent into CA.
         
-        while b2.index(k, offsetBy: 1) < b2.endIndex {
-            k = b2.index(k, offsetBy: 1)
+        while k < b2.endIndex {
             j = j + 1
-            if (j <= 16) { ca.append(b2[k]) }
+            if j <= 16 { ca.append(b2[k]) }
+            k = b2.index(k, offsetBy: 1)
         }
         
         t1 = mpdigin (ca, j)
@@ -769,7 +727,7 @@ extension MPFUN {
 //            b[nb-i+1] = b[nb-i-ki+1]
 //        }
 //
-        for _ in 1...ki {
+        for _ in 0..<ki {
             b.insert(" ", at: b.startIndex)
         }
     } // mpfformat
