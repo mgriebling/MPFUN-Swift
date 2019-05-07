@@ -239,366 +239,369 @@ extension MPFUN {
         
     } // mpang
     
-//    static func mpangx (x, y, a, mpnw)
-//    
-//    //   This computes the MPR angle A subtended by the MPR pair (X, Y) considered as
-//    //   a point in the x-y plane.  This is more useful than an arctan or arcsin
-//    //   routine, since it places the result correctly in the full circle, i.e.
-//    //   -Pi < A <= Pi.  Pi and Log(2) must be precomputed to at least MPNW words
-//    //   precision and the stored in the array in module MPMODA.
-//    
-//    //   This routine simply calls mpclogx.  For modest precision, use mpang.
-//    
-//    implicit none
-//    integer i, mpnw, mp7
-//    real (mprknd) a(0:), x(0:), y(0:), s0(0:2*mpnw+13), &
-//    s1(0:2*mpnw+13)
-//    
-//    // End of declaration
-//    
-//    if (mpnw < 4 || x[0) < mpnw + 4 || x[0) < abs (x[2)) + 4 || &
-//    y[0) < mpnw + 4 || y[0) < abs (y[2)) + 4 || a(0) < mpnw + 6) {
-//    write (mpldb, 1)
-//    1 format ("*** MPANGX: uninitialized or inadequately sized arrays")
-//    mpabrt (99)
-//    }
-//    
-//    mp7 = mpnw + 7
-//    s0(0) = mp7
-//    s0(mp7) = mp7
-//    s1(0) = mp7
-//    s1(mp7) = mp7
-//    mpeq (x, s0, mpnw)
-//    mpeq (y, s0(mp7:), mpnw)
-//    mpclogx (s0, s1, mpnw)
-//    mpeq (s1(mp7:), a, mpnw)
-//    
-//    return
-//    end static func mpangx
-//    
-//    static func mpcagm (a, b, c, mpnw)
-//    
-//    //   This performs the arithmetic-geometric mean (AGM) iterations on A and B
-//    //   for MPC arguments A and B.
-//    //   The AGM algorithm is as follows: Set a_0 = a and b_0 = b, { iterate
-//    
-//    //    a_{k+1} = (a_k + b_k)/2
-//    //    b_{k+1} = sqrt (a_k * b_k)
-//    
-//    //   until convergence (i.e., until a_k = b_k to available precision).
-//    //   The result is returned in C.
-//    
-//    implicit none
-//    integer i, itrmx, j, la, lb, lc, mp7, mpnw, mpnw1
-//    parameter (itrmx = 50)
-//    real (mprknd) a(0:), b(0:), c(0:), &
-//    s0(0:2*mpnw+13), s1(0:2*mpnw+13), s2(0:2*mpnw+13), s3(0:2*mpnw+13)
-//    
-//    la = a(0)
-//    lb = b(0)
-//    lc = c(0)
-//    if (mpnw < 4 || a(0) < abs (a(2)) + 4 || a(la) < abs (a(la+2)) + 4 &
-//    || b(0) < abs (b(2)) + 4 || b(lb) < abs (b(lb+2)) + 4 || &
-//    c(0) < mpnw + 6 || c(lc) < mpnw + 6) {
-//    write (mpldb, 1)
-//    1 format ("*** MPCAGM: uninitialized or inadequately sized arrays")
-//    mpabrt (99)
-//    }
-//    
-//    mp7 = mpnw + 7
-//    s0(0) = mp7
-//    s0(mp7) = mp7
-//    s1(0) = mp7
-//    s1(mp7) = mp7
-//    s2(0) = mp7
-//    s2(mp7) = mp7
-//    s3(0) = mp7
-//    s3(mp7) = mp7
-//    mpnw1 = mpnw + 1
-//    mpceq (a, s1, mpnw1)
-//    mpceq (b, s2, mpnw1)
-//    
-//    do j = 1, itrmx
-//    mpcadd (s1, s2, s0, mpnw1)
-//    mpmuld (s0, 0.5d0, s3, mpnw1)
-//    mpmuld (s0(mp7:), 0.5d0, s3(mp7:), mpnw1)
-//    mpcmul (s1, s2, s0, mpnw1)
-//    mpcsqrt (s0, s2, mpnw1)
-//    mpceq (s3, s1, mpnw1)
-//    mpcsub (s1, s2, s0, mpnw1)
-//    
-//    //   Check for convergence.
-//    
-//    if ((s0(2) == 0.0 || s0(3) < 1.0 - mpnw1) && &
-//    (s0(mp7+2) == 0.0 || s0(mp7+3) < 1.0 - mpnw1)) goto 100
-//    }
-//    
-//    write (mpldb, 2)
-//    2 format ("*** MPCAGM: Iteration limit exceeded.")
-//    mpabrt (5)
-//    
-//    100 continue
-//    
-//    mproun (s1, mpnw)
-//    mproun (s1(mp7:), mpnw)
-//    mpceq (s1, c, mpnw)
-//    
-//    return
-//    end static func mpcagm
-//    
-//    static func mpcexp (a, b, mpnw)
-//    
-//    //   This computes Exp[A], for MPC A.
-//    
-//    //   The formula is:  E^a1 * (Cos[a2] + I * Sin[a2]), where a1 and a2 are
-//    //   the real and imaginary parts of A.
-//    
-//    //   If the precision level MPNW exceeds MPNWX words, this static func calls
-//    //   MPCEXP instead.  By default, MPNWX = 300 (about 4300 digits).
-//    
-//    implicit none
-//    integer la, lb, mpnw, mpnwx, mpnw1
-//    parameter (mpnwx = 300)
-//    real (mprknd) a(0:), b(0:), s0(0:mpnw+6), &
-//    s1(0:mpnw+6), s2(0:mpnw+6), s3(0:mpnw+6), s4(0:mpnw+6)
-//    
-//    // End of declaration
-//    
-//    la = a(0)
-//    lb = b(0)
-//    if (mpnw < 4 || a(0) < abs (a(2)) + 4 || a(la) < abs (a(la+2)) + 4 &
-//    || b(0) < mpnw + 6 || b(lb) < mpnw + 6) {
-//    write (mpldb, 1)
-//    1 format ("*** MPCEXP: uninitialized or inadequately sized arrays")
-//    mpabrt (99)
-//    }
-//    
-//    //   If the precision level mpnw exceeds mpnwx, mpcexpx.
-//    
-//    if (mpnw > mpnwx) {
-//    mpcexpx (a, b, mpnw)
-//    goto 100
-//    }
-//    
-//    mpnw1 = mpnw + 1
-//    s0(0) = mpnw + 7
-//    s1(0) = mpnw + 7
-//    s2(0) = mpnw + 7
-//    s3(0) = mpnw + 7
-//    s4(0) = mpnw + 7
-//    
-//    mpexp (a, s0, mpnw1)
-//    mpcssnr (a(la:), s1, s2, mpnw1)
-//    mpmul (s0, s1, s3, mpnw1)
-//    mpmul (s0, s2, s4, mpnw1)
-//    
-//    mproun (s3, mpnw)
-//    mproun (s4, mpnw)
-//    mpeq (s3, b, mpnw)
-//    mpeq (s4, b(lb:), mpnw)
-//    
-//    100 continue
-//    
-//    return
-//    end static func mpcexp
-//    
-//    static func mpcexpx (a, b, mpnw)
-//    
-//    //   This computes the exponential of the MPC number A and returns the MPC
-//    //   result in B.
-//    
-//    //   This routine employs the following Newton iteration, which converges to b:
-//    
-//    //     x_{k+1} = x_k + x_k * [a - Log (x_k)]
-//    
-//    //   These iterations are performed with a maximum precision level MPNW that
-//    //   is dynamically changed, approximately doubling with each iteration.
-//    //   For modest levels of precision, use mpcexp.
-//    
-//    implicit none
-//    integer i, ia, iq, k, la, lb, mpnw, mpnw1, mp7, mq, na, nb, nit, n0, n1, n2
-//    real (mprknd) cl2, t0, t1, t2, mprxx
-//    parameter (cl2 = 1.4426950408889633d0, nit = 3, mprxx = 1d-14)
-//    real (mprknd) a(0:), b(0:), s0(0:2*mpnw+13), &
-//    s1(0:2*mpnw+13), s2(0:2*mpnw+13), s3(0:2*mpnw+13), s4(0:2*mpnw+13), &
-//    r1(0:mpnw+6), r2(0:mpnw+6)
-//    
-//    // End of declaration
-//    
-//    la = a(0)
-//    lb = b(0)
-//    if (mpnw < 4 || a(0) < abs (a(2)) + 4 || a(la) < abs (a(la+2)) + 4 &
-//    || b(0) < mpnw + 6 || b(lb) < mpnw + 6) {
-//    write (mpldb, 1)
-//    1 format ("*** MPCEXPX: uninitialized or inadequately sized arrays")
-//    mpabrt (99)
-//    }
-//    
-//    ia = sign (1.0, a(2))
-//    na = min (int (abs (a(2))), mpnw)
-//    mpmdc (a, t1, n1, mpnw)
-//    
-//    //   Check for overflows and underflows.
-//    
-//    if (n1 > 30) {
-//    if (t1 > 0.0) {
-//    write (mpldb, 2)
-//    2   format ("*** MPCEXPX: Real part of argument is too large.")
-//    mpabrt (34)
-//    } else {
-//    b(1) = mpnw
-//    b(2) = 0.0
-//    b(3) = 0.0
-//    b(nb+1) = mpnw
-//    b(nb+2) = 0.0
-//    b(nb+3) = 0.0
-//    goto 130
-//    }
-//    }
-//    
-//    t1 = t1 * 2.0 ** n1
-//    if (abs (t1) > 1488522236.0) {
-//    if (t1 > 0) {
-//    write (mpldb, 2)
-//    mpabrt (34)
-//    } else {
-//    b(1) = mpnw
-//    b(2) = 0.0
-//    b(3) = 0.0
-//    b(nb+1) = mpnw
-//    b(nb+2) = 0.0
-//    b(nb+3) = 0.0
-//    goto 130
-//    }
-//    }
-//    
-//    //   Check if imaginary part is too large to compute meaningful cos/sin values.
-//    
-//    mpmdc (a(la:), t1, n1, mpnw)
-//    if (n1 >= mpnbt * (mpnw - 1)) {
-//    write (mpldb, 3)
-//    3 format ("*** MPCEXPX: imaginary part is too large to compute cos or sin.")
-//    mpabrt (28)
-//    }
-//    
-//    mpnw1 = mpnw + 1
-//    mp7 = mpnw + 7
-//    s0(0) = mp7
-//    s0(mp7) = mp7
-//    s1(0) = mp7
-//    s1(mp7) = mp7
-//    s2(0) = mp7
-//    s2(mp7) = mp7
-//    s3(0) = mp7
-//    s3(mp7) = mp7
-//    s4(0) = mp7
-//    s4(mp7) = mp7
-//    r1(0) = mp7
-//    r2(0) = mp7
-//    
-//    //   Check if Pi and Log(2) have been precomputed.
-//    
-//    if (mpnw1 > mplog2con(1)) {
-//    write (mpldb, 4) mpnw1
-//    4 format ("*** MPCEXPX: Pi and Log(2) must be precomputed to precision",i9," words."/ &
-//    "See documentation for details.")
-//    mpabrt (53)
-//    }
-//    
-//    //   Reduce imaginary part to within -pi and pi.
-//    
-//    mpeq (a, s4, mpnw1)
-//    mpmuld (mppicon, 2.0, s0, mpnw1)
-//    mpdiv (a(la:), s0, s1, mpnw1)
-//    mpnint (s1, s2, mpnw1)
-//    mpmul (s2, s0, s1, mpnw1)
-//    mpsub (a(la:), s1, s4(mp7:), mpnw1)
-//    
-//    //   Check if imaginary part is -pi; if so correct to +pi.
-//    
-//    mpadd (s4(mp7:), mppicon, s2, mpnw1)
-//    if (s2(2) <= 0.0 || s2(3) < - mpnw) {
-//    mpeq (mppicon, s4(mp7:), mpnw1)
-//    }
-//    
-//    //   Determine the least integer MQ such that 2 ^ MQ .GE. MPNW.
-//    
-//    t2 = mpnw1
-//    mq = cl2 * log (t2) + 1.0 - mprxx
-//    
-//    //   Compute initial approximation of Exp (A) (DP accuracy is OK).
-//    
-//    mpnw1 = 4
-//    
-//    // The following code (between here and iq = 0) is the equivalent of:
-//    //   mpcexp (s4, s3, mpnw1)
-//    
-//    mpdiv (s4, mplog2con, s0, mpnw1)
-//    mpinfr (s0, s1, s2, mpnw1)
-//    mpmdc (s1, t1, n1, mpnw1)
-//    n1 = int (t1 * 2.0**n1)
-//    mpmdc (s2, t0, n0, mpnw1)
-//    n0 = min (max (n0, -100), 0)
-//    t0 = 2.0 ** (t0 * 2.0**n0)
-//    mpdmc (t0, n1, s0, mpnw1)
-//    
-//    mpmdc (s4(mp7:), t0, n0, mpnw1)
-//    t0 = t0 * 2.0 ** n0
-//    t1 = cos (t0)
-//    t2 = sin (t0)
-//    if (abs (t1) < 1d-14) t1 = 0.0
-//    if (abs (t2) < 1d-14) t2 = 0.0
-//    mpdmc (t1, 0, s1, mpnw1)
-//    mpdmc (t2, 0, s1(mp7:), mpnw1)
-//    mpmul (s0, s1, s3, mpnw1)
-//    mpmul (s0, s1(mp7:), s3(mp7:), mpnw1)
-//    iq = 0
-//    
-//    //   Perform the Newton-Raphson iteration described above with a dynamically
-//    //   changing precision level MPNW (one greater than powers of two).
-//    
-//    do k = 0, mq
-//    if (k > 1) mpnw1 = min (2 * mpnw1 - 2, mpnw) + 1
-//    
-//    100  continue
-//    
-//    mpclogx (s3, s0, mpnw1)
-//    
-//    //   Check if we need to add or subtract 2*pi to the output of imaginary part,
-//    //   in order to remain consistent with previous iterations.
-//    
-//    mpsub (s4(mp7:), s0(mp7:), r1, 4)
-//    if (r1(2) /= 0.0 && r1(3) >= -1.0) {
-//    if (r1(2) > 0.0) {
-//    mpadd (s0(mp7:), mppicon, r1, mpnw1)
-//    mpadd (r1, mppicon, s0(mp7:), mpnw1)
-//    } else {
-//    mpsub (s0(mp7:), mppicon, r1, mpnw1)
-//    mpsub (r1, mppicon, s0(mp7:), mpnw1)
-//    }
-//    }
-//    
-//    mpcsub (s4, s0, s1, mpnw1)
-//    mpcmul (s3, s1, s2, mpnw1)
-//    mpcadd (s3, s2, s1, mpnw1)
-//    mpceq (s1, s3, mpnw1)
-//    if (k == mq - nit && iq == 0) {
-//    iq = 1
-//    goto 100
-//    }
-//    }
-//    
-//    //   Restore original precision level.
-//    
-//    mproun (s1, mpnw)
-//    mproun (s1(mp7:), mpnw)
-//    mpceq (s1, b, mpnw)
-//    
-//    130 continue
-//    
-//    return
-//    end static func mpcexpx
-//    
+    static func mpangx (x: MPRNumber, _ y: MPRNumber, _ a: inout MPRNumber, _ mpnw: Int) {
+        
+        //   This computes the MPR angle A subtended by the MPR pair (X, Y) considered as
+        //   a point in the x-y plane.  This is more useful than an arctan or arcsin
+        //   routine, since it places the result correctly in the full circle, i.e.
+        //   -Pi < A <= Pi.  Pi and Log(2) must be precomputed to at least MPNW words
+        //   precision and the stored in the array in module MPMODA.
+        
+        //   This routine simply calls mpclogx.  For modest precision, use mpang.
+        
+        var mp7 : Int
+        var s0 = MPRNumber(repeating: 0, count: 2*mpnw+14); var s1 = s0
+        
+        // End of declaration
+        
+        if mpnw < 4 || x[0] < Double(mpnw+4) || x[0] < abs(x[2]) + 4 || y[0] < Double(mpnw+4) || y[0] < abs(y[2]) + 4 || a[0] < Double(mpnw+6) {
+            print ("*** MPANGX: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        mp7 = mpnw + 7
+        s0[0] = Double(mp7)
+        s0[mp7] = Double(mp7)
+        s1[0] = Double(mp7)
+        s1[mp7] = Double(mp7)
+        mpeq (x, &s0, mpnw)
+        var tmp = s0
+        mpeq (y, &tmp, mpnw)
+        s0[mp7...] = tmp[0...]
+        mpclogx (s0, s1, mpnw)
+        mpeq (MPRNumber(s1[mp7...]), &a, mpnw)
+        
+    } // mpangx
+
+    static func mpcagm (a: MPRNumber, _ b: MPRNumber, _ c: MPRNumber, _ mpnw: Int) {
+        
+        //   This performs the arithmetic-geometric mean (AGM) iterations on A and B
+        //   for MPC arguments A and B.
+        //   The AGM algorithm is as follows: Set a_0 = a and b_0 = b, { iterate
+        
+        //    a_{k+1} = (a_k + b_k)/2
+        //    b_{k+1} = sqrt (a_k * b_k)
+        
+        //   until convergence (i.e., until a_k = b_k to available precision).
+        //   The result is returned in C.
+        
+        var j, la, lb, lc, mp7, mpnw1 : Int
+        let itrmx = 50
+        var s0 = MPRNumber(repeating:0, count:2*mpnw+14)
+        var s1 = s0; var s2 = s0; var s3 = s0
+        
+        la = Int(a[0])
+        lb = Int(b[0])
+        lc = Int(c[0])
+        if mpnw < 4 || a[0] < abs(a[2]) + 4 || a[la] < abs(a[la+2]) + 4 || b[0] < abs(b[2]) + 4 || b[lb] < abs(b[lb+2]) + 4 ||
+            Int(c[0]) < mpnw + 6 || c[lc] < Double(mpnw + 6) {
+            print ("*** MPCAGM: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        mp7 = mpnw + 7
+        s0[0] = Double(mp7)
+        s0[mp7] = Double(mp7)
+        s1[0] = Double(mp7)
+        s1[mp7] = Double(mp7)
+        s2[0] = Double(mp7)
+        s2[mp7] = Double(mp7)
+        s3[0] = Double(mp7)
+        s3[mp7] = Double(mp7)
+        mpnw1 = mpnw + 1
+        mpceq (a, &s1, mpnw1)
+        mpceq (b, &s2, mpnw1)
+        
+        var flag = false
+        for j in 1...itrmx {
+            mpcadd (s1, s2, s0, mpnw1)
+            mpmuld (s0, 0.5, &s3, mpnw1)
+            var t = MPRNumber(s3[mp7...])
+            mpmuld (MPRNumber(s0[mp7...]), 0.5, &t, mpnw1)
+            s3[mp7...] = t[0...]
+            mpcmul (s1, s2, s0, mpnw1)
+            mpcsqrt (s0, s2, mpnw1)
+            mpceq (s3, s1, mpnw1)
+            mpcsub (s1, s2, s0, mpnw1)
+            
+            //   Check for convergence.
+            
+            if ((s0[2] == 0.0 || s0[3] < 1.0 - Double(mpnw1)) && (s0[mp7+2] == 0.0 || s0[mp7+3] < 1.0 - Double(mpnw1))) {
+                flag = true
+                break // goto 100
+            }
+        }
+        
+        if !flag {
+        print ("*** MPCAGM: Iteration limit exceeded.")
+        mpabrt (5)
+        }
+        
+        // 100 continue
+        
+        mproun (&s1, mpnw)
+        var t = MPRNumber(s1[mp7...])
+        mproun (&t, mpnw); s1[mp7...] = t[0...]
+        mpceq (s1, c, mpnw)
+    } // mpcagm
+
+    static func mpcexp (_ a: MPRNumber, _ b: inout MPRNumber, _ mpnw : Int) {
+        
+        //   This computes Exp[A], for MPC A.
+        
+        //   The formula is:  E^a1 * (Cos[a2] + I * Sin[a2]), where a1 and a2 are
+        //   the real and imaginary parts of A.
+        
+        //   If the precision level MPNW exceeds MPNWX words, this static func calls
+        //   MPCEXP instead.  By default, MPNWX = 300 (about 4300 digits).
+        
+        var la, lb, mpnw1 : Int
+        let mpnwx = 300
+        var s0 = MPRNumber(repeating: 0, count:mpnw+7)
+        var s1 = s0; var s2 = s0; var s3 = s0; var s4 = s0
+        
+        // End of declaration
+        
+        la = Int(a[0])
+        lb = Int(b[0])
+        if mpnw < 4 || a[0] < abs(a[2]) + 4 || a[la] < abs(a[la+2]) + 4 || Int(b[0]) < mpnw + 6 || Int(b[lb]) < mpnw + 6 {
+            print ("*** MPCEXP: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        //   If the precision level mpnw exceeds mpnwx, mpcexpx.
+        
+        if (mpnw > mpnwx) {
+            mpcexpx (a, &b, mpnw)
+            return
+        }
+        
+        mpnw1 = mpnw + 1
+        s0[0] = Double(mpnw + 7)
+        s1[0] = Double(mpnw + 7)
+        s2[0] = Double(mpnw + 7)
+        s3[0] = Double(mpnw + 7)
+        s4[0] = Double(mpnw + 7)
+        
+        mpexp (a, s0, mpnw1)
+        mpcssnr (a[la...], s1, s2, mpnw1)
+        mpmul (s0, s1, &s3, mpnw1)
+        mpmul (s0, s2, &s4, mpnw1)
+        
+        mproun (&s3, mpnw)
+        mproun (&s4, mpnw)
+        mpeq (s3, &b, mpnw)
+        var t = MPRNumber(b[lb...])
+        mpeq (s4, &t, mpnw)
+        b[lb...] = t[0...]
+        
+        // 100 continue
+        
+    } // mpcexp
+    
+    static func mpcexpx (_ a: MPRNumber, _ b: inout MPRNumber, _ mpnw : Int) {
+        
+        //   This computes the exponential of the MPC number A and returns the MPC
+        //   result in B.
+        
+        //   This routine employs the following Newton iteration, which converges to b:
+        
+        //     x_{k+1} = x_k + x_k * [a - Log (x_k)]
+        
+        //   These iterations are performed with a maximum precision level MPNW that
+        //   is dynamically changed, approximately doubling with each iteration.
+        //   For modest levels of precision, use mpcexp.
+        
+        var ia, iq, k, la, lb, mpnw1, mp7, mq, na, nb, n0, n1, n2 : Int
+        var t0, t1, t2 : Double
+        let cl2 = 1.4426950408889633; let nit = 3; let mprxx = 1e-14
+        var s0 = MPRNumber(repeating: 0, count:2*mpnw+14)
+        var s1 = s0; var s2 = s0; var s3 = s0; var s4 = s0
+        var r1 = MPRNumber(repeating: 0, count:mpnw+7); var r2 = r1
+        
+        // End of declaration
+        
+        la = Int(a[0])
+        lb = Int(b[0])
+        if (mpnw < 4 || a[0] < abs (a[2]) + 4 || a[la] < abs (a[la+2]) + 4
+            || Int(b[0]) < mpnw + 6 || Int(b[lb]) < mpnw + 6) {
+            print ("*** MPCEXPX: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        ia = sign (1.0, a[2])
+        na = min (Int (abs (a[2])), mpnw)
+        mpmdc (a, &t1, &n1, mpnw)
+        
+        //   Check for overflows and underflows.
+        
+        if (n1 > 30) {
+            if (t1 > 0.0) {
+                print ("*** MPCEXPX: Real part of argument is too large.")
+                mpabrt (34)
+            } else {
+                b[1] = Double(mpnw)
+                b[2] = 0.0
+                b[3] = 0.0
+                b[nb+1] = Double(mpnw)
+                b[nb+2] = 0.0
+                b[nb+3] = 0.0
+                return
+            }
+        }
+        
+        t1 = t1 * pow(2.0, Double(n1))
+        if (abs (t1) > 1488522236.0) {
+            if (t1 > 0) {
+                print ("*** MPCEXPX: Real part of argument is too large.")
+                mpabrt (34)
+            } else {
+                b[1] = Double(mpnw)
+                b[2] = 0.0
+                b[3] = 0.0
+                b[nb+1] = Double(mpnw)
+                b[nb+2] = 0.0
+                b[nb+3] = 0.0
+                return
+            }
+        }
+        
+        //   Check if imaginary part is too large to compute meaningful cos/sin values.
+        
+        mpmdc (MPRNumber(a[la...]), &t1, &n1, mpnw)
+        if (n1 >= mpnbt * (mpnw - 1)) {
+            print ("*** MPCEXPX: imaginary part is too large to compute cos or sin.")
+            mpabrt (28)
+        }
+        
+        mpnw1 = mpnw + 1
+        mp7 = mpnw + 7
+        s0[0] = Double(mp7)
+        s0[mp7] = Double(mp7)
+        s1[0] = Double(mp7)
+        s1[mp7] = Double(mp7)
+        s2[0] = Double(mp7)
+        s2[mp7] = Double(mp7)
+        s3[0] = Double(mp7)
+        s3[mp7] = Double(mp7)
+        s4[0] = Double(mp7)
+        s4[mp7] = Double(mp7)
+        r1[0] = Double(mp7)
+        r2[0] = Double(mp7)
+        
+        //   Check if Pi and Log(2) have been precomputed.
+        
+        if mpnw1 > Int(mplog2con[1]) {
+            print ("*** MPCEXPX: Pi and Log(2) must be precomputed to precision \(mpnw1) words.",
+                "See documentation for details.")
+            mpabrt (53)
+        }
+        
+        //   Reduce imaginary part to within -pi and pi.
+        
+        mpeq (a, &s4, mpnw1)
+        mpmuld (mppicon, 2.0, &s0, mpnw1)
+        mpdiv (MPRNumber(a[la...]), s0, &s1, mpnw1)
+        mpnint (s1, &s2, mpnw1)
+        mpmul (s2, s0, &s1, mpnw1)
+        var t = MPRNumber(s4[mp7...])
+        mpsub (MPRNumber(a[la...]), s1, &t, mpnw1)
+        s4[mp7...] = t[0...]
+        
+        //   Check if imaginary part is -pi; if so correct to +pi.
+        
+        mpadd (MPRNumber(s4[mp7...]), mppicon, &s2, mpnw1)
+        if s2[2] <= 0.0 || Int(s2[3]) < -mpnw {
+            var t = MPRNumber(s4[mp7...])
+            mpeq (mppicon, &t, mpnw1)
+            s4[mp7...] = t[0...]
+        }
+        
+        //   Determine the least integer MQ such that 2 ^ MQ .GE. MPNW.
+        
+        t2 = Double(mpnw1)
+        mq = Int(cl2 * log (t2) + 1.0 - Double(mprxx))
+        
+        //   Compute initial approximation of Exp (A) (DP accuracy is OK).
+        
+        mpnw1 = 4
+        
+        // The following code (between here and iq = 0) is the equivalent of:
+        //   mpcexp (s4, s3, mpnw1)
+        
+        mpdiv (s4, mplog2con, &s0, mpnw1)
+        mpinfr (s0, &s1, &s2, mpnw1)
+        mpmdc (s1, &t1, &n1, mpnw1)
+        n1 = Int (t1 * pow(2.0, Double(n1)))
+        mpmdc (s2, &t0, &n0, mpnw1)
+        n0 = min (max (n0, -100), 0)
+        t0 = pow(2.0, (t0 * pow(2.0, Double(n0))))
+        mpdmc (t0, n1, &s0, mpnw1)
+        
+        mpmdc (MPRNumber(s4[mp7...]), &t0, &n0, mpnw1)
+        t0 = t0 * pow(2.0, Double(n0))
+        t1 = cos (t0)
+        t2 = sin (t0)
+        if (abs (t1) < 1e-14) { t1 = 0.0 }
+        if (abs (t2) < 1e-14) { t2 = 0.0 }
+        mpdmc (t1, 0, &s1, mpnw1)
+        t = MPRNumber(s1[mp7...])
+        mpdmc (t2, 0, &t, mpnw1); s1[mp7...] = t[0...]
+        mpmul (s0, s1, &s3, mpnw1)
+        t = MPRNumber(s3[mp7...])
+        mpmul (s0, MPRNumber(s1[mp7...]), &t, mpnw1); s3[mp7...] = t[0...]
+        iq = 0
+        
+        //   Perform the Newton-Raphson iteration described above with a dynamically
+        //   changing precision level MPNW (one greater than powers of two).
+        
+        for k in 0...mq {
+            if (k > 1) { mpnw1 = min (2 * mpnw1 - 2, mpnw) + 1 }
+            
+            // 100  continue
+            
+            while true {
+                mpclogx (s3, s0, mpnw1)
+                
+                //   Check if we need to add or subtract 2*pi to the output of imaginary part,
+                //   in order to remain consistent with previous iterations.
+                
+                mpsub (MPRNumber(s4[mp7...]), MPRNumber(s0[mp7...]), &r1, 4)
+                if (r1[2] != 0.0 && r1[3] >= -1.0) {
+                    var t = MPRNumber(s0[mp7...])
+                    if (r1[2] > 0.0) {
+                        mpadd (MPRNumber(s0[mp7...]), mppicon, &r1, mpnw1)
+                        mpadd (r1, mppicon, &t, mpnw1)
+                    } else {
+                        mpsub (MPRNumber(s0[mp7...]), mppicon, &r1, mpnw1)
+                        mpsub (r1, mppicon, &t, mpnw1)
+                    }
+                    s0[mp7...] = t[0...]
+                }
+                
+                mpcsub (s4, s0, s1, mpnw1)
+                mpcmul (s3, s1, s2, mpnw1)
+                mpcadd (s3, s2, s1, mpnw1)
+                mpceq (s1, s3, mpnw1)
+                if (k == mq - nit && iq == 0) {
+                    iq = 1 // goto 100
+                } else {
+                    break
+                }
+            }
+        }
+        
+        //   Restore original precision level.
+        
+        mproun (&s1, mpnw)
+        t = MPRNumber(s1[mp7...])
+        mproun (&t, mpnw); s1[mp7...] = t[0...]
+        mpceq (s1, b, mpnw)
+        
+//        130 continue
+        
+    } // mpcexpx
+
 //    static func mpclog (a, b, mpnw)
 //    
 //    //   This computes Log[A], for MPC A.
