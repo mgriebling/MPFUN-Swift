@@ -68,7 +68,7 @@ extension MPFUN {
         
     } // mpagmr
     
-    static func mpang (x: MPRNumber, _ y: MPRNumber, _ a: inout MPRNumber, _ mpnw: Int) {
+    static func mpang (_ x: MPRNumber, _ y: MPRNumber, _ a: inout MPRNumber, _ mpnw: Int) {
         
         //   This computes the MPR angle A subtended by the MPR pair (X, Y) considered as
         //   a point in the x-y plane.  This is more useful than an arctan or arcsin
@@ -602,65 +602,61 @@ extension MPFUN {
         
     } // mpcexpx
 
-//    static func mpclog (a, b, mpnw)
-//    
-//    //   This computes Log[A], for MPC A.
-//    
-//    //   The formula is:  1/2 * Log[r] + I * Theta, where r = a1^2 + a2^2,
-//    //   Theta is the angle corresponding to (a1, a2), and a1 and a2 are the
-//    //   real and imaginary parts of A.
-//    
-//    //   If the precision level MPNW exceeds MPNWX words, this static func calls
-//    //   MPCLOGX instead.  By default, MPNWX = 30 (about 400 digits).
-//    
-//    implicit none
-//    integer la, lb, mpnw, mpnwx, mpnw1
-//    parameter (mpnwx = 30)
-//    real (mprknd) a(0:), b(0:), s0(0:mpnw+6), &
-//    s1(0:mpnw+6), s2(0:mpnw+6), s3(0:mpnw+6), s4(0:mpnw+6)
-//    
-//    // End of declaration
-//    
-//    la = a(0)
-//    lb = b(0)
-//    if (mpnw < 4 || a(0) < abs (a(2)) + 4 || a(la) < abs (a(la+2)) + 4 &
-//    || b(0) < mpnw + 6 || b(lb) < mpnw + 6) {
-//    write (mpldb, 1)
-//    1 format ("*** MPCLOG: uninitialized or inadequately sized arrays")
-//    mpabrt (99)
-//    }
-//    
-//    //   If precision level mpnw exceeds mpnwx words, mpclogx.
-//    
-//    if (mpnw > mpnwx) {
-//    mpclogx (a, b, mpnw)
-//    goto 100
-//    }
-//    
-//    mpnw1 = mpnw + 1
-//    s0(0) = mpnw + 7
-//    s1(0) = mpnw + 7
-//    s2(0) = mpnw + 7
-//    s3(0) = mpnw + 7
-//    s4(0) = mpnw + 7
-//    
-//    mpmul (a, a, s0, mpnw1)
-//    mpmul (a(la:), a(la:), s1, mpnw1)
-//    mpadd (s0, s1, s2, mpnw1)
-//    mplog (s2, s3, mpnw1)
-//    mpmuld (s3, 0.5d0, s0, mpnw1)
-//    mpang (a, a(la:), s1, mpnw1)
-//    
-//    mproun (s0, mpnw)
-//    mproun (s1, mpnw)
-//    mpeq (s0, b, mpnw)
-//    mpeq (s1, b(lb:), mpnw)
-//    
-//    100 continue
-//    
-//    return
-//    end static func mpclog
-//    
+    static func mpclog (_ a: MPRNumber, _ b: inout MPRNumber, _ mpnw : Int) {
+        
+        //   This computes Log[A], for MPC A.
+        
+        //   The formula is:  1/2 * Log[r] + I * Theta, where r = a1^2 + a2^2,
+        //   Theta is the angle corresponding to (a1, a2), and a1 and a2 are the
+        //   real and imaginary parts of A.
+        
+        //   If the precision level MPNW exceeds MPNWX words, this static func calls
+        //   MPCLOGX instead.  By default, MPNWX = 30 (about 400 digits).
+        
+        var la, lb, mpnw1 : Int
+        let mpnwx = 30
+        var s0 = MPRNumber(repeating:0, count:mpnw+7)
+        var s1 = s0; var s2 = s0; var s3 = s0; var s4 = s0
+        
+        // End of declaration
+        
+        la = Int(a[0])
+        lb = Int(b[0])
+        if mpnw < 4 || a[0] < abs(a[2]) + 4 || a[la] < abs(a[la+2]) + 4 || Int(b[0]) < mpnw + 6 || Int(b[lb]) < mpnw + 6 {
+            print ("*** MPCLOG: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        //   If precision level mpnw exceeds mpnwx words, mpclogx.
+        
+        if mpnw > mpnwx {
+            mpclogx (a, b, mpnw)
+            return //goto 100
+        }
+        
+        mpnw1 = mpnw + 1
+        s0[0] = Double(mpnw + 7)
+        s1[0] = Double(mpnw + 7)
+        s2[0] = Double(mpnw + 7)
+        s3[0] = Double(mpnw + 7)
+        s4[0] = Double(mpnw + 7)
+        
+        mpmul (a, a, &s0, mpnw1)
+        mpmul (MPRNumber(a[la...]), MPRNumber(a[la...]), &s1, mpnw1)
+        mpadd (s0, s1, &s2, mpnw1)
+        mplog (s2, s3, mpnw1)
+        mpmuld (s3, 0.5, &s0, mpnw1)
+        mpang (a, MPRNumber(a[la...]), &s1, mpnw1)
+        
+        mproun (&s0, mpnw)
+        mproun (&s1, mpnw)
+        mpeq (s0, &b, mpnw)
+        var t = MPRNumber(b[lb...])
+        mpeq (s1, &t, mpnw); b[lb...] = t[0...]
+        
+        // 100 continue
+    } // mpclog
+    
 //    static func mpclogx (a, b, mpnw)
 //    
 //    //   This computes the natural logarithm of the MP number A and returns the MP
@@ -687,19 +683,19 @@ extension MPFUN {
 //    
 //    // End of declaration
 //    
-//    la = a(0)
-//    lb = b(0)
-//    if (mpnw < 4 || a(0) < abs (a(2)) + 4 || a(la) < abs (a(la+2)) + 4 &
-//    || b(0) < mpnw + 6 || b(lb) < mpnw + 6) {
-//    write (mpldb, 1)
-//    1 format ("*** MPCLOGX: uninitialized or inadequately sized arrays")
-//    mpabrt (99)
+//    la = a[0]
+//    lb = b[0]
+//    if (mpnw < 4 || a[0] < abs (a[2]) + 4 || a[la] < abs (a[la+2]) + 4 &
+//    || b[0] < mpnw + 6 || b[lb] < mpnw + 6] {
+//    write (mpldb, 1]
+//    1 format ("*** MPCLOGX: uninitialized or inadequately sized arrays"]
+//    mpabrt (99]
 //    }
 //    
-//    ia1 = sign (1.0, a(2))
-//    na1 = min (int (abs (a(2))), mpnw)
-//    ia2 = sign (1.0, a(la+2))
-//    na2 = min (int (abs (a(la+2))), mpnw)
+//    ia1 = sign (1.0, a[2])
+//    na1 = min (int (abs (a[2])), mpnw)
+//    ia2 = sign (1.0, a[la+2])
+//    na2 = min (int (abs (a[la+2])), mpnw)
 //    
 //    if (na1 == 0 && na2 == 0) {
 //    write (mpldb, 2)
@@ -709,31 +705,31 @@ extension MPFUN {
 //    
 //    //   Check if input is exactly one.
 //    
-//    if (a(2) == 1.0 && a(3) == 0.0 && a(4) == 1.0 && &
-//    a(la+2) == 0.0) {
-//    b(1) = mpnw
-//    b(2) = 0.0
-//    b(3) = 0.0
-//    b(4) = 0.0
-//    b(lb+1) = mpnw
-//    b(lb+2) = 0.0
-//    b(lb+3) = 0.0
-//    b(lb+4) = 0.0
+//    if (a[2] == 1.0 && a[3] == 0.0 && a[4] == 1.0 && &
+//    a[la+2] == 0.0) {
+//    b[1] = mpnw
+//    b[2] = 0.0
+//    b[3] = 0.0
+//    b[4] = 0.0
+//    b[lb+1] = mpnw
+//    b[lb+2] = 0.0
+//    b[lb+3] = 0.0
+//    b[lb+4] = 0.0
 //    goto 120
 //    }
 //    
 //    mpnw1 = mpnw + 1
 //    mp7 = mpnw + 7
-//    s0(0) = mp7
-//    s0(mp7) = mp7
-//    s1(0) = mp7
-//    s1(mp7) = mp7
-//    s2(0) = mp7
-//    s2(mp7) = mp7
-//    s3(0) = mp7
-//    s3(mp7) = mp7
-//    s4(0) = mp7
-//    s4(mp7) = mp7
+//    s0(0] = mp7
+//    s0(mp7] = mp7
+//    s1(0] = mp7
+//    s1(mp7] = mp7
+//    s2(0] = mp7
+//    s2(mp7] = mp7
+//    s3(0] = mp7
+//    s3(mp7] = mp7
+//    s4(0] = mp7
+//    s4(mp7] = mp7
 //    
 //    //   Check if Pi and Log(2) have been precomputed.
 //    
@@ -744,48 +740,48 @@ extension MPFUN {
 //    mpabrt (53)
 //    }
 //    
-//    f1(0) = 9.0
-//    f1(1) = mpnw1
-//    f1(2) = 1.0
-//    f1(3) = 0.0
-//    f1(4) = 1.0
-//    f1(5) = 0.0
-//    f1(6) = 0.0
-//    f1(9) = 9.0
-//    f1(10) = mpnw1
-//    f1(11) = 0.0
-//    f1(12) = 0.0
-//    f1(13) = 0.0
+//    f1(0] = 9.0
+//    f1(1] = mpnw1
+//    f1(2] = 1.0
+//    f1(3] = 0.0
+//    f1(4] = 1.0
+//    f1(5] = 0.0
+//    f1(6] = 0.0
+//    f1(9] = 9.0
+//    f1(10] = mpnw1
+//    f1(11] = 0.0
+//    f1(12] = 0.0
+//    f1(13] = 0.0
 //    
-//    f4(0) = 9.0
-//    f4(1) = mpnw1
-//    f4(2) = 1.0
-//    f4(3) = 0.0
-//    f4(4) = 4.0
-//    f4(5) = 0.0
-//    f4(6) = 0.0
-//    f4(9) = 9.0
-//    f4(10) = mpnw1
-//    f4(11) = 0.0
-//    f4(12) = 0.0
-//    f4(13) = 0.0
+//    f4(0] = 9.0
+//    f4(1] = mpnw1
+//    f4(2] = 1.0
+//    f4(3] = 0.0
+//    f4(4] = 4.0
+//    f4(5] = 0.0
+//    f4(6] = 0.0
+//    f4(9] = 9.0
+//    f4(10] = mpnw1
+//    f4(11] = 0.0
+//    f4(12] = 0.0
+//    f4(13] = 0.0
 //    
 //    //   If the argument is sufficiently close to 1, employ a Taylor series.
 //    
 //    mpcsub (a, f1, s0, mpnw1)
 //    
-//    if ((s0(2) == 0.0 || s0(3) <= min (-2.0, - rtol * mpnw1)) && &
-//    (s0(mp7+2) == 0.0 || s0(mp7+3) <= min (-2.0, - rtol * mpnw1))) {
+//    if ((s0(2] == 0.0 || s0(3] <= min (-2.0, - rtol * mpnw1)) && &
+//    (s0(mp7+2] == 0.0 || s0(mp7+3] <= min (-2.0, - rtol * mpnw1))) {
 //    mpceq (s0, s1, mpnw1)
 //    mpceq (s1, s2, mpnw1)
 //    i1 = 1
 //    is = 1
-//    if (s0(2) == 0.0) {
-//    tol = s0(mp7+3) - mpnw1
-//    } else if (s0(mp7+2) == 0.0) {
-//    tol = s0(3) - mpnw1
+//    if (s0(2] == 0.0) {
+//    tol = s0(mp7+3] - mpnw1
+//    } else if (s0(mp7+2] == 0.0) {
+//    tol = s0(3] - mpnw1
 //    } else {
-//    tol = max (s0(3), s0(mp7+3)) - mpnw1
+//    tol = max (s0(3], s0(mp7+3]) - mpnw1
 //    }
 //    
 //    do i1 = 2, itrmax
@@ -794,11 +790,11 @@ extension MPFUN {
 //    mpcmul (s1, s2, s3, mpnw1)
 //    mpceq (s3, s2, mpnw1)
 //    mpdivd (s3, st, s4, mpnw1)
-//    mpdivd (s3(mp7:), st, s4(mp7:), mpnw1)
+//    mpdivd (s3(mp7:), st, s4(mp7:], mpnw1)
 //    mpcadd (s0, s4, s3, mpnw1)
 //    mpceq (s3, s0, mpnw1)
-//    if ((s4(2) == 0.0 || s4(3) < tol) && &
-//    (s4(mp7+2) == 0.0 || s4(mp7+3) < tol)) goto 110
+//    if ((s4(2] == 0.0 || s4(3] < tol) && &
+//    (s4(mp7+2] == 0.0 || s4(mp7+3] < tol)) goto 110
 //    }
 //    
 //    write (mpldb, 4) itrmax
@@ -813,7 +809,7 @@ extension MPFUN {
 //    tn = n2
 //    mpdmc (1.0, n2, s1, mpnw1)
 //    mpmul (a, s1, s0, mpnw1)
-//    mpmul (a(la:), s1, s0(mp7:), mpnw1)
+//    mpmul (a[la:], s1, s0(mp7:], mpnw1)
 //    
 //    //   Perform AGM iterations.
 //    
@@ -824,9 +820,9 @@ extension MPFUN {
 //    //   Compute Pi / (2 * A), where A is the limit of the AGM iterations.
 //    
 //    mpmuld (s3, 2.0, s0, mpnw1)
-//    mpmuld (s3(mp7:), 2.0, s0(mp7:), mpnw1)
+//    mpmuld (s3(mp7:], 2.0, s0(mp7:], mpnw1)
 //    mpeq (mppicon, s3, mpnw1)
-//    mpdmc (0.0, 0, s3(mp7:), mpnw1)
+//    mpdmc (0.0, 0, s3(mp7:], mpnw1)
 //    mpcdiv (s3, s0, s1, mpnw1)
 //    
 //    //   Subtract TN * Log(2).
@@ -837,11 +833,11 @@ extension MPFUN {
 //    
 //    //   Check if imaginary part is -pi; if so correct to +pi.
 //    
-//    mpadd (s1(mp7:), mppicon, s2, mpnw1)
-//    if (s2(2) <= 0.0 || s2(3) < - mpnw) {
-//    mpeq (mppicon, s0(mp7:), mpnw1)
+//    mpadd (s1(mp7:], mppicon, s2, mpnw1)
+//    if (s2(2] <= 0.0 || s2(3] < - mpnw) {
+//    mpeq (mppicon, s0(mp7:], mpnw1)
 //    } else {
-//    mpeq (s1(mp7:), s0(mp7:), mpnw1)
+//    mpeq (s1(mp7:], s0(mp7:], mpnw1)
 //    }
 //    
 //    110 continue
@@ -849,7 +845,7 @@ extension MPFUN {
 //    //  Restore original precision level.
 //    
 //    mproun (s0, mpnw)
-//    mproun (s0(mp7:), mpnw)
+//    mproun (s0(mp7:], mpnw)
 //    mpceq (s0, b, mpnw)
 //    
 //    120 continue
@@ -868,22 +864,22 @@ extension MPFUN {
 //    
 //    // End of declaration
 //    
-//    la = a(0)
-//    lb = b(0)
-//    lc = c(0)
-//    if (mpnw < 4 || a(0) < abs (a(2)) + 4 || a(la) < abs (a(la+2)) + 4 &
-//    || b(0) < abs (b(2)) + 4 || b(lb) < abs (b(lb+2)) + 4 &
-//    || c(0) < mpnw + 6 || c(lc) < mpnw + 6) {
+//    la = a[0]
+//    lb = b[0]
+//    lc = c(0]
+//    if (mpnw < 4 || a[0] < abs (a[2]) + 4 || a[la] < abs (a[la+2]) + 4 &
+//    || b[0] < abs (b[2]) + 4 || b[lb] < abs (b[lb+2]) + 4 &
+//    || c(0] < mpnw + 6 || c(lc] < mpnw + 6) {
 //    write (mpldb, 1)
 //    1 format ("*** MPCPOWCC: uninitialized or inadequately sized arrays")
 //    mpabrt (99)
 //    }
 //    
 //    l3 = mpnw + 6
-//    s1(0) = l3
-//    s1(l3) = l3
-//    s2(0) = l3
-//    s2(l3) = l3
+//    s1(0] = l3
+//    s1(l3] = l3
+//    s2(0] = l3
+//    s2(l3] = l3
 //    mpclog (a, s1, mpnw)
 //    mpcmul (s1, b, s2, mpnw)
 //    mpcexp (s2, c, mpnw)
@@ -902,22 +898,22 @@ extension MPFUN {
 //    
 //    // End of declaration
 //    
-//    la = a(0)
-//    lb = b(0)
-//    lc = c(0)
-//    if (mpnw < 4 || a(0) < abs (a(2)) + 4 || a(la) < abs (a(la+2)) + 4 &
-//    || b(0) < abs (b(2)) + 4 &
-//    || c(0) < mpnw + 6 || c(lc) < mpnw + 6) {
+//    la = a[0]
+//    lb = b[0]
+//    lc = c(0]
+//    if (mpnw < 4 || a[0] < abs (a[2]) + 4 || a[la] < abs (a[la+2]) + 4 &
+//    || b[0] < abs (b[2]) + 4 &
+//    || c(0] < mpnw + 6 || c(lc] < mpnw + 6) {
 //    write (mpldb, 1)
 //    1 format ("*** MPCPOWCR: uninitialized or inadequately sized arrays")
 //    mpabrt (99)
 //    }
 //    
 //    l3 = mpnw + 6
-//    s1(0) = l3
-//    s1(l3) = l3
-//    s2(0) = l3
-//    s2(l3) = l3
+//    s1(0] = l3
+//    s1(l3] = l3
+//    s2(0] = l3
+//    s2(l3] = l3
 //    mpclog (a, s1, mpnw)
 //    mpmul (b, s1, s2, mpnw)
 //    mpmul (b, s1(l3:), s2(l3:), mpnw)
@@ -937,24 +933,24 @@ extension MPFUN {
 //    
 //    // End of declaration
 //    
-//    la = a(0)
-//    lb = b(0)
-//    lc = c(0)
-//    if (mpnw < 4 || a(0) < abs (a(2)) + 4 &
-//    || b(0) < abs (b(2)) + 4 || b(lb) < abs (b(lb+2)) + 4 &
-//    || c(0) < mpnw + 6 || c(lc) < mpnw + 6) {
+//    la = a[0]
+//    lb = b[0]
+//    lc = c(0]
+//    if (mpnw < 4 || a[0] < abs (a[2]) + 4 &
+//    || b[0] < abs (b[2]) + 4 || b[lb] < abs (b[lb+2]) + 4 &
+//    || c(0] < mpnw + 6 || c(lc] < mpnw + 6) {
 //    write (mpldb, 1)
 //    1 format ("*** MPCPOWRC: uninitialized or inadequately sized arrays")
 //    mpabrt (99)
 //    }
 //    
 //    l3 = mpnw + 6
-//    s1(0) = l3
-//    s2(0) = l3
-//    s2(l3) = l3
+//    s1(0] = l3
+//    s2(0] = l3
+//    s2(l3] = l3
 //    mplog (a, s1, mpnw)
 //    mpmul (s1, b, s2, mpnw)
-//    mpmul (s1, b(lb:), s2(l3:), mpnw)
+//    mpmul (s1, b[lb:], s2(l3:], mpnw)
 //    mpcexp (s2, c, mpnw)
 //    
 //    return
@@ -975,30 +971,30 @@ extension MPFUN {
 //    
 //    // End of declaration
 //    
-//    if (mpnw < 4 || a(0) < mpnw + 4 || a(0) < abs (a(2)) + 4 || &
-//    x[0) < mpnw + 6 || y[0) < mpnw + 6) {
+//    if (mpnw < 4 || a[0] < mpnw + 4 || a[0] < abs (a[2]) + 4 || &
+//    x[0] < mpnw + 6 || y[0] < mpnw + 6) {
 //    write (mpldb, 1)
 //    1 format ("*** MPCSSHR: uninitialized or inadequately sized arrays")
 //    mpabrt (99)
 //    }
 //    
-//    s0(0) = mpnw + 7
-//    s1(0) = mpnw + 7
-//    s2(0) = mpnw + 7
-//    s3(0) = mpnw + 7
+//    s0(0] = mpnw + 7
+//    s1(0] = mpnw + 7
+//    s2(0] = mpnw + 7
+//    s3(0] = mpnw + 7
 //    mpnw1 = mpnw + 1
-//    f(0) = 9.0
-//    f(1) = mpnw
-//    f(2) = 1.0
-//    f(3) = 0.0
-//    f(4) = 1.0
-//    f(5) = 0.0
-//    f(6) = 0.0
+//    f(0] = 9.0
+//    f(1] = mpnw
+//    f(2] = 1.0
+//    f(3] = 0.0
+//    f(4] = 1.0
+//    f(5] = 0.0
+//    f(6] = 0.0
 //    
 //    //   If argument is very small, compute the sinh using a Taylor series.
 //    //   This avoids accuracy loss that otherwise occurs by using exp.
 //    
-//    if (s0(3) < -1.0) {
+//    if (s0(3] < -1.0) {
 //    mpeq (a, s0, mpnw1)
 //    mpmul (s0, s0, s2, mpnw1)
 //    mpnw2 =  mpnw1
@@ -1016,8 +1012,8 @@ extension MPFUN {
 //    //   Check for convergence of the series, and adjust working precision
 //    //   for the next term.
 //    
-//    if (s1(2) == 0.0 || s1(3) < s0(3) - mpnw1) goto 110
-//    mpnw2 = min (max (mpnw1 + int (s1(3) - s0(3)) + 1, 4), mpnw1)
+//    if (s1(2] == 0.0 || s1(3] < s0(3] - mpnw1) goto 110
+//    mpnw2 = min (max (mpnw1 + int (s1(3] - s0(3]) + 1, 4), mpnw1)
 //    }
 //    
 //    write (mpldb, 4)
@@ -1082,8 +1078,8 @@ extension MPFUN {
 //    
 //    // End of declaration
 //    
-//    if (mpnw < 4 || a(0) < mpnw + 4 || a(0) < abs (a(2)) + 4 || &
-//    x[0) < mpnw + 6 || y[0) < mpnw + 6) {
+//    if (mpnw < 4 || a[0] < mpnw + 4 || a[0] < abs (a[2]) + 4 || &
+//    x[0] < mpnw + 6 || y[0] < mpnw + 6) {
 //    write (mpldb, 1)
 //    1 format ("*** MPCSSNR: uninitialized or inadequately sized arrays")
 //    mpabrt (99)
@@ -1096,44 +1092,44 @@ extension MPFUN {
 //    goto 120
 //    }
 //    
-//    ia = sign (1.0, a(2))
-//    na = min (int (abs (a(2))), mpnw)
+//    ia = sign (1.0, a[2])
+//    na = min (int (abs (a[2])), mpnw)
 //    if (na == 0) {
-//    x[1) = mpnw
-//    x[2) = 1.0
-//    x[3) = 0.0
-//    x[4) = 1.0
-//    y[1) = mpnw
-//    y[2) = 0.0
-//    y[3) = 0.0
+//    x[1] = mpnw
+//    x[2] = 1.0
+//    x[3] = 0.0
+//    x[4] = 1.0
+//    y[1] = mpnw
+//    y[2] = 0.0
+//    y[3] = 0.0
 //    goto 120
 //    }
 //    
-//    s0(0) = mpnw + 7
-//    s1(0) = mpnw + 7
-//    s2(0) = mpnw + 7
-//    s3(0) = mpnw + 7
-//    s4(0) = mpnw + 7
-//    s5(0) = mpnw + 7
-//    s6(0) = mpnw + 7
+//    s0(0] = mpnw + 7
+//    s1(0] = mpnw + 7
+//    s2(0] = mpnw + 7
+//    s3(0] = mpnw + 7
+//    s4(0] = mpnw + 7
+//    s5(0] = mpnw + 7
+//    s6(0] = mpnw + 7
 //    mpnw1 = mpnw + 1
 //    
 //    //   Set f1 = 1 and f2 = 1/2.
 //    
-//    f1(0) = 9.0
-//    f1(1) = mpnw
-//    f1(2) = 1.0
-//    f1(3) = 0.0
-//    f1(4) = 1.0
-//    f1(5) = 0.0
-//    f1(6) = 0.0
-//    f2(0) = 9.0
-//    f2(1) = mpnw
-//    f2(2) = 1.0
-//    f2(3) = -1.0
-//    f2(4) = 0.5d0 * mpbdx
-//    f2(5) = 0.0
-//    f2(6) = 0.0
+//    f1(0] = 9.0
+//    f1(1] = mpnw
+//    f1(2] = 1.0
+//    f1(3] = 0.0
+//    f1(4] = 1.0
+//    f1(5] = 0.0
+//    f1(6] = 0.0
+//    f2(0] = 9.0
+//    f2(1] = mpnw
+//    f2(2] = 1.0
+//    f2(3] = -1.0
+//    f2(4] = 0.5d0 * mpbdx
+//    f2(5] = 0.0
+//    f2(6] = 0.0
 //    
 //    //   Check if Pi and Sqrt(2)/2 have been precomputed in data statements to the
 //    //   requested precision.
@@ -1164,23 +1160,23 @@ extension MPFUN {
 //    
 //    //   Check if reduced argument is zero.  If so { cos = 1 and sin = 0.
 //    
-//    if (s3(2) == 0.0) {
-//    s0(1) = mpnw1
-//    s0(2) = 1.0
-//    s0(3) = 0.0
-//    s0(4) = 1.0
-//    s0(5) = 0.0
-//    s0(6) = 0.0
-//    s1(1) = mpnw1
-//    s1(2) = 0.0
-//    s1(3) = 0.0
+//    if (s3(2] == 0.0) {
+//    s0(1] = mpnw1
+//    s0(2] = 1.0
+//    s0(3] = 0.0
+//    s0(4] = 1.0
+//    s0(5] = 0.0
+//    s0(6] = 0.0
+//    s1(1] = mpnw1
+//    s1(2] = 0.0
+//    s1(3] = 0.0
 //    goto 115
 //    }
 //    
 //    //   Determine nq to scale reduced argument, then divide by 2^nq.
 //    //   If reduced argument is very close to zero, then nq = 0.
 //    
-//    if (s3(3) >= -1.0) {
+//    if (s3(3] >= -1.0) {
 //    nq = int (sqrt (0.5d0 * mpnw1 * mpnbt))
 //    } else {
 //    nq = 0
@@ -1195,7 +1191,7 @@ extension MPFUN {
 //    
 //    mpmul (s0, s0, s2, mpnw1)
 //    mpnw2 =  mpnw1
-//    is = s0(2)
+//    is = s0(2]
 //    
 //    //   The working precision used to compute each term can be linearly reduced
 //    //   as the computation proceeds.
@@ -1210,8 +1206,8 @@ extension MPFUN {
 //    //   Check for convergence of the series, and adjust working precision
 //    //   for the next term.
 //    
-//    if (s1(2) == 0.0 || s1(3) < s0(3) - mpnw1) goto 110
-//    mpnw2 = min (max (mpnw1 + int (s1(3) - s0(3)) + 1, 4), mpnw1)
+//    if (s1(2] == 0.0 || s1(3] < s0(3] - mpnw1) goto 110
+//    mpnw2 = min (max (mpnw1 + int (s1(3] - s0(3]) + 1, 4), mpnw1)
 //    }
 //    
 //    write (mpldb, 4)
@@ -1243,7 +1239,7 @@ extension MPFUN {
 //    mpmul (s0, s0, s4, mpnw1)
 //    mpsub (f1, s4, s5, mpnw1)
 //    mpsqrt (s5, s1, mpnw1)
-//    if (is < 1) s1(2) = - s1(2)
+//    if (is < 1) s1(2] = - s1(2]
 //    } else {
 //    
 //    //   In case nq = 0, compute cos of result.
@@ -1283,27 +1279,27 @@ extension MPFUN {
 //    
 //    // End of declaration
 //    
-//    if (mpnw < 4 || a(0) < mpnw + 4 || a(0) < abs (a(2)) + 4 || &
-//    x[0) < mpnw + 6 || y[0) < mpnw + 6) {
+//    if (mpnw < 4 || a[0] < mpnw + 4 || a[0] < abs (a[2]) + 4 || &
+//    x[0] < mpnw + 6 || y[0] < mpnw + 6) {
 //    write (mpldb, 1)
 //    1 format ("*** MPCSSNX: uninitialized or inadequately sized arrays")
 //    mpabrt (99)
 //    }
 //    
 //    mp7 = mpnw + 7
-//    s0(0) = mp7
-//    s0(mp7) = mp7
-//    s1(0) = mp7
-//    s1(mp7) = mp7
-//    f(0) = 9.0
-//    f(1) = mpnw
-//    f(2) = 0.0
-//    f(3) = 0.0
+//    s0(0] = mp7
+//    s0(mp7] = mp7
+//    s1(0] = mp7
+//    s1(mp7] = mp7
+//    f(0] = 9.0
+//    f(1] = mpnw
+//    f(2] = 0.0
+//    f(3] = 0.0
 //    mpeq (f, s0, mpnw)
-//    mpeq (a, s0(mp7:), mpnw)
+//    mpeq (a, s0(mp7:], mpnw)
 //    mpcexpx (s0, s1, mpnw)
 //    mpeq (s1, x, mpnw)
-//    mpeq (s1(mp7:), y, mpnw)
+//    mpeq (s1(mp7:], y, mpnw)
 //    
 //    return
 //    end static func mpcssnx
@@ -1327,73 +1323,73 @@ extension MPFUN {
 //    
 //    // End of declaration.
 //    
-//    s0(0) = mpnw + 7
-//    s1(0) = mpnw + 7
-//    s2(0) = mpnw + 7
-//    s3(0) = mpnw + 7
-//    s4(0) = mpnw + 7
-//    s5(0) = mpnw + 7
-//    s6(0) = mpnw + 7
-//    s7(0) = mpnw + 7
+//    s0(0] = mpnw + 7
+//    s1(0] = mpnw + 7
+//    s2(0] = mpnw + 7
+//    s3(0] = mpnw + 7
+//    s4(0] = mpnw + 7
+//    s5(0] = mpnw + 7
+//    s6(0] = mpnw + 7
+//    s7(0] = mpnw + 7
 //    mpnw1 = mpnw + 1
 //    
 //    //   Check if Log(2) has been precomputed.
 //    
-//    if (mpnw1 > mplog2con(1)) {
-//    write (mpldb, 3) mpnw1
-//    3 format ("*** MPEGAMMA: Log(2) must be precomputed to precision",i9," words."/ &
-//    "See documentation for details.")
-//    mpabrt (35)
+//    if (mpnw1 > mplog2con(1]) {
+//    write (mpldb, 3] mpnw1
+//    3 format ("*** MPEGAMMA: Log(2] must be precomputed to precision",i9," words."/ &
+//    "See documentation for details."]
+//    mpabrt (35]
 //    }
 //    
 //    //   Compute eps and nn based on precision level.
 //    
 //    neps = - mpnw1 - 1
-//    nn = ceiling (log (dble (mpnw1 * mpnbt + mpnbt) * log (2.0)) / log (2.0))
+//    nn = ceiling (log (dble (mpnw1 * mpnbt + mpnbt] * log (2.0]] / log (2.0]]
 //    
 //    //   Initialize s0 through s4 to 1.
 //    
-//    s0(1) = mpnw
-//    s0(2) = 1.0
-//    s0(3) = 0.0
-//    s0(4) = 1.0
-//    s0(5) = 0.0
-//    s0(6) = 0.0
+//    s0(1] = mpnw
+//    s0(2] = 1.0
+//    s0(3] = 0.0
+//    s0(4] = 1.0
+//    s0(5] = 0.0
+//    s0(6] = 0.0
 //    
-//    s1(1) = mpnw
-//    s1(2) = 1.0
-//    s1(3) = 0.0
-//    s1(4) = 1.0
-//    s1(5) = 0.0
-//    s1(6) = 0.0
+//    s1(1] = mpnw
+//    s1(2] = 1.0
+//    s1(3] = 0.0
+//    s1(4] = 1.0
+//    s1(5] = 0.0
+//    s1(6] = 0.0
 //    
-//    s2(1) = mpnw
-//    s2(2) = 1.0
-//    s2(3) = 0.0
-//    s2(4) = 1.0
-//    s2(5) = 0.0
-//    s2(6) = 0.0
+//    s2(1] = mpnw
+//    s2(2] = 1.0
+//    s2(3] = 0.0
+//    s2(4] = 1.0
+//    s2(5] = 0.0
+//    s2(6] = 0.0
 //    
-//    s3(1) = mpnw
-//    s3(2) = 1.0
-//    s3(3) = 0.0
-//    s3(4) = 1.0
-//    s3(5) = 0.0
-//    s3(6) = 0.0
+//    s3(1] = mpnw
+//    s3(2] = 1.0
+//    s3(3] = 0.0
+//    s3(4] = 1.0
+//    s3(5] = 0.0
+//    s3(6] = 0.0
 //    
-//    s4(1) = mpnw
-//    s4(2) = 1.0
-//    s4(3) = 0.0
-//    s4(4) = 1.0
-//    s4(5) = 0.0
-//    s4(6) = 0.0
+//    s4(1] = mpnw
+//    s4(2] = 1.0
+//    s4(3] = 0.0
+//    s4(4] = 1.0
+//    s4(5] = 0.0
+//    s4(6] = 0.0
 //    
-//    s7(1) = mpnw
-//    s7(2) = 1.0
-//    s7(3) = 0.0
-//    s7(4) = 2.0
-//    s7(5) = 0.0
-//    s7(6) = 0.0
+//    s7(1] = mpnw
+//    s7(2] = 1.0
+//    s7(3] = 0.0
+//    s7(4] = 2.0
+//    s7(5] = 0.0
+//    s7(6] = 0.0
 //    
 //    //   Set s7 = 2^nn.
 //    
@@ -1401,13 +1397,13 @@ extension MPFUN {
 //    
 //    //  Set f = 1.
 //    
-//    f(0) = 9.0
-//    f(1) = mpnw1
-//    f(2) = 1.0
-//    f(3) = 0.0
-//    f(4) = 1.0
-//    f(5) = 0.0
-//    f(6) = 0.0
+//    f(0] = 9.0
+//    f(1] = mpnw1
+//    f(2] = 1.0
+//    f(3] = 0.0
+//    f(4] = 1.0
+//    f(5] = 0.0
+//    f(6] = 0.0
 //    
 //    do m = 1, itrmx
 //    mpmul (s7, s0, s5, mpnw1)
@@ -1422,7 +1418,7 @@ extension MPFUN {
 //    mpdiv (s5, s2, s3, mpnw1)
 //    mpadd (s3, s4, s5, mpnw1)
 //    mpeq (s5, s4, mpnw1)
-//    if (s3(3) - s4(3) < neps) goto 100
+//    if (s3(3] - s4(3] < neps) goto 100
 //    }
 //    
 //    write (mpldb, 1)
@@ -1472,15 +1468,15 @@ extension MPFUN {
 //    
 //    // End of declaration
 //    
-//    if (mpnw < 4 || a(0) < mpnw + 4 || a(0) < abs (a(2)) + 4 || &
-//    b(0) < mpnw + 6) {
-//    write (mpldb, 1)
-//    1 format ("*** MPEXP: uninitialized or inadequately sized arrays")
-//    mpabrt (99)
+//    if (mpnw < 4 || a(0] < mpnw + 4 || a(0] < abs (a(2]) + 4 || &
+//    b[0] < mpnw + 6) {
+//    write (mpldb, 1]
+//    1 format ("*** MPEXP: uninitialized or inadequately sized arrays"]
+//    mpabrt (99]
 //    }
 //    
-//    ia = sign (1.0, a(2))
-//    na = min (int (abs (a(2))), mpnw)
+//    ia = sign (1.0, a(2])
+//    na = min (int (abs (a(2])), mpnw)
 //    mpmdc (a, t1, n1, mpnw)
 //    
 //    //   Check for overflows and underflows.
@@ -1491,9 +1487,9 @@ extension MPFUN {
 //    2   format ("*** MPEXP: Argument is too large.")
 //    mpabrt (34)
 //    } else {
-//    b(1) = mpnw
-//    b(2) = 0.0
-//    b(3) = 0.0
+//    b[1] = mpnw
+//    b[2] = 0.0
+//    b[3] = 0.0
 //    goto 130
 //    }
 //    }
@@ -1504,9 +1500,9 @@ extension MPFUN {
 //    write (mpldb, 2)
 //    mpabrt (34)
 //    } else {
-//    b(1) = mpnw
-//    b(2) = 0.0
-//    b(3) = 0.0
+//    b[1] = mpnw
+//    b[2] = 0.0
+//    b[3] = 0.0
 //    goto 130
 //    }
 //    }
@@ -1518,22 +1514,22 @@ extension MPFUN {
 //    goto 130
 //    }
 //    
-//    s0(0) = mpnw + 7
-//    s1(0) = mpnw + 7
-//    s2(0) = mpnw + 7
-//    s3(0) = mpnw + 7
-//    s4(0) = mpnw + 7
+//    s0(0] = mpnw + 7
+//    s1(0] = mpnw + 7
+//    s2(0] = mpnw + 7
+//    s3(0] = mpnw + 7
+//    s4(0] = mpnw + 7
 //    mpnw1 = mpnw + 1
 //    
 //    //   Set f1 = 1.
 //    
-//    f(0) = 9.0
-//    f(1) = mpnw1
-//    f(2) = 1.0
-//    f(3) = 0.0
-//    f(4) = 1.0
-//    f(5) = 0.0
-//    f(6) = 0.0
+//    f(0] = 9.0
+//    f(1] = mpnw1
+//    f(2] = 1.0
+//    f(3] = 0.0
+//    f(4] = 1.0
+//    f(5] = 0.0
+//    f(6] = 0.0
 //    
 //    //   Check if Log(2) has been precomputed.
 //    
@@ -1556,13 +1552,13 @@ extension MPFUN {
 //    
 //    //   Check if the reduced argument is zero.
 //    
-//    if (s0(2) == 0.0) {
-//    s0(1) = mpnw1
-//    s0(2) = 1.0
-//    s0(3) = 0.0
-//    s0(4) = 1.0
-//    s0(5) = 0.0
-//    s0(6) = 0.0
+//    if (s0(2] == 0.0) {
+//    s0(1] = mpnw1
+//    s0(2] = 1.0
+//    s0(3] = 0.0
+//    s0(4] = 1.0
+//    s0(5] = 0.0
+//    s0(6] = 0.0
 //    goto 120
 //    }
 //    
@@ -1590,8 +1586,8 @@ extension MPFUN {
 //    //   Check for convergence of the series, and adjust working precision
 //    //   for the next term.
 //    
-//    if (s2(2) == 0.0 || s2(3) < s0(3) - mpnw1) goto 100
-//    mpnw2 = min (max (mpnw1 + int (s2(3) - s0(3)) + 1, 4), mpnw1)
+//    if (s2(2] == 0.0 || s2(3] < s0(3] - mpnw1) goto 100
+//    mpnw2 = min (max (mpnw1 + int (s2(3] - s0(3]) + 1, 4), mpnw1)
 //    }
 //    
 //    write (mpldb, 4)
@@ -1646,15 +1642,15 @@ extension MPFUN {
 //    
 //    // End of declaration
 //    
-//    if (mpnw < 4 || a(0) < mpnw + 4 || a(0) < abs (a(2)) + 4 || &
-//    b(0) < mpnw + 6) {
+//    if (mpnw < 4 || a(0] < mpnw + 4 || a(0] < abs (a(2]) + 4 || &
+//    b[0] < mpnw + 6) {
 //    write (mpldb, 1)
 //    1 format ("*** MPEXPX: uninitialized or inadequately sized arrays")
 //    mpabrt (99)
 //    }
 //    
-//    ia = sign (1.0, a(2))
-//    na = min (int (abs (a(2))), mpnw)
+//    ia = sign (1.0, a(2])
+//    na = min (int (abs (a(2])), mpnw)
 //    mpmdc (a, t1, n1, mpnw)
 //    
 //    //   Check for overflows and underflows.
@@ -1665,9 +1661,9 @@ extension MPFUN {
 //    2   format ("*** MPEXPX: Argument is too large.")
 //    mpabrt (34)
 //    } else {
-//    b(1) = mpnw
-//    b(2) = 0.0
-//    b(3) = 0.0
+//    b[1) = mpnw
+//    b[2) = 0.0
+//    b[3) = 0.0
 //    goto 130
 //    }
 //    }
@@ -1678,9 +1674,9 @@ extension MPFUN {
 //    write (mpldb, 2)
 //    mpabrt (34)
 //    } else {
-//    b(1) = mpnw
-//    b(2) = 0.0
-//    b(3) = 0.0
+//    b[1) = mpnw
+//    b[2) = 0.0
+//    b[3) = 0.0
 //    goto 130
 //    }
 //    }
@@ -1809,7 +1805,7 @@ extension MPFUN {
 //    // End of declaration
 //    
 //    if (mpnw < 4 || a(0) < mpnw + 4 || a(0) < abs (a(2)) + 4 || &
-//    b(0) < mpnw + 6) {
+//    b[0) < mpnw + 6) {
 //    write (mpldb, 1)
 //    1 format ("*** MPLOG: uninitialized or inadequately sized arrays")
 //    mpabrt (99)
@@ -1827,9 +1823,9 @@ extension MPFUN {
 //    //   Check if input is exactly one.
 //    
 //    if (a(2) == 1.0 && a(3) == 0.0 && a(4) == 1.0) {
-//    b(1) = mpnw
-//    b(2) = 0.0
-//    b(3) = 0.0
+//    b[1) = mpnw
+//    b[2) = 0.0
+//    b[3) = 0.0
 //    goto 130
 //    }
 //    
@@ -1951,7 +1947,7 @@ extension MPFUN {
 //    // End of declaration
 //    
 //    if (mpnw < 4 || a(0) < mpnw + 4 || a(0) < abs (a(2)) + 4 || &
-//    b(0) < mpnw + 6) {
+//    b[0) < mpnw + 6) {
 //    write (mpldb, 1)
 //    1 format ("*** MPLOGX: uninitialized or inadequately sized arrays")
 //    mpabrt (99)
@@ -1969,10 +1965,10 @@ extension MPFUN {
 //    //   Check if input is exactly one.
 //    
 //    if (a(2) == 1.0 && a(3) == 0.0 && a(4) == 1.0) {
-//    b(1) = mpnw
-//    b(2) = 0.0
-//    b(3) = 0.0
-//    b(4) = 0.0
+//    b[1) = mpnw
+//    b[2) = 0.0
+//    b[3) = 0.0
+//    b[4) = 0.0
 //    goto 120
 //    }
 //    
@@ -2311,7 +2307,7 @@ extension MPFUN {
 //    
 //    //  End of declaration
 //    
-//    if (mpnw < 4 || a(0) < mpnw + 4 || b(0) < abs (a(2)) + 4 || &
+//    if (mpnw < 4 || a(0) < mpnw + 4 || b[0) < abs (a(2)) + 4 || &
 //    c(0) < mpnw + 6) {
 //    write (mpldb, 1)
 //    1 format ("*** MPPOWER: uninitialized or inadequately sized arrays")
@@ -2325,7 +2321,7 @@ extension MPFUN {
 //    2 format ("*** MPPOWER: A^B, where A is less than zero.")
 //    mpabrt (61)
 //    } else if ((a(2) == 1.0 && a(3) == 0.0 && a(4) == 1.0) &
-//    || b(2) == 0.0) {
+//    || b[2) == 0.0) {
 //    c(1) = mpnw
 //    c(2) = 1.0
 //    c(3) = 0.0
@@ -2333,7 +2329,7 @@ extension MPFUN {
 //    c(5) = 0.0
 //    c(6) = 0.0
 //    goto 200
-//    } else {if (b(2) == 1.0 && b(3) == 0.0 && b(4) == 1.0) {
+//    } else {if (b[2) == 1.0 && b[3) == 0.0 && b[4) == 1.0) {
 //    mpeq (a, c, mpnw)
 //    goto 200
 //    }
@@ -2381,23 +2377,23 @@ extension MPFUN {
 //    //  If b = a3/a4 or a4/a3 (except for sign) or then mpnpwr and mpnrtr.
 //    
 //    if (abs (t0 - a3 / a4) / t0 < mprxx) {
-//    a3 = sign (a3, b(2))
+//    a3 = sign (a3, b[2))
 //    mpdmc (a3, 0, s0, mpnw)
 //    mpdmc (a4, 0, s1, mpnw)
 //    mpdiv (s0, s1, s2, mpnw)
 //    mpsub (b, s2, s0, mpnw)
-//    if (s0(2) == 0.0 || s0(3) < b(3) + 1 - mpnw) {
+//    if (s0(2) == 0.0 || s0(3) < b[3) + 1 - mpnw) {
 //    mpnpwr (a, int (a3), s0, mpnw)
 //    mpnrtr (s0, int (a4), c, mpnw)
 //    goto 200
 //    }
 //    } else if (abs (t0 - a4 / a3) / t0 < mprxx) {
-//    a4 = sign (a4, b(2))
+//    a4 = sign (a4, b[2))
 //    mpdmc (a4, 0, s0, mpnw)
 //    mpdmc (a3, 0, s1, mpnw)
 //    mpdiv (s0, s1, s2, mpnw)
 //    mpsub (b, s2, s0, mpnw)
-//    if (s0(2) == 0.0 || s0(3) < b(3) + 1 - mpnw) {
+//    if (s0(2) == 0.0 || s0(3) < b[3) + 1 - mpnw) {
 //    mpnpwr (a, int (a4), s0, mpnw)
 //    mpnrtr (s0, int (a3), c, mpnw)
 //    goto 200
