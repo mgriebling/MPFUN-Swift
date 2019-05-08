@@ -954,97 +954,94 @@ extension MPFUN {
     
     static func mpcsshr (_ a: MPRNumber, _ x: inout MPRNumber, _ y: inout MPRNumber, _ mpnw : Int) {
         
-    }
-    
-    //   This computes the hyperbolic cosine and sine of the MPR number A and
-    //   returns the two MPR results in X and Y, respectively.  If the argument
-    //   is very close to zero, a Taylor series is used; otherwise this routine
-    //   calls mpexp.
-    
-//    implicit none
-//    integer itrmx, j, mpnw, mpnwx, mpnw1, mpnw2
-//    parameter (itrmx = 1000000, mpnwx = 700)
-//    real (mprknd) a(0:), f(0:9), x(0:), y(0:), s0(0:mpnw+6), &
-//    s1(0:mpnw+6), s2(0:mpnw+6), s3(0:mpnw+6), t2
-//    
-//    // End of declaration
-//    
-//    if (mpnw < 4 || a[0] < mpnw + 4 || a[0] < abs (a[2]) + 4 || &
-//    x[0] < mpnw + 6 || y[0] < mpnw + 6) {
-//    write (mpldb, 1)
-//    1 format ("*** MPCSSHR: uninitialized or inadequately sized arrays")
-//    mpabrt (99)
-//    }
-//    
-//    s0[0] = mpnw + 7
-//    s1[0] = mpnw + 7
-//    s2[0] = mpnw + 7
-//    s3[0] = mpnw + 7
-//    mpnw1 = mpnw + 1
-//    f(0] = 9.0
-//    f(1] = mpnw
-//    f(2] = 1.0
-//    f(3] = 0.0
-//    f(4] = 1.0
-//    f(5] = 0.0
-//    f(6] = 0.0
-//    
-//    //   If argument is very small, compute the sinh using a Taylor series.
-//    //   This avoids accuracy loss that otherwise occurs by using exp.
-//    
-//    if (s0[3] < -1.0) {
-//    mpeq (a, s0, mpnw1)
-//    mpmul (s0, s0, s2, mpnw1)
-//    mpnw2 =  mpnw1
-//    
-//    //   The working precision used to compute each term can be linearly reduced
-//    //   as the computation proceeds.
-//    
-//    do j = 1, itrmx
-//    t2 = (2.0 * j) * (2.0 * j + 1.0)
-//    mpmul (s2, s1, s3, mpnw2)
-//    mpdivd (s3, t2, s1, mpnw2)
-//    mpadd (s1, s0, s3, mpnw1)
-//    mpeq (s3, s0, mpnw1)
-//    
-//    //   Check for convergence of the series, and adjust working precision
-//    //   for the next term.
-//    
-//    if (s1[2] == 0.0 || s1[3] < s0[3] - mpnw1) goto 110
-//    mpnw2 = min (max (mpnw1 + int (s1[3] - s0[3]) + 1, 4), mpnw1)
-//    }
-//    
-//    write (mpldb, 4)
-//    4 format ("*** MPCSSHR: Iteration limit exceeded.")
-//    mpabrt (29)
-//    
-//    110 continue
-//    
-//    mpmul (s0, s0, s2, mpnw1)
-//    mpadd (f, s2, s3, mpnw1)
-//    mpsqrt (s3, s1, mpnw1)
-//    mproun (s1, mpnw)
-//    mpeq (s1, x, mpnw)
-//    mproun (s0, mpnw)
-//    mpeq (s0, y, mpnw)
-//    } else {
-//    mpexp (a, s0, mpnw1)
-//    mpdiv (f, s0, s1, mpnw1)
-//    mpadd (s0, s1, s2, mpnw1)
-//    mpmuld (s2, 0.5d0, s3, mpnw1)
-//    mproun (s3, mpnw)
-//    mpeq (s3, x, mpnw)
-//    mpsub (s0, s1, s2, mpnw1)
-//    mpmuld (s2, 0.5d0, s3, mpnw1)
-//    mproun (s3, mpnw)
-//    mpeq (s3, y, mpnw)
-//    }
-//    
-//    100 continue
-//    
-//    return
-//    end static func mpcsshr
-//
+        //   This computes the hyperbolic cosine and sine of the MPR number A and
+        //   returns the two MPR results in X and Y, respectively.  If the argument
+        //   is very close to zero, a Taylor series is used; otherwise this routine
+        //   calls mpexp.
+        
+        var mpnw1, mpnw2 : Int
+        let itrmx = 1000000  // let mpnwx = 700
+        var f = MPRNumber(repeating:0, count:10)
+        var s0 = MPRNumber(repeating:0, count:mpnw+7)
+        var s1 = s0; var s2 = s0; var s3 = s0
+        var t2 : Double
+        
+        // End of declaration
+        
+        if (mpnw < 4 || Int(a[0]) < mpnw+4 || a[0] < abs (a[2]) + 4 || Int(x[0]) < mpnw+6 || Int(y[0]) < mpnw+6) {
+            print ("*** MPCSSHR: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        s0[0] = Double(mpnw + 7)
+        s1[0] = Double(mpnw + 7)
+        s2[0] = Double(mpnw + 7)
+        s3[0] = Double(mpnw + 7)
+        mpnw1 = mpnw + 1
+        f[0] = 9.0
+        f[1] = Double(mpnw)
+        f[2] = 1.0
+        f[3] = 0.0
+        f[4] = 1.0
+        f[5] = 0.0
+        f[6] = 0.0
+        
+        //   If argument is very small, compute the sinh using a Taylor series.
+        //   This avoids accuracy loss that otherwise occurs by using exp.
+        
+        if s0[3] < -1.0 {
+            mpeq (a, &s0, mpnw1)
+            mpmul (s0, s0, &s2, mpnw1)
+            mpnw2 =  mpnw1
+            
+            //   The working precision used to compute each term can be linearly reduced
+            //   as the computation proceeds.
+            var flag = false
+            for j in 1...itrmx {
+                t2 = Double((2 * j) * (2 * j + 1))
+                mpmul (s2, s1, &s3, mpnw2)
+                mpdivd (s3, t2, &s1, mpnw2)
+                mpadd (s1, s0, &s3, mpnw1)
+                mpeq (s3, &s0, mpnw1)
+                
+                //   Check for convergence of the series, and adjust working precision
+                //   for the next term.
+                
+                if s1[2] == 0.0 || s1[3] < s0[3] - Double(mpnw1) { flag = true; break; /* goto 110 */ }
+                mpnw2 = min (max (mpnw1 + Int (s1[3] - s0[3]) + 1, 4), mpnw1)
+            }
+            
+            if !flag {
+                print ("*** MPCSSHR: Iteration limit exceeded.")
+                mpabrt (29)
+            }
+            
+            //110 continue
+            
+            mpmul (s0, s0, &s2, mpnw1)
+            mpadd (f, s2, &s3, mpnw1)
+            mpsqrt (s3, &s1, mpnw1)
+            mproun (&s1, mpnw)
+            mpeq (s1, &x, mpnw)
+            mproun (&s0, mpnw)
+            mpeq (s0, &y, mpnw)
+        } else {
+            mpexp (a, &s0, mpnw1)
+            mpdiv (f, s0, &s1, mpnw1)
+            mpadd (s0, s1, &s2, mpnw1)
+            mpmuld (s2, 0.5, &s3, mpnw1)
+            mproun (&s3, mpnw)
+            mpeq (s3, &x, mpnw)
+            mpsub (s0, s1, &s2, mpnw1)
+            mpmuld (s2, 0.5, &s3, mpnw1)
+            mproun (&s3, mpnw)
+            mpeq (s3, &y, mpnw)
+        }
+        
+        //100 continue
+        
+    } // mpcsshr
+
     
     static func mpcssnr (_ a: MPRNumber, _ x: inout MPRNumber, _ y: inout MPRNumber, _ mpnw : Int) {
     }
@@ -1293,10 +1290,10 @@ extension MPFUN {
 //    s0[mp7] = mp7
 //    s1[0] = mp7
 //    s1[mp7] = mp7
-//    f(0] = 9.0
-//    f(1] = mpnw
-//    f(2] = 0.0
-//    f(3] = 0.0
+//    f[0] = 9.0
+//    f[1] = mpnw
+//    f[2] = 0.0
+//    f[3] = 0.0
 //    mpeq (f, s0, mpnw)
 //    mpeq (a, s0[mp7:], mpnw)
 //    mpcexpx (s0, s1, mpnw)
@@ -1401,13 +1398,13 @@ extension MPFUN {
 //    
 //    //  Set f = 1.
 //    
-//    f(0] = 9.0
-//    f(1] = mpnw1
-//    f(2] = 1.0
-//    f(3] = 0.0
-//    f(4] = 1.0
-//    f(5] = 0.0
-//    f(6] = 0.0
+//    f[0] = 9.0
+//    f[1] = mpnw1
+//    f[2] = 1.0
+//    f[3] = 0.0
+//    f[4] = 1.0
+//    f[5] = 0.0
+//    f[6] = 0.0
 //    
 //    do m = 1, itrmx
 //    mpmul (s7, s0, s5, mpnw1)
@@ -1529,13 +1526,13 @@ extension MPFUN {
 //    
 //    //   Set f1 = 1.
 //    
-//    f(0] = 9.0
-//    f(1] = mpnw1
-//    f(2] = 1.0
-//    f(3] = 0.0
-//    f(4] = 1.0
-//    f(5] = 0.0
-//    f(6] = 0.0
+//    f[0] = 9.0
+//    f[1] = mpnw1
+//    f[2] = 1.0
+//    f[3] = 0.0
+//    f[4] = 1.0
+//    f[5] = 0.0
+//    f[6] = 0.0
 //    
 //    //   Check if Log(2) has been precomputed.
 //    
@@ -2265,17 +2262,17 @@ extension MPFUN {
 //    s0[4) = 1.0
 //    s0[5) = 0.0
 //    s0[6) = 0.0
-//    f(0) = 9.0
-//    f(1) = mpnw1
-//    f(2) = 1.0
-//    f(3) = 0.0
-//    f(4) = 2.0
-//    f(5) = 0.0
-//    f(6) = 0.0
+//    f[0) = 9.0
+//    f[1) = mpnw1
+//    f[2) = 1.0
+//    f[3) = 0.0
+//    f[4) = 2.0
+//    f[5) = 0.0
+//    f[6) = 0.0
 //    mpsqrt (f, s2, mpnw1)
 //    mpmuld (s2, 0.5d0, s1, mpnw1)
-//    f(3) = -1.0
-//    f(4) = 0.5d0 * mpbdx
+//    f[3) = -1.0
+//    f[4) = 0.5d0 * mpbdx
 //    mpsub (s2, f, s4, mpnw1)
 //    
 //    //   Perform iterations as described above.
