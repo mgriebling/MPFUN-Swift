@@ -43,7 +43,7 @@ extension MPFUN {
             mpdiv (t4, t2, &t1, mpnw1)
             t1[2] = -t1[2]
             mpdmc (2.0 * Double(k), 0, &t3, mpnw1)
-            mpzetar (t3, t4, mpnw1)
+            mpzetar (t3, &t4, mpnw1)
             mpmul (t1, t4, &t5, mpnw1)
             mproun (&t5, mpnw)
             
@@ -79,7 +79,7 @@ extension MPFUN {
         //     dasy = factor used to decide if asymptic series is used; default = 25.
         //     anumx = upper limit of anu argument; default = 1000.
         
-        var mpnw1, ndp, nu, n1 : Int
+        var mpnw1 : Int
         var t0 = MPRNumber(repeating:0, count: 3*mpnw/2+6)
         var t1 = t0; var t2 = t0; var t3 = t0
         var t4 = t0; var t5 = t0; var t6 = t0
@@ -116,7 +116,7 @@ extension MPFUN {
             t2[5] = 0.0
             t2[6] = 0.0
             mpadd (anu, t2, &t0, mpnw1)
-            mpgammar (t0, t1, mpnw1)
+            mpgammar (t0, &t1, mpnw1)
             mpdiv (t2, t1, &t3, mpnw1)
             mpeq (t3, &t1, mpnw1)
             mpeq (t1, &t0, mpnw1)
@@ -144,7 +144,7 @@ extension MPFUN {
             // 100 continue
             
             mpmuld (t, 0.5, &t1, mpnw1)
-            mppower (t1, anu, t2, mpnw1)
+            mppower (t1, anu, &t2, mpnw1)
             mpmul (t0, t2, &t3, mpnw1)
             mpeq (t3, &t0, mpnw1)
         } else {
@@ -205,7 +205,7 @@ extension MPFUN {
             mpsub (t, t3, &t4, mpnw1)
             mpmuld (t2, 0.25, &t3, mpnw1)
             mpsub (t4, t3, &t5, mpnw1)
-            mpcssnr (t5, t3, &t4, mpnw1)
+            mpcssnr (t5, &t3, &t4, mpnw1)
             mpmul (t3, t0, &t5, mpnw1)
             mpmul (t4, t1, &t6, mpnw1)
             mpsub (t5, t6, &t3, mpnw1)
@@ -237,8 +237,8 @@ extension MPFUN {
         //     con1 = 1/2 * log (10) to DP accuracy.
         //     dmax = maximum size of input argument.
         
-        var j, k, mpnw1, ndp, neps, nt, n1, n2, n3 : Int
-        var alpha, d1, d2, d3 : Double
+        var mpnw1,nt, n2, n3 : Int
+        var alpha, d2, d3 : Double
         let al2 = 0.69314718055994530942; let dmax = 1.0e8; let itrmx = 100000
         var f1 = MPRNumber(repeating:0, count:9)
         var sum1 = MPRNumber(repeating:0, count:mpnw+7)
@@ -396,7 +396,7 @@ extension MPFUN {
         
         mpeq (mppicon, &t2, mpnw1)
         mpmul (t2, tn, &t3, mpnw1)
-        mpcssnr (t3, t4, t5, mpnw1)
+        mpcssnr (t3, &t4, &t5, mpnw1)
         mpmul (t5, sum2, &t6, mpnw1)
         mpmul (tn, t6, &t5, mpnw1)
         mpmul (t2, sum1, &t3, mpnw1)
@@ -405,9 +405,9 @@ extension MPFUN {
         mpsqrt (t6, &t2, mpnw1)
         
         mpdmc (0.5 * alpha, 0, &t3, mpnw1)
-        mplog (t3, t4, mpnw1)
+        mplog (t3, &t4, mpnw1)
         mpmul (tn, t4, &t5, mpnw1)
-        mpexp (t5, t6, mpnw1)
+        mpexp (t5, &t6, mpnw1)
         mpmul (t2, t6, &t3, mpnw1)
         
         mpmul (t1, t3, &t4, mpnw1)
@@ -426,7 +426,7 @@ extension MPFUN {
         //  This returns the incomplete gamma function, using a combination of formula
         //  8.7.3 of the DLMF (for modest-sized z) and formula 8.11.2 (for large z).
         
-        var mpnw1, n : Int
+        var mpnw1 : Int
         let dmax = 40.0; let itrmax = 1000000
         var f1 = MPRNumber(repeating:0, count:9)
         var t0 = MPRNumber(repeating:0, count:mpnw+7)
@@ -501,7 +501,7 @@ extension MPFUN {
             //   gammainc = t1 * (1.0 - z ** s / exp (z) * t0)
             
             mppower (z, s, &t2, mpnw1)
-            mpexp (z, t3, mpnw1)
+            mpexp (z, &t3, mpnw1)
             mpdiv (t2, t3, &t4, mpnw1)
             mpmul (t4, t0, &t5, mpnw1)
             mpsub (f1, t5, &t2, mpnw1)
@@ -552,7 +552,7 @@ extension MPFUN {
             
             mpsub (s, f1, &t2, mpnw1)
             mppower (z, t2, &t3, mpnw1)
-            mpexp (z, t4, mpnw1)
+            mpexp (z, &t4, mpnw1)
             mpdiv (t3, t4, &t2, mpnw1)
             mpmul (t2, t0, &t1, mpnw1)
         }
@@ -569,7 +569,7 @@ extension MPFUN {
         //   This returns the zeta function at positive real argument SS using an algorithm
         //   due to Peter Borwein.
         
-        var iss, j, mpnw1, n, nwds : Int
+        var mpnw1, n : Int
         var d1 : Double
         let itrmax = 1000000; let dfrac = 16.0; let dlogb = 33.27106466687737
         var t1 = MPRNumber(repeating: 0, count:mpnw+7); var t2 = t1; var t3 = t1; var t4 = t1
@@ -668,7 +668,7 @@ extension MPFUN {
                 //    t2 = mpreal (Double(i), mpnw) ** tt
                 
                 mpdmc (Double(i), 0, &t4, mpnw1)
-                mppower (t4, tt, t2, mpnw1)
+                mppower (t4, tt, &t2, mpnw1)
                 
                 //    t3 = 1.0 / t2
                 
@@ -722,7 +722,7 @@ extension MPFUN {
             //  t3 = mpreal (Double(j + 1), mpnw) ** tt
             
             mpdmc (Double(j + 1), 0, &t4, mpnw1)
-            mppower (t4, tt, t3, mpnw1)
+            mppower (t4, tt, &t3, mpnw1)
             
             //  s = s + sgn * t1 / t3
             
@@ -783,7 +783,7 @@ extension MPFUN {
             mpmul (t1, t3, &t2, mpnw1)
             mpmul (mppicon, tt, &t1, mpnw1)
             mpmuld (t1, 0.5, &t3, mpnw1)
-            mpcssnr (t3, t4, &t5, mpnw1)
+            mpcssnr (t3, &t4, &t5, mpnw1)
             mpmul (t2, t4, &t1, mpnw1)
             mpmuld (mppicon, 2.0, &t2, mpnw1)
             mppower (t2, tt, &t3, mpnw1)
@@ -920,7 +920,7 @@ extension MPFUN {
                 //    t2 = mpreal (Double(i), mpnw) ** tt
                 
                 mpdmc (Double(i), 0, &t4, mpnw1)
-                mppower (t4, tt, t2, mpnw1)
+                mppower (t4, tt, &t2, mpnw1)
                 
                 //    t3 = 1.0 / t2
                 
@@ -958,7 +958,7 @@ extension MPFUN {
             //  t1 = mpreal (Double(k), mpnw) ** tt
             
             mpdmc (Double(k), 0, &t2, mpnw1)
-            mppower (t2, tt, t1, mpnw1)
+            mppower (t2, tt, &t1, mpnw1)
             
             //  t0 = t0 + 1.0 / t1
             
@@ -1070,10 +1070,10 @@ extension MPFUN {
             mpmul (t1, t3, &t2, mpnw1)
             mpmul (mppicon, tt, &t1, mpnw1)
             mpmuld (t1, 0.5, &t3, mpnw1)
-            mpcssnr (t3, t4, t5, mpnw1)
+            mpcssnr (t3, &t4, &t5, mpnw1)
             mpmul (t2, t4, &t1, mpnw1)
             mpmuld (mppicon, 2.0, &t2, mpnw1)
-            mppower (t2, tt, t3, mpnw1)
+            mppower (t2, tt, &t3, mpnw1)
             mpdiv (t1, t3, &t2, mpnw1)
             mpmuld (t2, 2.0, &t1, mpnw1)
         }
