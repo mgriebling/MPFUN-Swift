@@ -59,6 +59,288 @@ extension MPFUN {
         mpeq (s0, &b, mpnw)
     } // mpcabs
     
+    static func mpceq (_ a : MPRNumber, _ b : inout MPRNumber, _ mpnw : Int) {
+        
+    }
+    
+//    !   Sets the MPC number B equal to A.
+//
+//    implicit none
+//    integer i, ia, la, lb, mpnw, na
+//    real (mprknd) a(0:), b(0:)
+//
+//    ! End of declaration
+//
+//    la = a(0)
+//    lb = b(0)
+//    if (mpnw < 4 .or. a(0) < abs (a(2)) + 4 .or. a(la) < abs (a(la+2)) + 4 &
+//    .or. b(0) < mpnw + 6 .or. b(lb) < mpnw + 6) then
+//    write (mpldb, 1)
+//    1 format ('*** MPCEQ: uninitialized or inadequately sized arrays')
+//    call mpabrt (99)
+//    endif
+//
+//    ia = sign (1.d0, a(2))
+//    na = min (int (abs (a(2))), mpnw)
+//    if (na == 0)  then
+//    b(1) = mpnw
+//    b(2) = 0.d0
+//    b(3) = 0.d0
+//    goto 110
+//    endif
+//    b(1) = mpnw
+//    b(2) = sign (na, ia)
+//
+//    do i = 2, na + 2
+//    b(i+1) = a(i+1)
+//    enddo
+//
+//    b(na+4) = 0.d0
+//    b(na+5) = 0.d0
+//
+//    110 continue
+//
+//    ia = sign (1.d0, a(la+2))
+//    na = min (int (abs (a(la+2))), mpnw)
+//    if (na == 0)  then
+//    b(lb+1) = mpnw
+//    b(lb+2) = 0.d0
+//    b(lb+3) = 0.d0
+//    goto 120
+//    endif
+//    b(lb+1) = mpnw
+//    b(lb+2) = sign (na, ia)
+//
+//    do i = 2, na + 2
+//    b(i+lb+1) = a(i+la+1)
+//    enddo
+//
+//    b(na+lb+4) = 0.d0
+//    b(na+lb+5) = 0.d0
+//
+//    120 continue
+//
+//    return
+//    end subroutine mpceq
+    
+    static func mpcadd (_ a : MPRNumber, _ b : MPRNumber, _ c : inout MPRNumber, _ mpnw : Int) {
+        
+    }
+    
+//    !   This routine adds the MPC numbers A and B.
+//
+//    implicit none
+//    integer la, lb, lc, mpnw
+//    real (mprknd) a(0:), b(0:), c(0:)
+//
+//    ! End of declaration
+//
+//    la = a(0)
+//    lb = b(0)
+//    lc = c(0)
+//    if (mpnw < 4 .or. a(0) < abs (a(2)) + 4 .or. a(la) < abs (a(la+2)) + 4 &
+//    .or. b(0) < abs (b(2)) + 4 .or. b(lb) < abs (b(lb+2)) + 4 .or. &
+//    c(0) < mpnw + 6 .or. c(lc) < mpnw + 6) then
+//    write (mpldb, 1)
+//    1 format ('*** MPCADD: uninitialized or inadequately sized arrays')
+//    call mpabrt (99)
+//    endif
+//
+//    call mpadd (a, b, c, mpnw)
+//    call mpadd (a(la:), b(lb:), c(lc:), mpnw)
+//    return
+//    end subroutine mpcadd
+    
+    static func mpcmul (_ a : MPRNumber, _ b : MPRNumber, _ c : inout MPRNumber, _ mpnw : Int) {
+    }
+    
+//    !   This routine multiplies the MPC numbers A and B.
+//
+//    implicit none
+//    integer la, lb, lc, mpnw, mpnw1
+//    real (mprknd) a(0:), b(0:), c(0:), &
+//    s0(0:mpnw+6), s1(0:mpnw+6), s2(0:mpnw+6), s3(0:mpnw+6)
+//
+//    ! End of declaration
+//
+//    la = a(0)
+//    lb = b(0)
+//    lc = c(0)
+//    if (mpnw < 4 .or. a(0) < abs (a(2)) + 4 .or. a(la) < abs (a(la+2)) + 4 &
+//    .or. b(0) < abs (b(2)) + 4 .or. b(lb) < abs (b(lb+2)) + 4 .or. &
+//    c(0) < mpnw + 6 .or. c(lc) < mpnw + 6) then
+//    write (mpldb, 1)
+//    1 format ('*** MPCMUL: uninitialized or inadequately sized arrays')
+//    call mpabrt (99)
+//    endif
+//
+//    mpnw1 = mpnw + 1
+//    s0(0) = mpnw + 7
+//    s1(0) = mpnw + 7
+//    s2(0) = mpnw + 7
+//    s3(0) = mpnw + 7
+//
+//    call mpmul (a, b, s0, mpnw1)
+//    call mpmul (a(la:), b(lb:), s1, mpnw1)
+//    call mpsub (s0, s1, s2, mpnw1)
+//    call mpmul (a, b(lb:), s0, mpnw1)
+//    call mpmul (a(la:), b, s1, mpnw1)
+//    call mpadd (s0, s1, s3, mpnw1)
+//
+//    call mproun (s2, mpnw)
+//    call mproun (s3, mpnw)
+//    call mpeq (s2, c, mpnw)
+//    call mpeq (s3, c(lc:), mpnw)
+//
+//    return
+//    end subroutine mpcmul
+    
+    static func mpcdiv (_ a : MPRNumber, _ b : MPRNumber, _ c : inout MPRNumber, _ mpnw : Int) {
+    }
+    
+//    !   This routine divides the MPC numbers A and B.
+//
+//    implicit none
+//    integer la, lb, lc, mpnw, mpnw1
+//    real (mprknd) a(0:), b(0:), c(0:), &
+//    s0(0:mpnw+6), s1(0:mpnw+6), s2(0:mpnw+6), s3(0:mpnw+6), s4(0:mpnw+6)
+//
+//    ! End of declaration
+//
+//    la = a(0)
+//    lb = b(0)
+//    lc = c(0)
+//    if (mpnw < 4 .or. a(0) < abs (a(2)) + 4 .or. a(la) < abs (a(la+2)) + 4 &
+//    .or. b(0) < abs (b(2)) + 4 .or. b(lb) < abs (b(lb+2)) + 4 .or. &
+//    c(0) < mpnw + 6 .or. c(lc) < mpnw + 6) then
+//    write (mpldb, 1)
+//    1 format ('*** MPCDIV: uninitialized or inadequately sized arrays')
+//    call mpabrt (99)
+//    endif
+//
+//    mpnw1 = mpnw + 1
+//    s0(0) = mpnw + 7
+//    s1(0) = mpnw + 7
+//    s2(0) = mpnw + 7
+//    s3(0) = mpnw + 7
+//    s4(0) = mpnw + 7
+//
+//    call mpmul (a, b, s0, mpnw1)
+//    call mpmul (a(la:), b(lb:), s1, mpnw1)
+//    call mpadd (s0, s1, s2, mpnw1)
+//    call mpmul (a, b(lb:), s0, mpnw1)
+//    s0(2) = - s0(2)
+//    call mpmul (a(la:), b, s1, mpnw1)
+//    call mpadd (s0, s1, s3, mpnw1)
+//
+//    call mpmul (b, b, s0, mpnw1)
+//    call mpmul (b(lb:), b(lb:), s1, mpnw1)
+//    call mpadd (s0, s1, s4, mpnw1)
+//    call mpdiv (s2, s4, s0, mpnw1)
+//    call mpdiv (s3, s4, s1, mpnw1)
+//
+//
+//    call mproun (s0, mpnw)
+//    call mproun (s1, mpnw)
+//    call mpeq (s0, c, mpnw)
+//    call mpeq (s1, c(lc:), mpnw)
+//
+//    return
+//    end subroutine mpcdiv
+    
+    static func mpcsqrt (_ a : MPRNumber, _ b : inout MPRNumber, _ mpnw : Int) {
+    }
+    
+//    !   This routine returns the square root of the MPC argument A.
+//    !   The formula is:
+//
+//    !   1/Sqrt[2] * (Sqrt[r + a1] + I * a2 / Sqrt[r + a1])  if a1 >= 0, or
+//    !   1/Sqrt[2] * (|a2| / Sqrt[r - a1] + I * Sgn[a2] * Sqrt[r - a1]) if a1 < 0,
+//
+//    !   where r = Sqrt[a1^2 + a2^2], and a1 and a2 are the real and imaginary
+//    !   parts of A.
+//
+//    implicit none
+//    integer la, lb, mpnw, mpnw1
+//    real (mprknd) a(0:), b(0:), s0(0:mpnw+6), &
+//    s1(0:mpnw+6), s2(0:mpnw+6), s3(0:mpnw+6), s4(0:mpnw+6)
+//
+//    ! End of declaration
+//
+//    la = a(0)
+//    lb = b(0)
+//    if (mpnw < 4 .or. a(0) < abs (a(2)) + 4 .or. a(la) < abs (a(la+2)) + 4 &
+//    .or. b(0) < mpnw + 6 .or. b(lb) < mpnw + 6) then
+//    write (mpldb, 1)
+//    1 format ('*** MPCSQRT: uninitialized or inadequately sized arrays')
+//    call mpabrt (99)
+//    endif
+//
+//    mpnw1 = mpnw + 1
+//    s0(0) = mpnw + 7
+//    s1(0) = mpnw + 7
+//    s2(0) = mpnw + 7
+//    s3(0) = mpnw + 7
+//    s4(0) = mpnw + 7
+//
+//    call mpmul (a, a, s0, mpnw1)
+//    call mpmul (a(la:), a(la:), s1, mpnw1)
+//    call mpadd (s0, s1, s2, mpnw1)
+//    call mpsqrt (s2, s0, mpnw1)
+//
+//    if (a(2) >= 0.d0) then
+//    call mpadd (s0, a, s1, mpnw1)
+//    call mpsqrt (s1, s0, mpnw1)
+//    call mpdiv (a(la:), s0, s1, mpnw1)
+//    else
+//    call mpsub (s0, a, s2, mpnw1)
+//    call mpsqrt (s2, s1, mpnw1)
+//    call mpdiv (a(la:), s1, s0, mpnw1)
+//    s0(2) = abs (s0(2))
+//    s1(2) = sign (s1(2), a(la+2))
+//    endif
+//
+//    call mpdmc (0.5d0, 0, s3, mpnw1)
+//    call mpsqrt (s3, s2, mpnw1)
+//    call mpmul (s0, s2, s3, mpnw1)
+//    call mpmul (s1, s2, s4, mpnw1)
+//
+//    call mproun (s3, mpnw)
+//    call mproun (s4, mpnw)
+//    call mpeq (s3, b, mpnw)
+//    call mpeq (s4, b(lb:), mpnw)
+//
+//    return
+//    end subroutine mpcsqrt
+
+    
+    static func mpcsub (_ a : MPRNumber, _ b : MPRNumber, _ c : inout MPRNumber, _ mpnw : Int) {
+    }
+    
+//    !   This routine subtracts the MPC numbers A and B.
+//
+//    implicit none
+//    integer la, lb, lc, mpnw
+//    real (mprknd) a(0:), b(0:), c(0:)
+//
+//    ! End of declaration
+//
+//    la = a(0)
+//    lb = b(0)
+//    lc = c(0)
+//    if (mpnw < 4 .or. a(0) < abs (a(2)) + 4 .or. a(la) < abs (a(la+2)) + 4 &
+//    .or. b(0) < abs (b(2)) + 4 .or. b(lb) < abs (b(lb+2)) + 4 .or. &
+//    c(0) < mpnw + 6 .or. c(lc) < mpnw + 6) then
+//    write (mpldb, 1)
+//    1 format ('*** MPCSUB: uninitialized or inadequately sized arrays')
+//    call mpabrt (99)
+//    endif
+//
+//    call mpsub (a, b, c, mpnw)
+//    call mpsub (a(la:), b(lb:), c(lc:), mpnw)
+//    return
+//    end subroutine mpcsub
+    
     static func mpdmc (_ a : Double, _ n : Int, _ b: inout MPRNumber, _ mpnw: Int) {
         
         //   This routine converts the DP number A * 2^N to MPR form in B.

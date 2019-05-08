@@ -280,10 +280,11 @@ extension MPFUN {
         
         mpinfr (t, &t2, &t3, mpnw1)
         
+        n2 = 0; d2 = 0; n3 = 0; d3 = 0
         if t3[2] == 0.0 {
             
             //   If t is a positive integer, then apply the usual factorial recursion.
-            
+
             mpmdc (t2, &d2, &n2, mpnw1)
             nt = Int(d2 * pow(2, Double(n2)))
             mpeq (f1, &t1, mpnw1)
@@ -355,7 +356,7 @@ extension MPFUN {
             mpmuld (t6, d2, &t3, mpnw1)
             mpadd (sum1, t3, &t4, mpnw1)
             mpeq (t4, &sum1, mpnw1)
-            if t3[2] == 0.0 || t3[3] < sum1[3] - Double(mpnw1) { break; flag = true /* goto 100 */ }
+            if t3[2] == 0.0 || t3[3] < sum1[3] - Double(mpnw1) { flag = true; break; /* goto 100 */ }
         }
         
         if !flag {
@@ -381,7 +382,7 @@ extension MPFUN {
             mpmuld (t6, d2, &t3, mpnw1)
             mpadd (sum2, t3, &t4, mpnw1)
             mpeq (t4, &sum2, mpnw1)
-            if t3[2] == 0.0 || t3[3] < sum2[3] - Double(mpnw1) {  break; flag = true /* goto 110 */ }
+            if t3[2] == 0.0 || t3[3] < sum2[3] - Double(mpnw1) { flag = true; break /* goto 110 */ }
         }
         
         if !flag {
@@ -806,8 +807,8 @@ extension MPFUN {
         //  (see formula 25.2.9 of the DLMF.  The array berne contains precomputed
         //  Bernoulli numbers.  Its dimensions must be as shown below.
         
-        var i, ia, iss, k, mpnw1, na, nn, n1, n2 : Int
-        var d1, d2 : Double
+        var ia, mpnw1, na, nn : Int
+        var d1 : Double
         let itrmax = 1000000; let dfrac = 8.5; let dlogb = 33.27106466687737
         var t1 = MPRNumber(repeating: 0, count:mpnw+7); var t2 = t1; var t3 = t1; var t4 = t1
         var t5 = t1; var t6 = t1; var tt = t1; var s = t1; var t0 = t1; var t7 = t1; var t8 = t1
@@ -838,8 +839,6 @@ extension MPFUN {
             mpabrt (62)
         }
         
-        i = 0
-        k = 0
         mpnw1 = mpnw + 1
         t0[0] = Double(mpnw + 7)
         t1[0] = Double(mpnw + 7)

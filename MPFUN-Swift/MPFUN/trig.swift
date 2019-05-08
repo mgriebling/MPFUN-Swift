@@ -91,9 +91,9 @@ extension MPFUN {
         //   If the precision level MPNW exceeds MPNWX words, this static func calls
         //   MPANGX instead.  By default, MPNWX = 100 (approx. 1450 digits).
         
-        var iq, ix, iy, k, kk, mpnw1, mq, nx, ny, n1, n2 : Int
+        var iq, ix, iy,kk, mpnw1, mq, nx, ny, n1, n2 : Int
         var t1, t2, t3 : Double
-        let cl2 = 1.4426950408889633; let cpi = 3.141592653589793
+        let cl2 = 1.4426950408889633 // let cpi = 3.141592653589793
         let mprxx = 1e-14; let mpnwx = 100; let nit = 3
         var s0 = MPRNumber(repeating: 0, count:mpnw+7)
         var s1 = s0; var s2 = s0; var s3 = s0; var s4 = s0; var s5 = s0
@@ -175,7 +175,7 @@ extension MPFUN {
         mpdiv (y, s3, &s2, mpnw1)
         
         //   Compute initial approximation of the angle.
-        
+        n1 = 0; n2 = 0; t2 = 0
         mpmdc (s1, &t1, &n1, mpnw1)
         mpmdc (s2, &t2, &n2, mpnw1)
         n1 = max (n1, -mpnbt)
@@ -285,7 +285,7 @@ extension MPFUN {
         //   until convergence (i.e., until a_k = b_k to available precision).
         //   The result is returned in C.
         
-        var j, la, lb, lc, mp7, mpnw1 : Int
+        var la, lb, lc, mp7, mpnw1 : Int
         let itrmx = 50
         var s0 = MPRNumber(repeating:0, count:2*mpnw+14)
         var s1 = s0; var s2 = s0; var s3 = s0
@@ -313,16 +313,16 @@ extension MPFUN {
         mpceq (b, &s2, mpnw1)
         
         var flag = false
-        for j in 1...itrmx {
-            mpcadd (s1, s2, s0, mpnw1)
+        for _ in 1...itrmx {
+            mpcadd (s1, s2, &s0, mpnw1)
             mpmuld (s0, 0.5, &s3, mpnw1)
             var t = MPRNumber(s3[mp7...])
             mpmuld (MPRNumber(s0[mp7...]), 0.5, &t, mpnw1)
             s3[mp7...] = t[0...]
-            mpcmul (s1, s2, s0, mpnw1)
-            mpcsqrt (s0, s2, mpnw1)
-            mpceq (s3, s1, mpnw1)
-            mpcsub (s1, s2, s0, mpnw1)
+            mpcmul (s1, s2, &s0, mpnw1)
+            mpcsqrt (s0, &s2, mpnw1)
+            mpceq (s3, &s1, mpnw1)
+            mpcsub (s1, s2, &s0, mpnw1)
             
             //   Check for convergence.
             
@@ -342,7 +342,7 @@ extension MPFUN {
         mproun (&s1, mpnw)
         var t = MPRNumber(s1[mp7...])
         mproun (&t, mpnw); s1[mp7...] = t[0...]
-        mpceq (s1, c, mpnw)
+        mpceq (s1, &c, mpnw)
     } // mpcagm
 
     static func mpcexp (_ a: MPRNumber, _ b: inout MPRNumber, _ mpnw : Int) {
@@ -384,7 +384,7 @@ extension MPFUN {
         s4[0] = Double(mpnw + 7)
         
         mpexp (a, &s0, mpnw1)
-        mpcssnr (MPRNumber(a[la...]), s1, s2, mpnw1)
+        mpcssnr (MPRNumber(a[la...]), &s1, &s2, mpnw1)
         mpmul (s0, s1, &s3, mpnw1)
         mpmul (s0, s2, &s4, mpnw1)
         
@@ -412,7 +412,7 @@ extension MPFUN {
         //   is dynamically changed, approximately doubling with each iteration.
         //   For modest levels of precision, use mpcexp.
         
-        var ia, iq, k, la, lb, mpnw1, mp7, mq, na, nb, n0, n1, n2 : Int
+        var iq, la, lb, mpnw1, mp7, mq, nb, n0, n1 : Int
         var t0, t1, t2 : Double
         let cl2 = 1.4426950408889633; let nit = 3; let mprxx = 1e-14
         var s0 = MPRNumber(repeating: 0, count:2*mpnw+14)
@@ -429,14 +429,15 @@ extension MPFUN {
             mpabrt (99)
         }
         
-        ia = sign (1.0, a[2])
-        na = min (Int (abs (a[2])), mpnw)
+        // ia = sign (1.0, a[2])
+        t1 = 0; n1 = 0
+        nb = min (Int (abs (b[2])), mpnw)
         mpmdc (a, &t1, &n1, mpnw)
         
         //   Check for overflows and underflows.
         
-        if (n1 > 30) {
-            if (t1 > 0.0) {
+        if n1 > 30 {
+            if t1 > 0.0 {
                 print ("*** MPCEXPX: Real part of argument is too large.")
                 mpabrt (34)
             } else {
@@ -451,8 +452,8 @@ extension MPFUN {
         }
         
         t1 = t1 * pow(2.0, Double(n1))
-        if (abs (t1) > 1488522236.0) {
-            if (t1 > 0) {
+        if abs (t1) > 1488522236.0 {
+            if t1 > 0 {
                 print ("*** MPCEXPX: Real part of argument is too large.")
                 mpabrt (34)
             } else {
@@ -533,6 +534,7 @@ extension MPFUN {
         mpinfr (s0, &s1, &s2, mpnw1)
         mpmdc (s1, &t1, &n1, mpnw1)
         n1 = Int (t1 * pow(2.0, Double(n1)))
+        t0 = 0; n0 = 0
         mpmdc (s2, &t0, &n0, mpnw1)
         n0 = min (max (n0, -100), 0)
         t0 = pow(2.0, (t0 * pow(2.0, Double(n0))))
@@ -579,10 +581,10 @@ extension MPFUN {
                     s0[mp7...] = t[0...]
                 }
                 
-                mpcsub (s4, s0, s1, mpnw1)
-                mpcmul (s3, s1, s2, mpnw1)
-                mpcadd (s3, s2, s1, mpnw1)
-                mpceq (s1, s3, mpnw1)
+                mpcsub (s4, s0, &s1, mpnw1)
+                mpcmul (s3, s1, &s2, mpnw1)
+                mpcadd (s3, s2, &s1, mpnw1)
+                mpceq (s1, &s3, mpnw1)
                 if (k == mq - nit && iq == 0) {
                     iq = 1 // goto 100
                 } else {
@@ -596,7 +598,7 @@ extension MPFUN {
         mproun (&s1, mpnw)
         t = MPRNumber(s1[mp7...])
         mproun (&t, mpnw); s1[mp7...] = t[0...]
-        mpceq (s1, b, mpnw)
+        mpceq (s1, &b, mpnw)
         
 //        130 continue
         
@@ -672,8 +674,8 @@ extension MPFUN {
         
         //   For modest precision, or if A is close to 2, use mplog.
         
-        var ia1, ia2, iss, i1, i2, la, lb, k, mpnw, mpnw1, mp7, na1, na2, n1, n2 : Int
-        var st, tol, t1, t2, tn : Double
+        var iss, la, lb, mpnw1, mp7, na1, na2, n1, n2 : Int
+        var st, tol, t1, tn : Double
         let itrmax = 1000000; let rtol = pow(0.5, Double(7))
         var f1 = MPRNumber(repeating:0, count:19); var f4 = f1
         var s0 = MPRNumber(repeating:0, count:2*mpnw+14); var s1 = s0; var s2 = s0
@@ -688,19 +690,19 @@ extension MPFUN {
             mpabrt (99)
         }
         
-        ia1 = sign (1.0, a[2])
+        //      let ia1 = sign (1.0, a[2])
         na1 = min (Int (abs (a[2])), mpnw)
-        ia2 = sign (1.0, a[la+2])
+        //      let ia2 = sign (1.0, a[la+2])
         na2 = min (Int (abs (a[la+2])), mpnw)
         
-        if (na1 == 0 && na2 == 0) {
+        if na1 == 0 && na2 == 0 {
             print ("*** MPCLOGX: Argument is zero.")
             mpabrt (50)
         }
         
         //   Check if input is exactly one.
         
-        if (a[2] == 1.0 && a[3] == 0.0 && a[4] == 1.0 && a[la+2] == 0.0) {
+        if a[2] == 1.0 && a[3] == 0.0 && a[4] == 1.0 && a[la+2] == 0.0 {
             b[1] = Double(mpnw)
             b[2] = 0.0
             b[3] = 0.0
@@ -761,12 +763,12 @@ extension MPFUN {
         
         //   If the argument is sufficiently close to 1, employ a Taylor series.
         
-        mpcsub (a, f1, s0, mpnw1)
+        mpcsub (a, f1, &s0, mpnw1)
         
         if (s0[2] == 0.0 || s0[3] <= min(-2.0, -rtol * Double(mpnw1))) && (s0[mp7+2] == 0.0 || s0[mp7+3] <= min(-2.0, -rtol * Double(mpnw1))) {
-            mpceq (s0, s1, mpnw1)
-            mpceq (s1, s2, mpnw1)
-            i1 = 1
+            mpceq (s0, &s1, mpnw1)
+            mpceq (s1, &s2, mpnw1)
+            //       i1 = 1
             iss = 1
             if (s0[2] == 0.0) {
                 tol = s0[mp7+3] - Double(mpnw1)
@@ -779,17 +781,22 @@ extension MPFUN {
             for i1 in 2...itrmax {
                 iss = -iss
                 st = Double(iss * i1)
-                mpcmul (s1, s2, s3, mpnw1)
-                mpceq (s3, s2, mpnw1)
+                mpcmul (s1, s2, &s3, mpnw1)
+                mpceq (s3, &s2, mpnw1)
                 mpdivd (s3, st, &s4, mpnw1)
                 var t = MPRNumber(s4[mp7...])
                 mpdivd (MPRNumber(s3[mp7...]), st, &t, mpnw1)
-                    s4[mp7...] = t[0...]
-                    mpcadd (s0, s4, s3, mpnw1)
-                    mpceq (s3, s0, mpnw1)
-                    if ((s4[2] == 0.0 || s4[3] < tol) && (s4[mp7+2] == 0.0 || s4[mp7+3] < tol)) {
+                s4[mp7...] = t[0...]
+                mpcadd (s0, s4, &s3, mpnw1)
+                mpceq (s3, &s0, mpnw1)
+                if (s4[2] == 0.0 || s4[3] < tol) && (s4[mp7+2] == 0.0 || s4[mp7+3] < tol) {
                     //goto 110
-                    
+                    //  Restore original precision level.
+                    mproun (&s0, mpnw)
+                    t = MPRNumber(s0[mp7...])
+                    mproun (&t, mpnw); s0[mp7...] = t[0...]
+                    mpceq (s0, &b, mpnw)
+                    return
                 }
             }
             
@@ -798,7 +805,7 @@ extension MPFUN {
         }
         
         //   Multiply the input by a large power of two.
-        
+        n1 = 0; t1 = 0
         mpmdc (a, &t1, &n1, mpnw1)
         n2 = mpnbt * (mpnw1 / 2 + 2) - n1
         tn = Double(n2)
@@ -810,8 +817,8 @@ extension MPFUN {
         
         //   Perform AGM iterations.
         
-        mpceq (f1, s1, mpnw1)
-        mpcdiv (f4, s0, s2, mpnw1)
+        mpceq (f1, &s1, mpnw1)
+        mpcdiv (f4, s0, &s2, mpnw1)
         mpcagm (s1, s2, &s3, mpnw1)
         
         //   Compute Pi / (2 * A), where A is the limit of the AGM iterations.
@@ -824,7 +831,7 @@ extension MPFUN {
         t = MPRNumber(s3[mp7...])
         mpdmc (0.0, 0, &t, mpnw1)
         s3[mp7...] = t[0...]
-        mpcdiv (s3, s0, s1, mpnw1)
+        mpcdiv (s3, s0, &s1, mpnw1)
         
         //   Subtract TN * Log(2).
         
@@ -850,7 +857,7 @@ extension MPFUN {
         mproun (&s0, mpnw)
         t = MPRNumber(s0[mp7...])
         mproun (&t, mpnw); s0[mp7...] = t[0...]
-        mpceq (s0, b, mpnw)
+        mpceq (s0, &b, mpnw)
         
         // 120 continue
         
@@ -890,7 +897,7 @@ extension MPFUN {
         
         //   This computes A^B, where A is MPC and B is MPR.
         
-        var la, lc, l3, mpnw : Int
+        var la, lc, l3 : Int
         var s1 = MPRNumber(repeating:0, count:2*mpnw+12); var s2 = s1
         
         // End of declaration
