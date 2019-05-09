@@ -108,7 +108,7 @@ public class MPFUN {
     static let mpr24x = pow(0.5, 24.0)
     static let mprx2 = mprdx*mprdx
     
-    static let mplog2con = Array<Double>(arrayLiteral:
+    static var mplog2con = Array<Double>(arrayLiteral:
         // Entries 0...199
         1366,             1360,             1360,               -1,
         195103586505167,  133778733511576,    4342055649523,   73832410428973,
@@ -466,7 +466,7 @@ public class MPFUN {
         0,                0
     )
     
-    static let mppicon = Array<Double>(arrayLiteral:
+    static var mppicon = Array<Double>(arrayLiteral:
         // Entries 0,   199
         1366,             1360,             1360,                0,
         3,   39854788871587,    9702651562542,    3781505098761,
