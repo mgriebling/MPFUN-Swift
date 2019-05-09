@@ -1044,403 +1044,410 @@ extension MPFUN {
 
     
     static func mpcssnr (_ a: MPRNumber, _ x: inout MPRNumber, _ y: inout MPRNumber, _ mpnw : Int) {
-    }
-    
-    //   This computes the cosine and sine of the MPR number A and returns the
-    //   two MPR results in X and Y, respectively.  Pi must be precomputed to
-    //   at least MPNW words precision and the stored in the array MPPICON in
-    //   module MPMODA.
-    
-    //   This routine uses the conventional Taylor series for Sin (s):
-    
-    //   Sin (s) =  s - s^3 / 3// + s^5 / 5// - s^7 / 7// ...
-    
-    //   where the argument S has been reduced to (-pi, pi).  To further
-    //   accelerate the series, the reduced argument is divided by 2^NQ, where NQ
-    //   is computed as int (sqrt (0.5d0 * N)), where N is the precision in bits.
-    //   After convergence of the series, the double-angle formulas for cos are
-    //   applied NQ times.
-    
-    //   If the precision level MPNW exceeds MPNWX, this static func calls
-    //   MPCSSNX instead.  By default, mpnwx = 100000 (approx. 1450000 digits).
-    
-//    implicit none
-//    integer i, ia, is, itrmx, i1, j, k, ka, mpnw, mpnwx, mpnw1, mpnw2, &
-//    na, ndeg, nq, n1, n2
-//    parameter (itrmx = 1000000, mpnwx = 100000)
-//    real (mprknd) dpi, t1, t2
-//    real (mprknd) a(0:), f1(0:8), f2(0:8), x(0:), y(0:), &
-//    s0(0:mpnw+6), s1(0:mpnw+6), s2(0:mpnw+6), s3(0:mpnw+6), s4(0:mpnw+6), &
-//    s5(0:mpnw+6), s6(0:mpnw+6)
-//    
-//    // End of declaration
-//    
-//    if (mpnw < 4 || a[0] < mpnw + 4 || a[0] < abs (a[2]) + 4 || &
-//    x[0] < mpnw + 6 || y[0] < mpnw + 6) {
-//    write (mpldb, 1)
-//    1 format ("*** MPCSSNR: uninitialized or inadequately sized arrays")
-//    mpabrt (99)
-//    }
-//    
-//    //   If the precision level mpnw exceeds mpnwx, mpcssx.
-//    
-//    if (mpnw > mpnwx) {
-//    mpcssnx (a, x, y, mpnw)
-//    goto 120
-//    }
-//    
-//    ia = sign (1.0, a[2])
-//    na = min (int (abs (a[2])), mpnw)
-//    if (na == 0) {
-//    x[1] = mpnw
-//    x[2] = 1.0
-//    x[3] = 0.0
-//    x[4] = 1.0
-//    y[1] = mpnw
-//    y[2] = 0.0
-//    y[3] = 0.0
-//    goto 120
-//    }
-//    
-//    s0[0] = mpnw + 7
-//    s1[0] = mpnw + 7
-//    s2[0] = mpnw + 7
-//    s3[0] = mpnw + 7
-//    s4[0] = mpnw + 7
-//    s5(0] = mpnw + 7
-//    s6(0] = mpnw + 7
-//    mpnw1 = mpnw + 1
-//    
-//    //   Set f1 = 1 and f2 = 1/2.
-//    
-//    f1[0] = 9.0
-//    f1[1] = mpnw
-//    f1[2] = 1.0
-//    f1[3] = 0.0
-//    f1[4] = 1.0
-//    f1[5] = 0.0
-//    f1[6] = 0.0
-//    f2(0] = 9.0
-//    f2(1] = mpnw
-//    f2(2] = 1.0
-//    f2(3] = -1.0
-//    f2(4] = 0.5d0 * mpbdx
-//    f2(5] = 0.0
-//    f2(6] = 0.0
-//    
-//    //   Check if Pi and Sqrt(2)/2 have been precomputed in data statements to the
-//    //   requested precision.
-//    
-//    if (mpnw1 > mppicon(1)) {
-//    write (mpldb, 2) mpnw1
-//    2 format ("*** MPCSSNR: Pi and Sqrt(2)/2 must be precomputed to precision",i9," words)."/ &
-//    "See documentation for details.")
-//    mpabrt (27)
-//    }
-//    
-//    //   Check if argument is too large to compute meaningful cos/sin values.
-//    
-//    mpmdc (a, t1, n1, mpnw)
-//    if (n1 >= mpnbt * (mpnw - 1)) {
-//    write (mpldb, 3)
-//    3 format ("*** MPCSSNR: argument is too large to compute cos or sin.")
-//    mpabrt (28)
-//    }
-//    
-//    //   Reduce to between - Pi and Pi.
-//    
-//    mpmuld (mppicon, 2.0, s0, mpnw1)
-//    mpdiv (a, s0, s1, mpnw1)
-//    mpnint (s1, s2, mpnw1)
-//    mpmul (s0, s2, s4, mpnw1)
-//    mpsub (a, s4, s3, mpnw1)
-//    
-//    //   Check if reduced argument is zero.  If so { cos = 1 and sin = 0.
-//    
-//    if (s3[2] == 0.0) {
-//    s0[1] = mpnw1
-//    s0[2] = 1.0
-//    s0[3] = 0.0
-//    s0[4] = 1.0
-//    s0[5] = 0.0
-//    s0[6] = 0.0
-//    s1[1] = mpnw1
-//    s1[2] = 0.0
-//    s1[3] = 0.0
-//    goto 115
-//    }
-//    
-//    //   Determine nq to scale reduced argument, then divide by 2^nq.
-//    //   If reduced argument is very close to zero, then nq = 0.
-//    
-//    if (s3[3] >= -1.0) {
-//    nq = int (sqrt (0.5d0 * mpnw1 * mpnbt))
-//    } else {
-//    nq = 0
-//    }
-//    
-//    // write (6, *) "nq =", nq
-//    
-//    mpdivd (s3, 2.0**nq, s0, mpnw1)
-//    mpeq (s0, s1, mpnw1)
-//    
-//    //   Compute the sin of the reduced argument of s1 using a Taylor series.
-//    
-//    mpmul (s0, s0, s2, mpnw1)
-//    mpnw2 =  mpnw1
-//    is = s0[2]
-//    
-//    //   The working precision used to compute each term can be linearly reduced
-//    //   as the computation proceeds.
-//    
-//    do i1 = 1, itrmx
-//    t2 = - (2.0 * i1) * (2.0 * i1 + 1.0)
-//    mpmul (s2, s1, s3, mpnw2)
-//    mpdivd (s3, t2, s1, mpnw2)
-//    mpadd (s1, s0, s3, mpnw1)
-//    mpeq (s3, s0, mpnw1)
-//    
-//    //   Check for convergence of the series, and adjust working precision
-//    //   for the next term.
-//    
-//    if (s1[2] == 0.0 || s1[3] < s0[3] - mpnw1) goto 110
-//    mpnw2 = min (max (mpnw1 + int (s1[3] - s0[3]) + 1, 4), mpnw1)
-//    }
-//    
-//    write (mpldb, 4)
-//    4 format ("*** MPCSSNR: Iteration limit exceeded.")
-//    mpabrt (29)
-//    
-//    110 continue
-//    
-//    if (nq > 0) {
-//    
-//    //   Apply the formula cos(2*x) = 2*cos^2(x) - 1 NQ times to produce
-//    //   the cosine of the reduced argument, except that the first iteration is
-//    //   cos(2*x) = 1 - 2*sin^2(x), since we have computed sin(x) above.
-//    //   Note that these calculations are performed as 2 * (cos^2(x) - 1/2) and
-//    //   2 * (1/2 - sin^2(x)), respectively, to avoid loss of precision.
-//    
-//    mpmul (s0, s0, s4, mpnw1)
-//    mpsub (f2, s4, s5, mpnw1)
-//    mpmuld (s5, 2.0, s0, mpnw1)
-//    
-//    do j = 2, nq
-//    mpmul (s0, s0, s4, mpnw1)
-//    mpsub (s4, f2, s5, mpnw1)
-//    mpmuld (s5, 2.0, s0, mpnw1)
-//    }
-//    
-//    //   Compute sin of result and correct sign.
-//    
-//    mpmul (s0, s0, s4, mpnw1)
-//    mpsub (f1, s4, s5, mpnw1)
-//    mpsqrt (s5, s1, mpnw1)
-//    if (is < 1) s1[2] = - s1[2]
-//    } else {
-//    
-//    //   In case nq = 0, compute cos of result.
-//    
-//    mpeq (s0, s1, mpnw1)
-//    mpmul (s0, s0, s4, mpnw1)
-//    mpsub (f1, s4, s5, mpnw1)
-//    mpsqrt (s5, s0, mpnw1)
-//    }
-//    
-//    115 continue
-//    
-//    //   Restore original precision level.
-//    
-//    mproun (s0, mpnw)
-//    mproun (s1, mpnw)
-//    mpeq (s0, x, mpnw)
-//    mpeq (s1, y, mpnw)
-//    
-//    120 continue
-//    
-//    return
-//    end static func mpcssnr
+        
+        //   This computes the cosine and sine of the MPR number A and returns the
+        //   two MPR results in X and Y, respectively.  Pi must be precomputed to
+        //   at least MPNW words precision and the stored in the array MPPICON in
+        //   module MPMODA.
+        
+        //   This routine uses the conventional Taylor series for Sin (s):
+        
+        //   Sin (s) =  s - s^3 / 3// + s^5 / 5// - s^7 / 7// ...
+        
+        //   where the argument S has been reduced to (-pi, pi).  To further
+        //   accelerate the series, the reduced argument is divided by 2^NQ, where NQ
+        //   is computed as int (sqrt (0.5d0 * N)), where N is the precision in bits.
+        //   After convergence of the series, the double-angle formulas for cos are
+        //   applied NQ times.
+        
+        //   If the precision level MPNW exceeds MPNWX, this static func calls
+        //   MPCSSNX instead.  By default, mpnwx = 100000 (approx. 1450000 digits).
+        
+        var iss, mpnw1, mpnw2 : Int
+        var na, nq, n1 : Int
+        let itrmx = 1000000; let mpnwx = 100000
+        var t1, t2 : Double
+        var f1 = MPRNumber(repeating:0, count:9); var f2 = f1
+        var s0 = MPRNumber(repeating:0, count:mpnw+7); var s1 = s0; var s2 = s1; var s3 = s1
+        var s4 = s1; var s5 = s1; var s6 = s1
+        
+        // End of declaration
+        
+        if mpnw < 4 || Int(a[0]) < mpnw+4 || a[0] < abs (a[2]) + 4 || Int(x[0]) < mpnw+6 || Int(y[0]) < mpnw+6 {
+            print ("*** MPCSSNR: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        //   If the precision level mpnw exceeds mpnwx, mpcssx.
+        
+        if mpnw > mpnwx {
+            mpcssnx (a, &x, &y, mpnw)
+            return // goto 120
+        }
+        
+        // ia = sign (1.0, a[2])
+        na = min (Int (abs (a[2])), mpnw)
+        if na == 0 {
+            x[1] = Double(mpnw)
+            x[2] = 1.0
+            x[3] = 0.0
+            x[4] = 1.0
+            y[1] = Double(mpnw)
+            y[2] = 0.0
+            y[3] = 0.0
+            return // goto 120
+        }
+        
+        s0[0] = Double(mpnw + 7)
+        s1[0] = Double(mpnw + 7)
+        s2[0] = Double(mpnw + 7)
+        s3[0] = Double(mpnw + 7)
+        s4[0] = Double(mpnw + 7)
+        s5[0] = Double(mpnw + 7)
+        s6[0] = Double(mpnw + 7)
+        mpnw1 = mpnw + 1
+        
+        //   Set f1 = 1 and f2 = 1/2.
+        
+        f1[0] = 9.0
+        f1[1] = Double(mpnw)
+        f1[2] = 1.0
+        f1[3] = 0.0
+        f1[4] = 1.0
+        f1[5] = 0.0
+        f1[6] = 0.0
+        f2[0] = 9.0
+        f2[1] = Double(mpnw)
+        f2[2] = 1.0
+        f2[3] = -1.0
+        f2[4] = 0.5 * Double(mpbdx)
+        f2[5] = 0.0
+        f2[6] = 0.0
+        
+        //   Check if Pi and Sqrt(2)/2 have been precomputed in data statements to the
+        //   requested precision.
+        
+        if mpnw1 > Int(mppicon[1]) {
+            print ("*** MPCSSNR: Pi and Sqrt(2)/2 must be precomputed to precision \(mpnw1) words).",
+                "See documentation for details.")
+            mpabrt (27)
+        }
+        
+        //   Check if argument is too large to compute meaningful cos/sin values.
+        t1 = 0; n1 = 0
+        mpmdc(a, &t1, &n1, mpnw)
+        if n1 >= mpnbt * (mpnw - 1) {
+            print ("*** MPCSSNR: argument is too large to compute cos or sin.")
+            mpabrt (28)
+        }
+        
+        //   Reduce to between - Pi and Pi.
+        
+        mpmuld (mppicon, 2.0, &s0, mpnw1)
+        mpdiv (a, s0, &s1, mpnw1)
+        mpnint (s1, &s2, mpnw1)
+        mpmul (s0, s2, &s4, mpnw1)
+        mpsub (a, s4, &s3, mpnw1)
+        
+        //   Check if reduced argument is zero.  If so { cos = 1 and sin = 0.
+        
+        if (s3[2] == 0.0) {
+            s0[1] = Double(mpnw1)
+            s0[2] = 1.0
+            s0[3] = 0.0
+            s0[4] = 1.0
+            s0[5] = 0.0
+            s0[6] = 0.0
+            s1[1] = Double(mpnw1)
+            s1[2] = 0.0
+            s1[3] = 0.0
+            // goto 115
+            //   Restore original precision level.
+            
+            mproun (&s0, mpnw)
+            mproun (&s1, mpnw)
+            mpeq (s0, &x, mpnw)
+            mpeq (s1, &y, mpnw)
+            return
+        }
+        
+        //   Determine nq to scale reduced argument, then divide by 2^nq.
+        //   If reduced argument is very close to zero, then nq = 0.
+        
+        if s3[3] >= -1.0 {
+            nq = Int (sqrt (0.5 * Double(mpnw1 * mpnbt)))
+        } else {
+            nq = 0
+        }
+        
+        // write (6, *) "nq =", nq
+        
+        mpdivd (s3, pow(2.0, Double(nq)), &s0, mpnw1)
+        mpeq (s0, &s1, mpnw1)
+        
+        //   Compute the sin of the reduced argument of s1 using a Taylor series.
+        
+        mpmul (s0, s0, &s2, mpnw1)
+        mpnw2 =  mpnw1
+        iss = Int(s0[2])
+        
+        //   The working precision used to compute each term can be linearly reduced
+        //   as the computation proceeds.
+        var flag = false
+        for i1 in 1...itrmx {
+            t2 = Double(-(2 * i1) * (2 * i1 + 1))
+            mpmul (s2, s1, &s3, mpnw2)
+            mpdivd (s3, t2, &s1, mpnw2)
+            mpadd (s1, s0, &s3, mpnw1)
+            mpeq (s3, &s0, mpnw1)
+            
+            //   Check for convergence of the series, and adjust working precision
+            //   for the next term.
+            
+            if (s1[2] == 0.0 || s1[3] < s0[3] - Double(mpnw1)) { flag = true; break; /* goto 110 */ }
+            mpnw2 = min (max (mpnw1 + Int (s1[3] - s0[3]) + 1, 4), mpnw1)
+        }
+        
+        if !flag {
+            print ("*** MPCSSNR: Iteration limit exceeded.")
+            mpabrt (29)
+        }
+        
+        // 110 continue
+        
+        if nq > 0 {
+            
+            //   Apply the formula cos(2*x) = 2*cos^2(x) - 1 NQ times to produce
+            //   the cosine of the reduced argument, except that the first iteration is
+            //   cos(2*x) = 1 - 2*sin^2(x), since we have computed sin(x) above.
+            //   Note that these calculations are performed as 2 * (cos^2(x) - 1/2) and
+            //   2 * (1/2 - sin^2(x)), respectively, to avoid loss of precision.
+            
+            mpmul (s0, s0, &s4, mpnw1)
+            mpsub (f2, s4, &s5, mpnw1)
+            mpmuld (s5, 2.0, &s0, mpnw1)
+            
+            for _ in 2...nq {
+                mpmul (s0, s0, &s4, mpnw1)
+                mpsub (s4, f2, &s5, mpnw1)
+                mpmuld (s5, 2.0, &s0, mpnw1)
+            }
+            
+            //   Compute sin of result and correct sign.
+            
+            mpmul (s0, s0, &s4, mpnw1)
+            mpsub (f1, s4, &s5, mpnw1)
+            mpsqrt (s5, &s1, mpnw1)
+            if iss < 1 { s1[2] = -s1[2] }
+        } else {
+            
+            //   In case nq = 0, compute cos of result.
+            
+            mpeq (s0, &s1, mpnw1)
+            mpmul (s0, s0, &s4, mpnw1)
+            mpsub (f1, s4, &s5, mpnw1)
+            mpsqrt (s5, &s0, mpnw1)
+        }
+        
+        // 115 continue
+        
+        //   Restore original precision level.
+        
+        mproun (&s0, mpnw)
+        mproun (&s1, mpnw)
+        mpeq (s0, &x, mpnw)
+        mpeq (s1, &y, mpnw)
+        
+        // 120 continue
+        
+    } //mpcssnr
     
     static func mpcssnx (_ a: MPRNumber, _ x: inout MPRNumber, _ y: inout MPRNumber, _ mpnw : Int) {
         
+        //   This computes the cosine and sine of the MPR number A and returns the
+        //   two MPR results in X and Y, respectively.  Pi and Log(2) must be precomputed to at
+        //   least MPNW words precision and the stored in the array in module MPMODA.
+        
+        //   This routine merely calls mpcexp.  For modest levels of precision, use mpcssn.
+        
+        var mp7 : Int
+        var f = MPRNumber(repeating:0, count:9)
+        var s0 = MPRNumber(repeating:0, count:mpnw+7); var s1 = s0
+        
+        // End of declaration
+        
+        if (mpnw < 4 || Int(a[0]) < mpnw + 4 || a[0] < abs (a[2]) + 4 || Int(x[0]) < mpnw + 6 || Int(y[0]) < mpnw + 6) {
+            print ("*** MPCSSNX: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        mp7 = mpnw + 7
+        s0[0] = Double(mp7)
+        s0[mp7] = Double(mp7)
+        s1[0] = Double(mp7)
+        s1[mp7] = Double(mp7)
+        f[0] = 9.0
+        f[1] = Double(mpnw)
+        f[2] = 0.0
+        f[3] = 0.0
+        mpeq (f, &s0, mpnw)
+        var t = MPRNumber(s0[mp7...])
+        mpeq (a, &t, mpnw)
+        s0[mp7...] = t[0...]
+        mpcexpx (s0, &s1, mpnw)
+        mpeq (s1, &x, mpnw)
+        mpeq (MPRNumber(s1[mp7...]), &y, mpnw)
+        
+    } // mpcssnx
+    
+    static func ceiling (_ x : Double) -> Int {
+        let xa = abs(x)
+        let xi = Int(xa)  // Int() aka floor()
+        let delta = xa - Double(xi)
+        if x < 0 {
+            if delta > 0 { return -(xi + 1) }
+            return -xi
+        } else {
+            if delta > 0 { return xi + 1 }
+            return xi
+        }
     }
-    
-    //   This computes the cosine and sine of the MPR number A and returns the
-    //   two MPR results in X and Y, respectively.  Pi and Log(2) must be precomputed to at
-    //   least MPNW words precision and the stored in the array in module MPMODA.
-    
-    //   This routine merely calls mpcexp.  For modest levels of precision, use mpcssn.
-    
-//    implicit none
-//    integer mp7, mpnw
-//    real (mprknd) a(0:), f(0:8), x(0:), y(0:), &
-//    s0[0:2*mpnw+13), s1(0:2*mpnw+13)
-//    
-//    // End of declaration
-//    
-//    if (mpnw < 4 || a[0] < mpnw + 4 || a[0] < abs (a[2]) + 4 || &
-//    x[0] < mpnw + 6 || y[0] < mpnw + 6) {
-//    write (mpldb, 1)
-//    1 format ("*** MPCSSNX: uninitialized or inadequately sized arrays")
-//    mpabrt (99)
-//    }
-//    
-//    mp7 = mpnw + 7
-//    s0[0] = mp7
-//    s0[mp7] = mp7
-//    s1[0] = mp7
-//    s1[mp7] = mp7
-//    f[0] = 9.0
-//    f[1] = mpnw
-//    f[2] = 0.0
-//    f[3] = 0.0
-//    mpeq (f, s0, mpnw)
-//    mpeq (a, s0[mp7:], mpnw)
-//    mpcexpx (s0, s1, mpnw)
-//    mpeq (s1, x, mpnw)
-//    mpeq (s1[mp7:], y, mpnw)
-//    
-//    return
-//    end static func mpcssnx
     
     static func mpegammaq (_ egamma : inout MPRNumber, _ mpnw: Int) {
         
-    }
-    
-    //   This computes Euler"s gamma to available precision (MPNW mantissa words).
-    //   The algorithm is the following, which is an improvement to a scheme due to
-    //   Sweeney (see https://www.davidhbailey.com/dhbpapers/const.pdf):
-    
-    //   Select N such that 1/(2^N * Exp(2^N)) < desired epsilon. Then compute
-    //   Gamma = 2^N/Exp(2^N) * (Sum_{m >= 0} 2^(m*N)/(m+1)// * H(m+1)) - N * Log(2),
-    //   where H(m) = 1 + 1/2 + ... + 1/m.
-    
-//    implicit none
-//    integer i, itrmx, mpnw, mpnw1, m, neps, nn
-//    parameter (itrmx = 1000000)
-//    real (mprknd) egamma(0:), s0(0:mpnw+6), s1(0:mpnw+6), &
-//    s2(0:mpnw+6), s3(0:mpnw+6), s4(0:mpnw+6), s5(0:mpnw+6), s6(0:mpnw+6), &
-//    s7(0:mpnw+6), f(0:8)
-//    
-//    // End of declaration.
-//    
-//    s0[0] = mpnw + 7
-//    s1[0] = mpnw + 7
-//    s2[0] = mpnw + 7
-//    s3[0] = mpnw + 7
-//    s4[0] = mpnw + 7
-//    s5(0] = mpnw + 7
-//    s6(0] = mpnw + 7
-//    s7(0] = mpnw + 7
-//    mpnw1 = mpnw + 1
-//    
-//    //   Check if Log(2) has been precomputed.
-//    
-//    if (mpnw1 > mplog2con(1]) {
-//    write (mpldb, 3] mpnw1
-//    3 format ("*** MPEGAMMA: Log(2] must be precomputed to precision",i9," words."/ &
-//    "See documentation for details."]
-//    mpabrt (35]
-//    }
-//    
-//    //   Compute eps and nn based on precision level.
-//    
-//    neps = - mpnw1 - 1
-//    nn = ceiling (log (dble (mpnw1 * mpnbt + mpnbt] * log (2.0]] / log (2.0]]
-//    
-//    //   Initialize s0 through s4 to 1.
-//    
-//    s0[1] = mpnw
-//    s0[2] = 1.0
-//    s0[3] = 0.0
-//    s0[4] = 1.0
-//    s0[5] = 0.0
-//    s0[6] = 0.0
-//    
-//    s1[1] = mpnw
-//    s1[2] = 1.0
-//    s1[3] = 0.0
-//    s1[4] = 1.0
-//    s1[5] = 0.0
-//    s1[6] = 0.0
-//    
-//    s2[1] = mpnw
-//    s2[2] = 1.0
-//    s2[3] = 0.0
-//    s2[4] = 1.0
-//    s2[5] = 0.0
-//    s2[6] = 0.0
-//    
-//    s3[1] = mpnw
-//    s3[2] = 1.0
-//    s3[3] = 0.0
-//    s3[4] = 1.0
-//    s3[5] = 0.0
-//    s3[6] = 0.0
-//    
-//    s4[1] = mpnw
-//    s4[2] = 1.0
-//    s4[3] = 0.0
-//    s4[4] = 1.0
-//    s4[5] = 0.0
-//    s4[6] = 0.0
-//    
-//    s7(1] = mpnw
-//    s7(2] = 1.0
-//    s7(3] = 0.0
-//    s7(4] = 2.0
-//    s7(5] = 0.0
-//    s7(6] = 0.0
-//    
-//    //   Set s7 = 2^nn.
-//    
-//    mpdmc (1.0, nn, s7, mpnw1)
-//    
-//    //  Set f = 1.
-//    
-//    f[0] = 9.0
-//    f[1] = mpnw1
-//    f[2] = 1.0
-//    f[3] = 0.0
-//    f[4] = 1.0
-//    f[5] = 0.0
-//    f[6] = 0.0
-//    
-//    do m = 1, itrmx
-//    mpmul (s7, s0, s5, mpnw1)
-//    mpeq (s5, s0, mpnw1)
-//    mpdmc (dble (m + 1), 0, s5, mpnw1)
-//    mpdiv (f, s5, s6, mpnw1)
-//    mpadd (s1, s6, s5, mpnw1)
-//    mpeq (s5, s1, mpnw1)
-//    mpmuld (s2, m + 1.0, s5, mpnw1)
-//    mpeq (s5, s2, mpnw1)
-//    mpmul (s0, s1, s5, mpnw1)
-//    mpdiv (s5, s2, s3, mpnw1)
-//    mpadd (s3, s4, s5, mpnw1)
-//    mpeq (s5, s4, mpnw1)
-//    if (s3[3] - s4[3] < neps) goto 100
-//    }
-//    
-//    write (mpldb, 1)
-//    1   format ("*** MPEGAMMA: Loop end error.")
-//    mpabrt (36)
-//    
-//    100 continue
-//    
-//    mpexp (s7, s5, mpnw1)
-//    mpdiv (s7, s5, s6, mpnw1)
-//    mpmul (s6, s4, s5, mpnw1)
-//    mpmuld (mplog2con, dble (nn), s6, mpnw1)
-//    mpsub (s5, s6, s0, mpnw1)
-//    
-//    //   Restore original precision level.
-//    
-//    mproun (s0, mpnw)
-//    mpeq (s0, egamma, mpnw)
-//    
-//    return
-//    end static func mpegammaq
+        //   This computes Euler"s gamma to available precision (MPNW mantissa words).
+        //   The algorithm is the following, which is an improvement to a scheme due to
+        //   Sweeney (see https://www.davidhbailey.com/dhbpapers/const.pdf):
+        
+        //   Select N such that 1/(2^N * Exp(2^N)) < desired epsilon. Then compute
+        //   Gamma = 2^N/Exp(2^N) * (Sum_{m >= 0} 2^(m*N)/(m+1)// * H(m+1)) - N * Log(2),
+        //   where H(m) = 1 + 1/2 + ... + 1/m.
+        
+        var mpnw1, neps, nn : Int
+        let itrmx = 1000000
+        var f = MPRNumber(repeating:0, count:9)
+        var s0 = MPRNumber(repeating:0, count:mpnw+7); var s1 = s0; var s2 = s1; var s3 = s1
+        var s4 = s1; var s5 = s1; var s6 = s1; var s7 = s1
+        
+        // End of declaration.
+        
+        s0[0] = Double(mpnw + 7)
+        s1[0] = Double(mpnw + 7)
+        s2[0] = Double(mpnw + 7)
+        s3[0] = Double(mpnw + 7)
+        s4[0] = Double(mpnw + 7)
+        s5[0] = Double(mpnw + 7)
+        s6[0] = Double(mpnw + 7)
+        s7[0] = Double(mpnw + 7)
+        mpnw1 = mpnw + 1
+        
+        //   Check if Log(2) has been precomputed.
+        
+        if mpnw1 > Int(mplog2con[1]) {
+            print ("*** MPEGAMMA: Log(2] must be precomputed to precision \(mpnw1) words.",
+                "See documentation for details.")
+            mpabrt (35)
+        }
+        
+        //   Compute eps and nn based on precision level.
+        
+        neps = -mpnw1 - 1
+        nn = ceiling (log (Double(mpnw1 * mpnbt + mpnbt) * log (2.0)) / log (2.0))
+        
+        //   Initialize s0 through s4 to 1.
+        
+        s0[1] = Double(mpnw)
+        s0[2] = 1.0
+        s0[3] = 0.0
+        s0[4] = 1.0
+        s0[5] = 0.0
+        s0[6] = 0.0
+        
+        s1[1] = Double(mpnw)
+        s1[2] = 1.0
+        s1[3] = 0.0
+        s1[4] = 1.0
+        s1[5] = 0.0
+        s1[6] = 0.0
+        
+        s2[1] = Double(mpnw)
+        s2[2] = 1.0
+        s2[3] = 0.0
+        s2[4] = 1.0
+        s2[5] = 0.0
+        s2[6] = 0.0
+        
+        s3[1] = Double(mpnw)
+        s3[2] = 1.0
+        s3[3] = 0.0
+        s3[4] = 1.0
+        s3[5] = 0.0
+        s3[6] = 0.0
+        
+        s4[1] = Double(mpnw)
+        s4[2] = 1.0
+        s4[3] = 0.0
+        s4[4] = 1.0
+        s4[5] = 0.0
+        s4[6] = 0.0
+        
+        s7[1] = Double(mpnw)
+        s7[2] = 1.0
+        s7[3] = 0.0
+        s7[4] = 2.0
+        s7[5] = 0.0
+        s7[6] = 0.0
+        
+        //   Set s7 = 2^nn.
+        
+        mpdmc (1.0, nn, &s7, mpnw1)
+        
+        //  Set f = 1.
+        
+        f[0] = 9.0
+        f[1] = Double(mpnw1)
+        f[2] = 1.0
+        f[3] = 0.0
+        f[4] = 1.0
+        f[5] = 0.0
+        f[6] = 0.0
+        
+        var flag = false
+        for m in 1...itrmx {
+            mpmul (s7, s0, &s5, mpnw1)
+            mpeq (s5, &s0, mpnw1)
+            mpdmc (Double(m + 1), 0, &s5, mpnw1)
+            mpdiv (f, s5, &s6, mpnw1)
+            mpadd (s1, s6, &s5, mpnw1)
+            mpeq (s5, &s1, mpnw1)
+            mpmuld (s2, Double(m+1), &s5, mpnw1)
+            mpeq (s5, &s2, mpnw1)
+            mpmul (s0, s1, &s5, mpnw1)
+            mpdiv (s5, s2, &s3, mpnw1)
+            mpadd (s3, s4, &s5, mpnw1)
+            mpeq (s5, &s4, mpnw1)
+            if Int(s3[3] - s4[3]) < neps { flag = true; break /* goto 100 */ }
+        }
+        
+        if !flag {
+            print ("*** MPEGAMMA: Loop end error.")
+            mpabrt (36)
+        }
+        
+        // 100 continue
+        
+        mpexp (s7, &s5, mpnw1)
+        mpdiv (s7, s5, &s6, mpnw1)
+        mpmul (s6, s4, &s5, mpnw1)
+        mpmuld (mplog2con, Double(nn), &s6, mpnw1)
+        mpsub (s5, s6, &s0, mpnw1)
+        
+        //   Restore original precision level.
+        
+        mproun (&s0, mpnw)
+        mpeq (s0, &egamma, mpnw)
+        
+    } // mpegammaq
     
     static func mpexp (_ a: MPRNumber, _ b: inout MPRNumber, _ mpnw : Int) {
         
