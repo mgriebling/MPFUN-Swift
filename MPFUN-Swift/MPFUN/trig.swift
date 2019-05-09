@@ -1929,501 +1929,483 @@ extension MPFUN {
     
     static func mplogx ( _ a: MPRNumber, _ b: inout MPRNumber, _ mpnw : Int) {
         
-    }
-    
-    //   This computes the natural logarithm of the MP number A and returns the MP
-    //   result in B.  Pi and Log(2) must be precomputed to at least MPNW words
-    //   precision and the stored in the arrays in module MPMODA.
-    
-    //   This uses the following algorithm, which is due to Salamin and Brent.  If
-    //   A is extremely close to 1, use a Taylor series.  Otherwise select n such
-    //   that z = a * 2^n is at least 2^m, where m is the number of bits of desired
-    //   precision in the result.  Then
-    
-    //   Log(x) = Pi / [2 AGM (1, 4/x)]
-    
-    //   For modest precision, or if A is close to 2, use mplog.
-    
-//    implicit none
-//    integer i, ia, is, itrmax, i1, i2, k, mpnw, mpnw1, na, n1, n2
-//    real (mprknd) st, rtol, tol, t1, t2, tn
-//    parameter (itrmax = 1000000, rtol = 0.5d0**7)
-//    real (mprknd) a(0:), b(0:), f1(0:8), f4(0:8), s0[0:mpnw+6), &
-//    s1(0:mpnw+6), s2(0:mpnw+6), s3(0:mpnw+6), s4(0:mpnw+6)
-//    
-//    // End of declaration
-//    
-//    if (mpnw < 4 || a[0] < mpnw + 4 || a[0] < abs (a[2)) + 4 || &
-//    b[0] < mpnw + 6) {
-//    write (mpldb, 1)
-//    1 format ("*** MPLOGX: uninitialized or inadequately sized arrays")
-//    mpabrt (99)
-//    }
-//    
-//    ia = sign (1.0, a[2))
-//    na = min (int (abs (a[2))), mpnw)
-//    
-//    if (ia .lt. 0 || na == 0) {
-//    write (mpldb, 2)
-//    2 format ("*** MPLOGX: Argument is less than or equal to zero.")
-//    mpabrt (50)
-//    }
-//    
-//    //   Check if input is exactly one.
-//    
-//    if (a[2] == 1.0 && a[3] == 0.0 && a[4] == 1.0) {
-//    b[1] = mpnw
-//    b[2] = 0.0
-//    b[3] = 0.0
-//    b[4] = 0.0
-//    goto 120
-//    }
-//    
-//    mpnw1 = mpnw + 1
-//    s0[0] = mpnw + 7
-//    s1[0] = mpnw + 7
-//    s2[0] = mpnw + 7
-//    s3[0] = mpnw + 7
-//    s4[0] = mpnw + 7
-//    
-//    //   Check if Pi and Log(2) have been precomputed.
-//    
-//    if (mpnw1 > mplog2con(1)) {
-//    write (mpldb, 3) mpnw1
-//    3 format ("*** MPLOGX: Pi and Log(2) must be precomputed to precision",i9," words."/ &
-//    "See documentation for details.")
-//    mpabrt (53)
-//    }
-//    
-//    f1[0] = 9.0
-//    f1[1] = mpnw1
-//    f1[2] = 1.0
-//    f1[3] = 0.0
-//    f1[4] = 1.0
-//    f1[5] = 0.0
-//    f1[6] = 0.0
-//    
-//    f4[0] = 9.0
-//    f4[1] = mpnw1
-//    f4[2] = 1.0
-//    f4[3] = 0.0
-//    f4[4] = 4.0
-//    f4[5] = 0.0
-//    f4[6] = 0.0
-//    
-//    //   If the argument is sufficiently close to 1, employ a Taylor series.
-//    
-//    mpsub (a, f1, s0, mpnw1)
-//    
-//    if (s0[2] == 0.0 || s0[3] <= min (-2.0, - rtol * mpnw1)) {
-//    mpeq (s0, s1, mpnw1)
-//    mpeq (s1, s2, mpnw1)
-//    i1 = 1
-//    is = 1
-//    tol = s0[3] - mpnw1
-//    
-//    do i1 = 2, itrmax
-//    is = - is
-//    st = is * i1
-//    mpmul (s1, s2, s3, mpnw1)
-//    mpeq (s3, s2, mpnw1)
-//    mpdivd (s3, st, s4, mpnw1)
-//    mpadd (s0, s4, s3, mpnw1)
-//    mpeq (s3, s0, mpnw1)
-//    if (s4[2] == 0.0 || s4[3] < tol) goto 110
-//    }
-//    
-//    write (mpldb, 4) itrmax
-//    4 format ("*** MPLOGX: Iteration limit exceeded",i10)
-//    mpabrt (54)
-//    }
-//    
-//    //   Multiply the input by a large power of two.
-//    
-//    mpmdc (a, t1, n1, mpnw1)
-//    n2 = mpnbt * (mpnw1 / 2 + 2) - n1
-//    tn = n2
-//    mpdmc (1.0, n2, s1, mpnw1)
-//    mpmul (a, s1, s0, mpnw1)
-//    
-//    //   Perform AGM iterations.
-//    
-//    mpeq (f1, s1, mpnw1)
-//    mpdiv (f4, s0, s2, mpnw1)
-//    mpagmr (s1, s2, s3, mpnw1)
-//    
-//    //   Compute Pi / (2 * A), where A is the limit of the AGM iterations.
-//    
-//    mpmuld (s3, 2.0, s0, mpnw1)
-//    mpeq (mppicon, s3, mpnw1)
-//    mpdiv (s3, s0, s1, mpnw1)
-//    
-//    //   Subtract TN * Log(2).
-//    
-//    mpeq (mplog2con, s3, mpnw1)
-//    mpmuld (s3, tn, s2, mpnw1)
-//    mpsub (s1, s2, s0, mpnw1)
-//    
-//    110 continue
-//    
-//    //  Restore original precision level.
-//    
-//    mproun (s0, mpnw)
-//    mpeq (s0, b, mpnw)
-//    
-//    120 continue
-//    
-//    return
-//    end static func mplogx
+        //   This computes the natural logarithm of the MP number A and returns the MP
+        //   result in B.  Pi and Log(2) must be precomputed to at least MPNW words
+        //   precision and the stored in the arrays in module MPMODA.
+        
+        //   This uses the following algorithm, which is due to Salamin and Brent.  If
+        //   A is extremely close to 1, use a Taylor series.  Otherwise select n such
+        //   that z = a * 2^n is at least 2^m, where m is the number of bits of desired
+        //   precision in the result.  Then
+        
+        //   Log(x) = Pi / [2 AGM (1, 4/x)]
+        
+        //   For modest precision, or if A is close to 2, use mplog.
+        
+        var ia, iss, mpnw1, na, n1, n2 : Int
+        var st, tol, t1, tn : Double
+        let itrmax = 1000000; let rtol = pow(0.5, Double(7))
+        var f1 = MPRNumber(repeating:0, count:9); var f4 = f1
+        var s0 = MPRNumber(repeating:0, count:mpnw+7); var s1 = s0; var s2 = s1; var s3 = s1
+        var s4 = s1
+        
+        // End of declaration
+        
+        if (mpnw < 4 || Int(a[0]) < mpnw + 4 || a[0] < abs (a[2]) + 4 || Int(b[0]) < mpnw + 6) {
+            print ("*** MPLOGX: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        ia = sign (1.0, a[2])
+        na = min (Int (abs (a[2])), mpnw)
+        
+        if (ia < 0 || na == 0) {
+            print ("*** MPLOGX: Argument is less than or equal to zero.")
+            mpabrt (50)
+        }
+        
+        //   Check if input is exactly one.
+        
+        if (a[2] == 1.0 && a[3] == 0.0 && a[4] == 1.0) {
+            b[1] = Double(mpnw)
+            b[2] = 0.0
+            b[3] = 0.0
+            b[4] = 0.0
+            return // goto 120
+        }
+        
+        mpnw1 = mpnw + 1
+        s0[0] = Double(mpnw + 7)
+        s1[0] = Double(mpnw + 7)
+        s2[0] = Double(mpnw + 7)
+        s3[0] = Double(mpnw + 7)
+        s4[0] = Double(mpnw + 7)
+        
+        //   Check if Pi and Log(2) have been precomputed.
+        
+        if mpnw1 > Int(mplog2con[1]) {
+            print ("*** MPLOGX: Pi and Log(2) must be precomputed to precision \(mpnw1) words.",
+                "See documentation for details.")
+            mpabrt (53)
+        }
+        
+        f1[0] = 9.0
+        f1[1] = Double(mpnw1)
+        f1[2] = 1.0
+        f1[3] = 0.0
+        f1[4] = 1.0
+        f1[5] = 0.0
+        f1[6] = 0.0
+        
+        f4[0] = 9.0
+        f4[1] = Double(mpnw1)
+        f4[2] = 1.0
+        f4[3] = 0.0
+        f4[4] = 4.0
+        f4[5] = 0.0
+        f4[6] = 0.0
+        
+        //   If the argument is sufficiently close to 1, employ a Taylor series.
+        
+        mpsub (a, f1, &s0, mpnw1)
+        
+        if (s0[2] == 0.0 || s0[3] <= min (-2.0, -rtol * Double(mpnw1))) {
+            mpeq (s0, &s1, mpnw1)
+            mpeq (s1, &s2, mpnw1)
+            iss = 1
+            tol = s0[3] - Double(mpnw1)
+            
+            for i1 in 2...itrmax {
+                iss = -iss
+                st = Double(iss * i1)
+                mpmul (s1, s2, &s3, mpnw1)
+                mpeq (s3, &s2, mpnw1)
+                mpdivd (s3, st, &s4, mpnw1)
+                mpadd (s0, s4, &s3, mpnw1)
+                mpeq (s3, &s0, mpnw1)
+                if s4[2] == 0.0 || s4[3] < tol {
+                    mproun (&s0, mpnw)
+                    mpeq (s0, &b, mpnw)
+                    return // goto 110
+                }
+            }
+            
+            print ("*** MPLOGX: Iteration limit exceeded \(itrmax)")
+            mpabrt (54)
+        }
+        
+        //   Multiply the input by a large power of two.
+        t1 = 0; n1 = 0
+        mpmdc (a, &t1, &n1, mpnw1)
+        n2 = mpnbt * (mpnw1 / 2 + 2) - n1
+        tn = Double(n2)
+        mpdmc (1.0, n2, &s1, mpnw1)
+        mpmul (a, s1, &s0, mpnw1)
+        
+        //   Perform AGM iterations.
+        
+        mpeq (f1, &s1, mpnw1)
+        mpdiv (f4, s0, &s2, mpnw1)
+        mpagmr (s1, s2, &s3, mpnw1)
+        
+        //   Compute Pi / (2 * A), where A is the limit of the AGM iterations.
+        
+        mpmuld (s3, 2.0, &s0, mpnw1)
+        mpeq (mppicon, &s3, mpnw1)
+        mpdiv (s3, s0, &s1, mpnw1)
+        
+        //   Subtract TN * Log(2).
+        
+        mpeq (mplog2con, &s3, mpnw1)
+        mpmuld (s3, tn, &s2, mpnw1)
+        mpsub (s1, s2, &s0, mpnw1)
+        
+        // 110 continue
+        
+        //  Restore original precision level.
+        
+        mproun (&s0, mpnw)
+        mpeq (s0, &b, mpnw)
+        
+        // 120 continue
+    } // mplogx
     
     static func mplog2q (_ pi: MPRNumber, _ alog2: inout MPRNumber, _ mpnw : Int) {
         
-    }
-    
-    //   This computes log(2) to mpnw words precision, using an algorithm due to Salamin
-    //   and Brent:  Select n > 2^m, where m is the number of bits of desired precision
-    //   precision in the result.  Then
-    
-    //   Log(2) = Pi / [2 AGM (1, 4/x)]
-    
-    //   Where AGM (a, b) denotes the arithmetic-geometric mean:  Set a_0 = a and
-    //   b_0 = b, then iterate
-    //    a_{k+1} = (a_k + b_k)/2
-    //    b_{k+1} = sqrt (a_k * b_k)
-    //   until convergence (i.e., until a_k = b_k to available precision).
-    
-//    implicit none
-//    integer i, mpnw, mpnw1, n, n1, n48
-//    real (mprknd) cpi, st, t1, t2, tn
-//    parameter (cpi = 3.141592653589793238d0)
-//    real (mprknd) alog2(0:), f1(0:8), f4(0:8), pi(0:), &
-//    s0(0:mpnw+6), s1(0:mpnw+6), s2(0:mpnw+6), s3(0:mpnw+6), s4(0:mpnw+6)
-//    
-//    // End of declaration
-//    
-//    if (mpnw < 4 || pi(0] < mpnw + 4 || pi(0] < abs (pi(2)) + 4 || &
-//    alog2(0] < mpnw + 6) {
-//    write (mpldb, 1)
-//    1 format ("*** MPLOG2Q: uninitialized or inadequately sized arrays")
-//    mpabrt (99)
-//    }
-//    
-//    //   Define sections of the scratch array.
-//    
-//    s0[0] = mpnw + 7
-//    s1[0] = mpnw + 7
-//    s2[0] = mpnw + 7
-//    s3[0] = mpnw + 7
-//    s4[0] = mpnw + 7
-//    mpnw1 = mpnw + 1
-//    
-//    //   Unless precision is very high, just copy log2 from table.
-//    
-//    if (mpnw1 <= mplog2con(1)] {
-//    mpeq (mplog2con, alog2, mpnw)
-//    goto 100
-//    }
-//    
-//    //   Check if Pi has been precomputed.
-//    
-//    mpmdc (pi, t1, n1, mpnw)
-//    if (n1 /= 1 || abs (t1 * 2.0**n1 - cpi) > mprdx || abs (pi(2)) < mpnw) {
-//    write (mpldb, 2) mpnw
-//    2 format ("*** MPLOG2Q: Pi must be precomputed to precision",i9," words."/ &
-//    "See documentation for details.")
-//    mpabrt (53)
-//    }
-//    
-//    //   Define sections of the scratch array.
-//    
-//    s0[0] = mpnw + 7
-//    s1[0] = mpnw + 7
-//    s2[0] = mpnw + 7
-//    s3[0] = mpnw + 7
-//    s4[0] = mpnw + 7
-//    mpnw1 = mpnw + 1
-//    
-//    //   Set f1 = 1.
-//    
-//    f1[0] = 9.0
-//    f1[1] = mpnw1
-//    f1[2] = 1.0
-//    f1[3] = 0.0
-//    f1[4] = 1.0
-//    f1[5] = 0.0
-//    f1[6] = 0.0
-//    
-//    //   Set f4 = 4.
-//    
-//    f4[0] = 9.0
-//    f4[1] = mpnw1
-//    f4[2] = 1.0
-//    f4[3] = 0.0
-//    f4[4] = 4.0
-//    f4[5] = 0.0
-//    f4[6] = 0.0
-//    
-//    //   Set s4 to 2^(n/2), where n is the number of bits desired. n48 = n/48.
-//    //   Note that this value can be directly set in the first few words of s4,
-//    //   avoiding explicit exponentiation.
-//    
-//    n = mpnbt * (mpnw1 / 2 + 2)
-//    n48 = n / mpnbt
-//    s4[1] = mpnw1
-//    s4[2] = 1.0
-//    s4[3] = n48
-//    s4[4] = 1.0
-//    s4[5] = 0.0
-//    s4[6] = 0.0
-//    
-//    //   Perform AGM iterations.
-//    
-//    mpeq (f1, s1, mpnw1)
-//    mpdiv (f4, s4, s2, mpnw1)
-//    mpagmr (s1, s2, s3, mpnw1)
-//    
-//    //   Set Log(2) = Pi / (2 * N * S3), where S3 is the limit of the AGM iterations.
-//    
-//    mpmuld (s3, 2.0 * n, s1, mpnw1)
-//    mpdiv (pi, s1, s2, mpnw1)
-//    mproun (s2, mpnw)
-//    mpeq (s2, alog2, mpnw)
-//    
-//    100 continue
-//    
-//    return
-//    end static func mplog2q
+        //   This computes log(2) to mpnw words precision, using an algorithm due to Salamin
+        //   and Brent:  Select n > 2^m, where m is the number of bits of desired precision
+        //   precision in the result.  Then
+        
+        //   Log(2) = Pi / [2 AGM (1, 4/x)]
+        
+        //   Where AGM (a, b) denotes the arithmetic-geometric mean:  Set a_0 = a and
+        //   b_0 = b, then iterate
+        //    a_{k+1} = (a_k + b_k)/2
+        //    b_{k+1} = sqrt (a_k * b_k)
+        //   until convergence (i.e., until a_k = b_k to available precision).
+        
+        var mpnw1, n, n1, n48 : Int
+        var t1 : Double
+        let cpi = 3.141592653589793238
+        var f1 = MPRNumber(repeating:0, count:9); var f4 = f1
+        var s0 = MPRNumber(repeating:0, count:mpnw+7); var s1 = s0; var s2 = s1; var s3 = s1
+        var s4 = s1
+        
+        // End of declaration
+        
+        if mpnw < 4 || Int(pi[0]) < mpnw + 4 || pi[0] < abs (pi[2]) + 4 || Int(alog2[0]) < mpnw + 6 {
+            print ("*** MPLOG2Q: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        //   Define sections of the scratch array.
+        
+        s0[0] = Double(mpnw + 7)
+        s1[0] = Double(mpnw + 7)
+        s2[0] = Double(mpnw + 7)
+        s3[0] = Double(mpnw + 7)
+        s4[0] = Double(mpnw + 7)
+        mpnw1 = mpnw + 1
+        
+        //   Unless precision is very high, just copy log2 from table.
+        
+        if mpnw1 <= Int(mplog2con[1]) {
+            mpeq (mplog2con, &alog2, mpnw)
+            return // goto 100
+        }
+        
+        //   Check if Pi has been precomputed.
+        t1 = 0; n1 = 0
+        mpmdc (pi, &t1, &n1, mpnw)
+        if (n1 != 1 || abs (t1 * pow(2.0, Double(n1)) - cpi) > mprdx || Int(abs(pi[2])) < mpnw) {
+            print ("*** MPLOG2Q: Pi must be precomputed to precision \(mpnw) words.",
+                "See documentation for details.")
+            mpabrt (53)
+        }
+        
+        //   Define sections of the scratch array.
+        
+        s0[0] = Double(mpnw + 7)
+        s1[0] = Double(mpnw + 7)
+        s2[0] = Double(mpnw + 7)
+        s3[0] = Double(mpnw + 7)
+        s4[0] = Double(mpnw + 7)
+        mpnw1 = mpnw + 1
+        
+        //   Set f1 = 1.
+        
+        f1[0] = 9.0
+        f1[1] = Double(mpnw1)
+        f1[2] = 1.0
+        f1[3] = 0.0
+        f1[4] = 1.0
+        f1[5] = 0.0
+        f1[6] = 0.0
+        
+        //   Set f4 = 4.
+        
+        f4[0] = 9.0
+        f4[1] = Double(mpnw1)
+        f4[2] = 1.0
+        f4[3] = 0.0
+        f4[4] = 4.0
+        f4[5] = 0.0
+        f4[6] = 0.0
+        
+        //   Set s4 to 2^(n/2), where n is the number of bits desired. n48 = n/48.
+        //   Note that this value can be directly set in the first few words of s4,
+        //   avoiding explicit exponentiation.
+        
+        n = mpnbt * (mpnw1 / 2 + 2)
+        n48 = n / mpnbt
+        s4[1] = Double(mpnw1)
+        s4[2] = 1.0
+        s4[3] = Double(n48)
+        s4[4] = 1.0
+        s4[5] = 0.0
+        s4[6] = 0.0
+        
+        //   Perform AGM iterations.
+        
+        mpeq (f1, &s1, mpnw1)
+        mpdiv (f4, s4, &s2, mpnw1)
+        mpagmr (s1, s2, &s3, mpnw1)
+        
+        //   Set Log(2) = Pi / (2 * N * S3), where S3 is the limit of the AGM iterations.
+        
+        mpmuld (s3, 2.0 * Double(n), &s1, mpnw1)
+        mpdiv (pi, s1, &s2, mpnw1)
+        mproun (&s2, mpnw)
+        mpeq (s2, &alog2, mpnw)
+        
+        // 100 continue
+        
+    } // mplog2q
     
     static func mppiq (_ pi: inout MPRNumber, _ mpnw: Int) {
         
-    }
-    
-    //   This computes Pi to available precision (MPNW mantissa words).
-    //   The algorithm that is used for computing Pi, which is due to Salamin
-    //   and Brent, is as follows:
-    
-    //   Set  A_0 = 1,  B_0 = 1/Sqrt(2)  and  D_0 = Sqrt(2) - 1/2.
-    
-    //   Then from k = 1 iterate the following operations:
-    
-    //   A_k = 0.5 * (A_{k-1} + B_{k-1})
-    //   B_k = Sqrt (A_{k-1} * B_{k-1})
-    //   D_k = D_{k-1} - 2^k * (A_k - B_k) ^ 2
-    
-    //   Then  P_k = (A_k + B_k) ^ 2 / D_k  converges quadratically to Pi.
-    //   In other words, each iteration approximately doubles the number of correct
-    //   digits, providing all iterations are done with the maximum precision.
-    //   The constant cl2 (below) = 1 / log(2) (DP approximation).
-    
-//    implicit none
-//    integer i, k, mpnw, mpnw1, mq
-//    real (mprknd) pi(0:), s0(0:mpnw+6), s1(0:mpnw+6), s2(0:mpnw+6), &
-//    s3(0:mpnw+6), s4(0:mpnw+6), f(0:8)
-//    real (mprknd) cl2, t1
-//    parameter (cl2 = 1.4426950408889633d0)
-//    
-//    // End of declaration
-//    
-//    if (mpnw < 4 || pi(0] < mpnw + 6) {
-//    write (mpldb, 1)
-//    1 format ("*** MPPIQ: uninitialized or inadequately sized arrays")
-//    mpabrt (99)
-//    }
-//    
-//    s0[0] = mpnw + 7
-//    s1[0] = mpnw + 7
-//    s2[0] = mpnw + 7
-//    s3[0] = mpnw + 7
-//    s4[0] = mpnw + 7
-//    mpnw1 = mpnw + 1
-//    
-//    //   Unless precision is very high, just copy pi from table.
-//    
-//    if (mpnw1 <= mppicon(1)) {
-//    mpeq (mppicon, pi, mpnw)
-//    goto 100
-//    }
-//    
-//    //   Determine the number of iterations required for the given precision level.
-//    //   This formula is good only for this Pi algorithm.
-//    
-//    t1 = mpnw1 * log10 (mpbdx)
-//    mq = cl2 * (log (t1) - 1.0) + 1.0
-//    
-//    //   Initialize as above.
-//    
-//    s0[1] = mpnw
-//    s0[2] = 1.0
-//    s0[3] = 0.0
-//    s0[4] = 1.0
-//    s0[5] = 0.0
-//    s0[6] = 0.0
-//    f[0] = 9.0
-//    f[1] = mpnw1
-//    f[2] = 1.0
-//    f[3] = 0.0
-//    f[4] = 2.0
-//    f[5] = 0.0
-//    f[6] = 0.0
-//    mpsqrt (f, s2, mpnw1)
-//    mpmuld (s2, 0.5d0, s1, mpnw1)
-//    f[3] = -1.0
-//    f[4] = 0.5d0 * mpbdx
-//    mpsub (s2, f, s4, mpnw1)
-//    
-//    //   Perform iterations as described above.
-//    
-//    do k = 1, mq
-//    mpadd (s0, s1, s2, mpnw1)
-//    mpmul (s0, s1, s3, mpnw1)
-//    mpsqrt (s3, s1, mpnw1)
-//    mpmuld (s2, 0.5d0, s0, mpnw1)
-//    mpsub (s0, s1, s2, mpnw1)
-//    mpmul (s2, s2, s3, mpnw1)
-//    t1 = 2.0 ** k
-//    mpmuld (s3, t1, s2, mpnw1)
-//    mpsub (s4, s2, s3, mpnw1)
-//    mpeq (s3, s4, mpnw1)
-//    }
-//    
-//    //   Complete computation.
-//    
-//    mpadd (s0, s1, s2, mpnw1)
-//    mpmul (s2, s2, s2, mpnw1)
-//    mpdiv (s2, s4, s2, mpnw1)
-//    mpeq (s2, s0, mpnw1)
-//    
-//    //   Restore original precision level.
-//    
-//    mproun (s0, mpnw)
-//    mpeq (s0, pi, mpnw)
-//    
-//    100 continue
-//    
-//    return
-//    end static func mppiq
+        //   This computes Pi to available precision (MPNW mantissa words).
+        //   The algorithm that is used for computing Pi, which is due to Salamin
+        //   and Brent, is as follows:
+        
+        //   Set  A_0 = 1,  B_0 = 1/Sqrt(2)  and  D_0 = Sqrt(2) - 1/2.
+        
+        //   Then from k = 1 iterate the following operations:
+        
+        //   A_k = 0.5 * (A_{k-1} + B_{k-1})
+        //   B_k = Sqrt (A_{k-1} * B_{k-1})
+        //   D_k = D_{k-1} - 2^k * (A_k - B_k) ^ 2
+        
+        //   Then  P_k = (A_k + B_k) ^ 2 / D_k  converges quadratically to Pi.
+        //   In other words, each iteration approximately doubles the number of correct
+        //   digits, providing all iterations are done with the maximum precision.
+        //   The constant cl2 (below) = 1 / log(2) (DP approximation).
+        
+        var mpnw1, mq : Int
+        var f = MPRNumber(repeating:0, count:9)
+        var s0 = MPRNumber(repeating:0, count:mpnw+7); var s1 = s0; var s2 = s1; var s3 = s1
+        var s4 = s1
+        var t1 : Double
+        let cl2 = 1.4426950408889633
+        
+        // End of declaration
+        
+        if (mpnw < 4 || Int(pi[0]) < mpnw + 6) {
+            print ("*** MPPIQ: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        s0[0] = Double(mpnw + 7)
+        s1[0] = Double(mpnw + 7)
+        s2[0] = Double(mpnw + 7)
+        s3[0] = Double(mpnw + 7)
+        s4[0] = Double(mpnw + 7)
+        mpnw1 = mpnw + 1
+        
+        //   Unless precision is very high, just copy pi from table.
+        
+        if (mpnw1 <= Int(mppicon[1])) {
+            mpeq (mppicon, &pi, mpnw)
+            return // goto 100
+        }
+        
+        //   Determine the number of iterations required for the given precision level.
+        //   This formula is good only for this Pi algorithm.
+        
+        t1 = Double(mpnw1) * log10 (mpbdx)
+        mq = Int(cl2 * (log (t1) - 1.0) + 1.0)
+        
+        //   Initialize as above.
+        
+        s0[1] = Double(mpnw)
+        s0[2] = 1.0
+        s0[3] = 0.0
+        s0[4] = 1.0
+        s0[5] = 0.0
+        s0[6] = 0.0
+        f[0] = 9.0
+        f[1] = Double(mpnw1)
+        f[2] = 1.0
+        f[3] = 0.0
+        f[4] = 2.0
+        f[5] = 0.0
+        f[6] = 0.0
+        mpsqrt (f, &s2, mpnw1)
+        mpmuld (s2, 0.5, &s1, mpnw1)
+        f[3] = -1.0
+        f[4] = 0.5 * mpbdx
+        mpsub (s2, f, &s4, mpnw1)
+        
+        //   Perform iterations as described above.
+        
+        for k in 1...mq {
+            mpadd (s0, s1, &s2, mpnw1)
+            mpmul (s0, s1, &s3, mpnw1)
+            mpsqrt (s3, &s1, mpnw1)
+            mpmuld (s2, 0.5, &s0, mpnw1)
+            mpsub (s0, s1, &s2, mpnw1)
+            mpmul (s2, s2, &s3, mpnw1)
+            t1 = pow(2.0, Double(k))
+            mpmuld (s3, t1, &s2, mpnw1)
+            mpsub (s4, s2, &s3, mpnw1)
+            mpeq (s3, &s4, mpnw1)
+        }
+        
+        //   Complete computation.
+        
+        mpadd (s0, s1, &s2, mpnw1)
+        mpmul (s2, s2, &s2, mpnw1)
+        mpdiv (s2, s4, &s2, mpnw1)
+        mpeq (s2, &s0, mpnw1)
+        
+        //   Restore original precision level.
+        
+        mproun (&s0, mpnw)
+        mpeq (s0, &pi, mpnw)
+        
+        // 100 continue
+        
+    } // mppiq
     
     static func mppower (_ a: MPRNumber, _ b: MPRNumber, _ c: inout MPRNumber, _ mpnw : Int) {
         
-    }
-    
-    //   This computes C = A ^ B, where A, B and C are MPR.  It first checks if
-    //   B is the quotient of two integers up to 10^7 in size, in which case it
-    //   calls MPNPWR and MPNRTR.  Otherwise it calls MPLOG and MPEXP.
-    
-//    implicit none
-//    integer i, mpnw, mpnw1, n1
-//    real (mprknd) a1, a2, a3, a4, a5, a6, q1, t0, t1, t2, t3, mprxx, mprxx2
-//    parameter (mprxx = 1.d-14, mprxx2 = 5.d-10)
-//    real (mprknd) a(0:), b(0:), c(0:), s0(0:mpnw+6), &
-//    s1(0:mpnw+6), s2(0:mpnw+6), s3(0:mpnw+6)
-//    
-//    //  End of declaration
-//    
-//    if (mpnw < 4 || a[0] < mpnw + 4 || b[0] < abs (a[2)) + 4 || &
-//    c[0] < mpnw + 6) {
-//    write (mpldb, 1)
-//    1 format ("*** MPPOWER: uninitialized or inadequately sized arrays")
-//    mpabrt (99)
-//    }
-//    
-//    //   Check if A <= 0 (error), or A = 1 or B = 0 or B = 1.
-//    
-//    if (a[2] <= 0.0) {
-//    write (mpldb, 2)
-//    2 format ("*** MPPOWER: A^B, where A is less than zero.")
-//    mpabrt (61)
-//    } else if ((a[2] == 1.0 && a[3] == 0.0 && a[4] == 1.0) &
-//    || b[2] == 0.0) {
-//    c[1] = mpnw
-//    c[2] = 1.0
-//    c[3] = 0.0
-//    c[4] = 1.0
-//    c[5] = 0.0
-//    c[6] = 0.0
-//    goto 200
-//    } else {if (b[2] == 1.0 && b[3] == 0.0 && b[4] == 1.0) {
-//    mpeq (a, c, mpnw)
-//    goto 200
-//    }
-//    
-//    s0[0] = mpnw + 6
-//    s1[0] = mpnw + 6
-//    s2[0] = mpnw + 6
-//    s3[0] = mpnw + 6
-//    
-//    //   Check if B is rational using the extended Euclidean algorithm in DP.
-//    
-//    mpmdc (b, t1, n1, mpnw)
-//    
-//    if (n1 >= -mpnbt && n1 <= mpnbt) {
-//    t0 = abs (t1 * 2.0**n1)
-//    t1 = max (t0, 1.0)
-//    t2 = min (t0, 1.0)
-//    a1 = 1.0
-//    a2 = 0.0
-//    a3 = 0.0
-//    a4 = 1.0
-//    
-//    do i = 1, 20
-//    q1 = aint (t1 / t2)
-//    a5 = a1 - q1 * a3
-//    a6 = a2 - q1 * a4
-//    t3 = t2
-//    t2 = t1 - q1 * t2
-//    t1 = t3
-//    a1 = a3
-//    a2 = a4
-//    a3 = a5
-//    a4 = a6
-//    if (t2 < mprxx2) goto 100
-//    }
-//    
-//    goto 110
-//    }
-//    
-//    100 continue
-//    
-//    a3 = abs (a3)
-//    a4 = abs (a4)
-//    
-//    //  If b = a3/a4 or a4/a3 (except for sign) or then mpnpwr and mpnrtr.
-//    
-//    if (abs (t0 - a3 / a4) / t0 < mprxx) {
-//    a3 = sign (a3, b[2))
-//    mpdmc (a3, 0, s0, mpnw)
-//    mpdmc (a4, 0, s1, mpnw)
-//    mpdiv (s0, s1, s2, mpnw)
-//    mpsub (b, s2, s0, mpnw)
-//    if (s0[2] == 0.0 || s0[3] < b[3] + 1 - mpnw) {
-//    mpnpwr (a, int (a3), s0, mpnw)
-//    mpnrtr (s0, int (a4), c, mpnw)
-//    goto 200
-//    }
-//    } else if (abs (t0 - a4 / a3) / t0 < mprxx) {
-//    a4 = sign (a4, b[2))
-//    mpdmc (a4, 0, s0, mpnw)
-//    mpdmc (a3, 0, s1, mpnw)
-//    mpdiv (s0, s1, s2, mpnw)
-//    mpsub (b, s2, s0, mpnw)
-//    if (s0[2] == 0.0 || s0[3] < b[3] + 1 - mpnw) {
-//    mpnpwr (a, int (a4), s0, mpnw)
-//    mpnrtr (s0, int (a3), c, mpnw)
-//    goto 200
-//    }
-//    }
-//    
-//    110 continue
-//    
-//    //  Call mplog and mpexp.
-//    
-//    mplog (a, s0, mpnw)
-//    mpmul (s0, b, s1, mpnw)
-//    mpexp (s1, c, mpnw)
-//    
-//    200 continue
-//    
-//    return
-//    end static func mppower
+        //   This computes C = A ^ B, where A, B and C are MPR.  It first checks if
+        //   B is the quotient of two integers up to 10^7 in size, in which case it
+        //   calls MPNPWR and MPNRTR.  Otherwise it calls MPLOG and MPEXP.
+        
+        var n1 : Int
+        var a1, a2, a3, a4, a5, a6, q1, t0, t1, t2, t3 : Double
+        let mprxx = 1.0e-14; let mprxx2 = 5.0e-10
+        var s0 = MPRNumber(repeating:0, count:mpnw+7); var s1 = s0; var s2 = s1; var s3 = s1
+        
+        //  End of declaration
+        
+        if (mpnw < 4 || Int(a[0]) < mpnw + 4 || b[0] < abs (a[2]) + 4 || Int(c[0]) < mpnw + 6) {
+            print ("*** MPPOWER: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        //   Check if A <= 0 (error), or A = 1 or B = 0 or B = 1.
+        
+        if (a[2] <= 0.0) {
+            print ("*** MPPOWER: A^B, where A is less than zero.")
+            mpabrt (61)
+        } else if ((a[2] == 1.0 && a[3] == 0.0 && a[4] == 1.0) || b[2] == 0.0) {
+            c[1] = Double(mpnw)
+            c[2] = 1.0
+            c[3] = 0.0
+            c[4] = 1.0
+            c[5] = 0.0
+            c[6] = 0.0
+            return // goto 200
+        } else if (b[2] == 1.0 && b[3] == 0.0 && b[4] == 1.0) {
+            mpeq (a, &c, mpnw)
+            return // goto 200
+        }
+        
+        s0[0] = Double(mpnw + 6)
+        s1[0] = Double(mpnw + 6)
+        s2[0] = Double(mpnw + 6)
+        s3[0] = Double(mpnw + 6)
+        
+        //   Check if B is rational using the extended Euclidean algorithm in DP.
+        n1 = 0; t1 = 0
+        mpmdc (b, &t1, &n1, mpnw)
+        a3 = 0; a4 = 0; t0 = 0
+        if (n1 >= -mpnbt && n1 <= mpnbt) {
+            t0 = abs (t1 * pow(2.0, Double(n1)))
+            t1 = max (t0, 1.0)
+            t2 = min (t0, 1.0)
+            a1 = 1.0
+            a2 = 0.0
+            a3 = 0.0
+            a4 = 1.0
+            
+            var flag = false
+            for _ in 1...20 {
+                q1 = aint (t1 / t2)
+                a5 = a1 - q1 * a3
+                a6 = a2 - q1 * a4
+                t3 = t2
+                t2 = t1 - q1 * t2
+                t1 = t3
+                a1 = a3
+                a2 = a4
+                a3 = a5
+                a4 = a6
+                if (t2 < mprxx2) { flag = true; break /* goto 100 */ }
+            }
+            
+            // goto 110
+            //  Call mplog and mpexp.
+            if !flag {
+                mplog (a, &s0, mpnw)
+                mpmul (s0, b, &s1, mpnw)
+                mpexp (s1, &c, mpnw)
+                return
+            }
+        }
+        
+        // 100 continue
+        
+        a3 = abs (a3)
+        a4 = abs (a4)
+        
+        //  If b = a3/a4 or a4/a3 (except for sign) or then mpnpwr and mpnrtr.
+        
+        if abs(t0 - a3 / a4) / t0 < Double(mprxx) {
+            a3 = Double(sign (a3, b[2]))
+            mpdmc (a3, 0, &s0, mpnw)
+            mpdmc (a4, 0, &s1, mpnw)
+            mpdiv (s0, s1, &s2, mpnw)
+            mpsub (b, s2, &s0, mpnw)
+            if s0[2] == 0.0 || s0[3] < b[3] + Double(1 - mpnw) {
+                mpnpwr (a, Int (a3), &s0, mpnw)
+                mpnrtr (s0, Int (a4), &c, mpnw)
+                return // goto 200
+            }
+        } else if abs(t0 - a4 / a3) / t0 < Double(mprxx) {
+            a4 = Double(sign (a4, b[2]))
+            mpdmc (a4, 0, &s0, mpnw)
+            mpdmc (a3, 0, &s1, mpnw)
+            mpdiv (s0, s1, &s2, mpnw)
+            mpsub (b, s2, &s0, mpnw)
+            if s0[2] == 0.0 || s0[3] < b[3] + Double(1 - mpnw) {
+                mpnpwr (a, Int (a4), &s0, mpnw)
+                mpnrtr (s0, Int (a3), &c, mpnw)
+                return // goto 200
+            }
+        }
+        
+        // 110 continue
+        
+        //  Call mplog and mpexp.
+        
+        mplog (a, &s0, mpnw)
+        mpmul (s0, b, &s1, mpnw)
+        mpexp (s1, &c, mpnw)
+        
+        // 200 continue
+    } // mppower
     
 }
