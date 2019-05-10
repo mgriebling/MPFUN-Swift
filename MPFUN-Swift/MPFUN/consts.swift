@@ -97,7 +97,10 @@ public class MPFUN {
     static let mpnbt = 48
     static let mpnpr = 7
     static let mpnstr = 2048
-    static let mpoutl = 80  
+    static let mpoutl = 80
+    static let mpnrow = 16
+    static let mpnsp1 = 2
+    static let mpnsp2 = 9
     
     static let mpbdx = pow(2, Double(mpnbt))
     static let mpbx2 = mpbdx * mpbdx

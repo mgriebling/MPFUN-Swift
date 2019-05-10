@@ -1304,7 +1304,7 @@ extension MPFUN {
         let xa = abs(x)
         let xi = Int(xa)  // Int() aka floor()
         let delta = xa - Double(xi)
-        if x < 0 {
+        if x.isSignMinus {
             if delta > 0 { return -(xi + 1) }
             return -xi
         } else {

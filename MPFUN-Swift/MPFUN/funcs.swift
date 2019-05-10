@@ -2058,7 +2058,7 @@ extension MPFUN {
         //   Determine the least integer MQ such that 2 ^ MQ .GE. MPNW.
         
         t1 = Double(mpnw)
-        mq = Int(cl2 * log (t1) + 1 - mprxx)
+        mq = Int(cl2 * log (t1) + Double(1 - mprxx))
         
         //   Compute the initial approximation of 1 / Sqrt(A).
         n = 0
@@ -2281,7 +2281,7 @@ extension MPFUN {
 //        return
     } //  mpdivx
     
-    static func mpfftcr (_ iss : Int, _ m : Int, _ n : Int, _ nsq : Int, x : MPRComplex, y : inout MPRNumber) {
+    static func mpfftcr (_ iss : Int, _ m : Int, _ n : Int, _ nsq : Int, x : inout MPRComplex, y : inout MPRNumber) {
         
         //   This performs an N-point complex-to-real FFT, where N = 2^M.  X is the
         //   double complex input array, and Y is the double precision output array.
@@ -2290,276 +2290,264 @@ extension MPFUN {
         //   The arrays MPUU1 and MPUU2 must have been initialized by calling MPINIFFT.
         //   This routine is not intended to be called directly by the user.
         
-//        var i, k, ku, mx, n1, n2, n21, n4 : Int
-//        complex (mprknd) dc1(n/2), x(n/2+nsq*mpnsp1+1),
-//        var ai, a1, a2, x1, x2 : Complex64
-//
-//        mx = mpuu1(1)
-//
-//        //   Check if input parameters are invalid.
-//
-//        if (iss //= 1 && iss //= -1) || m < 3 || m > mx {
-//            print ("*** MPFFTCR: Either the UU arrays have not been initialized or else one of the input parameters is invalid")
-//            mpabrt (677)
-//        }
-//
-//        n1 = 2 ** (m / 2)
-//        n2 = n / 2
-//        n21 = n2 + 1
-//        n4 = n / 4
-//        ai = cmplx (0, 1, mprknd)
-//
-//        //   Construct the input to MPFFT1.
-//
-//        dc1[1] = 0.5 * cmplx (real (x[1] + x[n2+1], mprknd), real (x(1] - x(n2+1], mprknd), mprknd)
-//        if (iss == 1) {
-//            dc1[n4+1] = conjg (x[n4+1])
-//        } else {
-//            dc1[n4+1] = x[n4+1]
-//        }
-//        ku = n2
-//
-//        if (iss //= 1) {
-//            for k in 2...n4 {
-//                x1 = x[k]
-//                x2 = conjg (x[n2+2-k])
-//                a1 = x1 + x2
-//                a2 = ai * mpuu1(k+ku) * (x1 - x2)
-//                dc1[k] = 0.5 * (a1 + a2)
-//                dc1[n2+2-k] = 0.5 * conjg (a1 - a2)
-//            }
-//        } else {
-//            for k in 2...n4 {
-//                x1 = x[k]
-//                x2 = conjg (x[n2+2-k])
-//                a1 = x1 + x2
-//                a2 = ai * conjg (mpuu1(k+ku)) * (x1 - x2)
-//                dc1[k] = 0.5 * (a1 + a2)
-//                dc1[n2+2-k] = 0.5 * conjg (a1 - a2)
-//            }
-//        }
-//
-//        //   Perform a normal N/2-point FFT on DC1.
-//
-//        mpfft1 (iss, m - 1, n1, n2 / n1, dc1, x)
-//
-//        //   Copy DC1 to Y such that DC1(k) = Y(2k-1) + i Y(2k).
-//
-//        for k in 1...n / 2 {
-//            y[2*k-1] = real (dc1[k], mprknd)
-//            y[2*k] = aimag (dc1[k])
-//        }
+        var ku, mx, n1, n2, n4 : Int
+        var dc1 = MPRComplex(repeating:Complex64(), count:n/2)
+        var ai, a1, a2, x1, x2 : Complex64
+
+        mx = Int(mpuu1[1].re)
+
+        //   Check if input parameters are invalid.
+
+        if (iss != 1 && iss != -1) || m < 3 || m > mx {
+            print ("*** MPFFTCR: Either the UU arrays have not been initialized or else one of the input parameters is invalid")
+            mpabrt (677)
+        }
+
+        n1 = Int(pow(2, Double(m / 2)))
+        n2 = n / 2
+        n4 = n / 4
+        ai = Complex64(0, 1)
+
+        //   Construct the input to MPFFT1.
+
+        dc1[1] = 0.5 * Complex64((x[1] + x[n2+1]).re, (x[1] - x[n2+1]).re)
+        if (iss == 1) {
+            dc1[n4+1] = x[n4+1].conj
+        } else {
+            dc1[n4+1] = x[n4+1]
+        }
+        ku = n2
+
+        if (iss != 1) {
+            for k in 2...n4 {
+                x1 = x[k]
+                x2 = x[n2+2-k].conj
+                a1 = x1 + x2
+                a2 = ai * mpuu1[k+ku] * (x1 - x2)
+                dc1[k] = 0.5 * (a1 + a2)
+                dc1[n2+2-k] = 0.5 * (a1 - a2).conj
+            }
+        } else {
+            for k in 2...n4 {
+                x1 = x[k]
+                x2 = x[n2+2-k].conj
+                a1 = x1 + x2
+                a2 = ai * mpuu1[k+ku].conj * (x1 - x2)
+                dc1[k] = 0.5 * (a1 + a2)
+                dc1[n2+2-k] = 0.5 * (a1 - a2).conj
+            }
+        }
+
+        //   Perform a normal N/2-point FFT on DC1.
+
+        mpfft1 (iss, m - 1, n1, n2 / n1, &dc1, &x)
+
+        //   Copy DC1 to Y such that DC1(k) = Y(2k-1) + i Y(2k).
+
+        for k in 1...n / 2 {
+            y[2*k-1] = dc1[k].re
+            y[2*k] = dc1[k].im
+        }
     } //  mpfftcr
     
     static func mpfftrc (_ iss : Int, _ m : Int, _ n : Int, _ nsq : Int, _ x: MPRNumber, _ y: inout MPRComplex) {
-    
-    //   This performs an N-point real-to-complex FFT, where N = 2^M.  X is the
-    //   dobule precision input array, and Y is the double complex output array.
-    //   The arrays MPUU1 and MPUU2 must have been initialized by calling MPINIFFT.
-    //   This routine is not intended to be called directly by the user.
-    
-//    implicit none
-//    integer i, is, k, ku, m, mx, n, nsq, n1, n2, n21, n4
-//    real (mprknd) x(n)
-//    complex (mprknd) dc1(n/2), y(n/2+nsq*mpnsp1+1), ai, a1, a2, z1, z2
-//
-//    mx = mpuu1(1)
-//
-//    //   Check if input parameters are invalid.
-//
-//    if ((is ///= 1 && is ///= -1) || m < 3 || m > mx) {
-//    write (mpldb, 1)  is, m, mx
-//    1 format ("*** MPFFTRC: either the UU arrays have not been initialized"
-//    "or else one of the input parameters is invalid",3i5)
-//    mpabrt (677)
-//    }
-//
-//    n1 = 2 ** (m / 2)
-//    n2 = n / 2
-//    n21 = n2 + 1
-//    n4 = n / 4
-//    ai = cmplx (0, -1, mprknd)
-//
-//    //   Copy X to DC1 such that DC1(k) = X(2k-1) + i X(2k).
-//
-//    for k = 1, n2
-//    dc1(k] = cmplx (x(2*k-1], x(2*k], mprknd)
-//    }
-//
-//    //   Perform a normal N/2-point FFT on DC1.
-//
-//    mpfft1 (is, m - 1, n1, n2 / n1, dc1, y)
-//
-//    //   Reconstruct the FFT of X.
-//
-//    y(1] = cmplx (2 * (real (dc1(1], mprknd) + aimag (dc1(1])), &
-//    0, mprknd)
-//    if (is .eq. 1) {
-//    y(n4+1] = 2 * dc1(n4+1]
-//    } else {
-//    y(n4+1] = 2 * conjg (dc1(n4+1])
-//    }
-//    y(n2+1] = cmplx (2 * (real (dc1(1], mprknd) - aimag (dc1(1])), &
-//    0, mprknd)
-//    ku = n2
-//
-//    if (is .eq. 1) {
-//    for k = 2, n4
-//    z1 = dc1(k]
-//    z2 = conjg (dc1(n2+2-k])
-//    a1 = z1 + z2
-//    a2 = ai * mpuu1(k+ku) * (z1 - z2)
-//    y(k] = a1 + a2
-//    y(n2+2-k] = conjg (a1 - a2)
-//    }
-//    } else {
-//    for k = 2, n4
-//    z1 = dc1(k]
-//    z2 = conjg (dc1(n2+2-k))
-//    a1 = z1 + z2
-//    a2 = ai * conjg (mpuu1(k+ku)) * (z1 - z2)
-//    y(k] = a1 + a2
-//    y(n2+2-k] = conjg (a1 - a2)
-//    }
-//    }
-//
-//    return
+        
+        //   This performs an N-point real-to-complex FFT, where N = 2^M.  X is the
+        //   dobule precision input array, and Y is the double complex output array.
+        //   The arrays MPUU1 and MPUU2 must have been initialized by calling MPINIFFT.
+        //   This routine is not intended to be called directly by the user.
+        
+        var ku, mx, n1, n2, n4 : Int
+        var dc1 = MPRComplex(repeating:Complex64(), count:n/2)
+        var ai, a1, a2, z1, z2 : Complex64
+        
+        mx = Int(mpuu1[1].re)
+        
+        //   Check if input parameters are invalid.
+        
+        if (iss != 1 && iss != -1) || m < 3 || m > mx {
+            print ("*** MPFFTRC: either the UU arrays have not been initialized",
+                   "or else one of the input parameters is invalid \(iss) \(m) \(mx)")
+            mpabrt (677)
+        }
+        
+        n1 = Int(pow(2, Double(m / 2)))
+        n2 = n / 2
+        // n21 = n2 + 1
+        n4 = n / 4
+        ai = Complex64(0, -1)
+        
+        //   Copy X to DC1 such that DC1(k) = X(2k-1) + i X(2k).
+        
+        for k in 1...n2 {
+            dc1[k] = Complex64(x[2*k-1], x[2*k])
+        }
+        
+        //   Perform a normal N/2-point FFT on DC1.
+        
+        mpfft1 (iss, m - 1, n1, n2 / n1, &dc1, &y)
+        
+        //   Reconstruct the FFT of X.
+        
+        y[1] = Complex64(2 * (dc1[1].re + dc1[1].im), 0)
+        if (iss == 1) {
+            y[n4+1] = 2 * dc1[n4+1]
+        } else {
+            y[n4+1] = 2 * dc1[n4+1].conj
+        }
+        y[n2+1] = Complex64(2 * (dc1[1].re - dc1[1].im), 0)
+        ku = n2
+        
+        if (iss == 1) {
+            for k in 2...n4 {
+                z1 = dc1[k]
+                z2 = dc1[n2+2-k].conj
+                a1 = z1 + z2
+                a2 = ai * mpuu1[k+ku] * (z1 - z2)
+                y[k] = a1 + a2
+                y[n2+2-k] = (a1 - a2).conj
+            }
+        } else {
+            for k in 2...n4 {
+                z1 = dc1[k]
+                z2 = dc1[n2+2-k].conj
+                a1 = z1 + z2
+                a2 = ai * mpuu1[k+ku].conj * (z1 - z2)
+                y[k] = a1 + a2
+                y[n2+2-k] = (a1 - a2).conj
+            }
+        }
+        
     } //  mpfftrc
     
 
-    static func mpfft1 (_ iss : Int, _ m : Int, _ n1 : Int, _ n2 : Int, _ x: inout MPRComplex, _ y: inout MPRComplex) {
-    
-    //   This routine performs a complex-to-complex FFT.  IS is the sign of the
-    //   transform, N = 2^M is the size of the transform.  N1 = 2^M1 and N2 = 2^M2,
-    //   where M1 and M2 are defined as below.  X is the input and output array,
-    //   and Y is a scratch array.  X must have at N, and Y at least N + N1*MPNSP1,
-    //   double complex cells.  The arrays MPUU1 and MPUU2 must have been
-    //   initialized by calling MPINIFFT.  This routine is not intended to be called
-    //   directly by the user.
-    
-    //   This employs the two-pass variant of the "four-step" FFT.  See the
-    //   article by David H. Bailey in J. of Supercomputing, March 1990, p. 23-35.
-    
-//    implicit none
-//    integer i, is, iu, j, j2, k, ku, m, m1, m2, n, n1, n2, nr1, nr2
-//    complex (mprknd) x(n1,n2), y(n2+mpnsp1,n1), z1(mpnrow+mpnsp1,n1), &
-//    z2(mpnrow+mpnsp1,n1)
-//
-//    n = 2 ** m
-//    m1 = (m + 1) / 2
-//    m2 = m - m1
-//    nr1 = min (n1, mpnrow)
-//    nr2 = min (n2, mpnrow)
-//    ku = mpuu2(m)
-//
-//    for i in 0, n1 - 1, nr1
-//
-//    //   Copy NR1 rows of X (treated as a N1 x N2 complex array) into Z1.
-//
-//    for j = 1, n2
-//    for k = 1, nr1
-//    z1(k,j] = x(i+k,j]
-//    }
-//    }
-//
-//    //   Perform NR1 FFTs, each of length N2.
-//
-//    mpfft2 (is, nr1, m2, n2, z1, z2)
-//
-//    //   Multiply the resulting NR1 x N2 complex block by roots of unity and
-//    //   store transposed into the appropriate section of Y.
-//
-//    iu = i + ku - n1 - 1
-//    if (is .eq. 1) {
-//    for j = 1, n2
-//    for k = 1, nr1
-//    y(j,i+k] = mpuu2(iu+k+j*n1) * z1(k,j]
-//    }
-//    }
-//    } else {
-//    for j = 1, n2
-//    for k = 1, nr1
-//    y(j,i+k] = conjg (mpuu2(iu+k+j*n1)) * z1(k,j]
-//    }
-//    }
-//    }
-//    }
-//
-//    for i in 0, n2 - 1, nr2
-//
-//    //   Copy NR2 rows of the Y array into Z2.
-//
-//    for j = 1, n1
-//    for k = 1, nr2
-//    z2(k,j] = y(i+k,j]
-//    }
-//    }
-//
-//    //   Perform NR2 FFTs, each of length N1.
-//
-//    mpfft2 (is, nr2, m1, n1, z2, z1)
-//
-//    //   Copy NR2 x N1 complex block back into X array.  It"s a little more
-//    //   complicated if M is odd.
-//
-//    if (mod (m, 2) .eq. 0) {
-//    for j = 1, n1
-//    for k = 1, nr2
-//    x(i+k,j] = z2(k,j]
-//    }
-//    }
-//    } else {
-//    for j = 1, n1 / 2
-//    j2 = 2 * j - 1
-//
-//    for k = 1, nr2
-//    x(i+k,j] = z2(k,j2]
-//    x(i+k+n2,j] = z2(k,j2+1]
-//    }
-//    }
-//    }
-//    }
-//
-//    return
+    static func mpfft1 (_ iss : Int, _ m : Int, _ n1 : Int, _ n2 : Int, _ x: inout [MPRComplex], _ y: inout MPRComplex) {
+        
+        //   This routine performs a complex-to-complex FFT.  IS is the sign of the
+        //   transform, N = 2^M is the size of the transform.  N1 = 2^M1 and N2 = 2^M2,
+        //   where M1 and M2 are defined as below.  X is the input and output array,
+        //   and Y is a scratch array.  X must have at N, and Y at least N + N1*MPNSP1,
+        //   double complex cells.  The arrays MPUU1 and MPUU2 must have been
+        //   initialized by calling MPINIFFT.  This routine is not intended to be called
+        //   directly by the user.
+        
+        //   This employs the two-pass variant of the "four-step" FFT.  See the
+        //   article by David H. Bailey in J. of Supercomputing, March 1990, p. 23-35.
+        var iss, iu, j, j2, k, ku,m1, m2, nr1, nr2 : Int
+        let zero = MPRComplex(repeating: Complex64(), count:mpnrow+mpnsp1+1)
+        var z1 = [MPRComplex](repeating: zero, count:n1+1)
+        var z2 = z1
+        
+        let n = Int(pow(2.0, Double(m)))
+        m1 = (m + 1) / 2
+        m2 = m - m1
+        nr1 = min (n1, mpnrow)
+        nr2 = min (n2, mpnrow)
+        ku = Int(mpuu2[m].re)
+        
+        for i in stride(from: 0, through: n1-1, by: nr1) { // 0, n1 - 1, nr1
+            
+            //   Copy NR1 rows of X (treated as a N1 x N2 complex array) into Z1.
+            
+            for j in 1...n2 {
+                for k in 1...nr1 {
+                    z1[k][j] = x[i+k][j]
+                }
+            }
+            
+            //   Perform NR1 FFTs, each of length N2.
+            
+            mpfft2 (iss, nr1, m2, n2, &z1, z2)
+            
+            //   Multiply the resulting NR1 x N2 complex block by roots of unity and
+            //   store transposed into the appropriate section of Y.
+            
+            iu = i + ku - n1 - 1
+            if iss == 1 {
+                for j in 1...n2 {
+                    for k in 1...nr1 {
+                        y[j][i+k] = mpuu2[iu+k+j*n1] * z1[k][j]
+                    }
+                }
+            } else {
+                for j in 1...n2 {
+                    for k in 1...nr1 {
+                        y[j][i+k] = mpuu2[iu+k+j*n1].conj * z1[k][j]
+                    }
+                }
+            }
+        }
+        
+        for i in stride(from:0, through:n2 - 1, by:nr2) {
+            
+            //   Copy NR2 rows of the Y array into Z2.
+            
+            for j in 1...n1 {
+                for k in 1...nr2 {
+                    z2[k][j] = y[i+k][j]
+                }
+            }
+            
+            //   Perform NR2 FFTs, each of length N1.
+            
+            mpfft2 (iss, nr2, m1, n1, &z2, &z1)
+            
+            //   Copy NR2 x N1 complex block back into X array.  It"s a little more
+            //   complicated if M is odd.
+            
+            if m % 2 == 0 {
+                for j in 1...n1 {
+                    for k in 1...nr2 {
+                        x[i+k][j] = z2[k][j]
+                    }
+                }
+            } else {
+                for j in 1...n1 / 2 {
+                    j2 = 2 * j - 1
+                    
+                    for k in 1...nr2 {
+                        x[i+k][j] = z2[k][j2]
+                        x[i+k+n2][j] = z2[k][j2+1]
+                    }
+                }
+            }
+        }
     } //  mpfft1
     
-    static func mpfft2 (_ iss : Int, _ ns : Int, _ m : Int, _ n : Int, _ x: inout MPRComplex, _ y: inout MPRComplex) {
-    
-    //   This performs NS simultaneous N-point complex-to-complex FFTs, where
-    //   N = 2^M.  X is the input and output array, and Y is a scratch array.
-    //   The arrays MPUU1 and MPUU2 must have been initialized by calling MPINIFFT.
-    //   This routine is not intended to be called directly by the user.
-    
-//    implicit none
-//    integer i, is, j, l, m, n, ns
-//    complex (mprknd) x(mpnrow+mpnsp1,n), y(mpnrow+mpnsp1,n)
-//
-//    //   Perform the second variant of the Stockham FFT.
-//
-//    for l = 1, m, 2
-//    mpfft3 (is, l, ns, m, n, x, y)
-//    if (l .eq. m) goto 100
-//    mpfft3 (is, l + 1, ns, m, n, y, x)
-//    }
-//
-//    goto 110
-//
-//    //   Copy Y to X.
-//
-//    100 continue
-//
-//    for j = 1, n
-//    for i in 1, ns
-//    x(i,j] = y(i,j]
-//    }
-//    }
-//
-//    110 continue
-//
-//    return
+    static func mpfft2 (_ iss : Int, _ ns : Int, _ m : Int, _ n : Int, _ x: inout [MPRComplex], _ y: inout [MPRComplex]) {
+        
+        //   This performs NS simultaneous N-point complex-to-complex FFTs, where
+        //   N = 2^M.  X is the input and output array, and Y is a scratch array.
+        //   The arrays MPUU1 and MPUU2 must have been initialized by calling MPINIFFT.
+        //   This routine is not intended to be called directly by the user.
+        
+        var iss, j, l, m, n, ns : Int
+        
+        //   Perform the second variant of the Stockham FFT.
+        var flag = false
+        for l in stride(from: 1, through:m, by:2) {
+            mpfft3 (iss, l, ns, m, n, x, y)
+            if (l == m) { flag = true; break /* goto 100 */ }
+            mpfft3 (iss, l + 1, ns, m, n, y, x)
+        }
+        
+        if !flag { return }
+            
+            //   Copy Y to X.
+            
+        // 100 continue
+        
+        for j in 1...n {
+            for i in 1...ns {
+                x[i][j] = y[i][j]
+            }
+        }
+        
+        // 110 continue
+        
     } //  mpfft2
     
-    static func mpfft3 (_ iss : Int, _l : Int, _ ns : Int, _ m : Int, _ n : Int, _ x: inout MPRComplex, _ y: inout MPRComplex) {
+    static func mpfft3 (_ iss : Int, _ l : Int, _ ns : Int, _ m : Int, _ n : Int, _ x: inout MPRComplex, _ y: inout MPRComplex) {
     
     //   This performs the L-th iteration of the second variant of the Stockham FFT
     //   on the NS vectors in X.  X is input/output, and Y is a scratch array.
@@ -2583,7 +2571,7 @@ extension MPFUN {
 //    i12 = i11 + n1
 //    i21 = i * lj + 1
 //    i22 = i21 + lk
-//    if (iss .eq. 1) {
+//    if (iss == 1) {
 //    u1 = mpuu1(i+ku)
 //    } else {
 //    u1 = conjg (mpuu1(i+ku))
@@ -2591,10 +2579,10 @@ extension MPFUN {
 //
 //    for k = 0, lk - 1
 //    for j = 1, ns
-//    x1 = x(j,i11+k]
-//    x2 = x(j,i12+k]
-//    y(j,i21+k] = x1 + x2
-//    y(j,i22+k] = u1 * (x1 - x2)
+//    x1 = x[j,i11+k]
+//    x2 = x[j,i12+k]
+//    y[j,i21+k] = x1 + x2
+//    y[j,i22+k] = u1 * (x1 - x2)
 //    }
 //    }
 //    }
@@ -2642,7 +2630,7 @@ extension MPFUN {
 //
 //    for i in 0, ln - 1
 //    ti = i * t1
-//    mpuu1(i+ku) = cmplx (cos (ti), sin (ti), mprknd)
+//    mpuu1(i+ku) = Complex64(cos (ti), sin (ti), mprknd)
 //    }
 //
 //    ku = ku + ln
@@ -2656,7 +2644,7 @@ extension MPFUN {
 //    mpuu2(1) = mq
 //
 //    for k = 2, mq
-//    mpuu2(k) = cmplx (0, 0, mprknd)
+//    mpuu2(k) = Complex64(0, 0, mprknd)
 //    }
 //
 //    for k = 2, mq - 1
@@ -2673,7 +2661,7 @@ extension MPFUN {
 //    for i in 0, nn1 - 1
 //    iu = ku + i + j * nn1
 //    t1 = tpn * i * j
-//    mpuu2(iu) = cmplx (cos (t1), sin (t1), mprknd)
+//    mpuu2(iu) = Complex64(cos (t1), sin (t1), mprknd)
 //    }
 //    }
 //
@@ -2708,7 +2696,7 @@ extension MPFUN {
 //    n4 = 2 * n2
 //    nm = min (2 * n, n2)
 //
-//    if (abs (iq) .eq. 1) {
+//    if (abs (iq) == 1) {
 //
 //    //   Compute the square of a -- only one forward FFT is needed.
 //
@@ -2727,7 +2715,7 @@ extension MPFUN {
 //    //   Square the resulting complex vector.
 //
 //    for i in 1, n1 + 1
-//    dc1(i] = dc1(i] ** 2
+//    dc1[i] = dc1[i] ** 2
 //    }
 //    } else {
 //
@@ -2750,7 +2738,7 @@ extension MPFUN {
 //    //   Multiply the resulting complex vectors.
 //
 //    for i in 1, n1 + 1
-//    dc1(i] = dc1(i] * dc2(i]
+//    dc1[i] = dc1[i] * dc2(i]
 //    }
 //    }
 //
