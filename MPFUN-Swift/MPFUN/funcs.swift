@@ -61,294 +61,269 @@ extension MPFUN {
     
     static func mpceq (_ a : MPRNumber, _ b : inout MPRNumber, _ mpnw : Int) {
         
-    }
-    
-//    !   Sets the MPC number B equal to A.
-//
-//    implicit none
-//    integer i, ia, la, lb, mpnw, na
-//    real (mprknd) a(0:), b(0:)
-//
-//    ! End of declaration
-//
-//    la = a(0)
-//    lb = b(0)
-//    if (mpnw < 4 .or. a(0) < abs (a(2)) + 4 .or. a(la) < abs (a(la+2)) + 4 &
-//    .or. b(0) < mpnw + 6 .or. b(lb) < mpnw + 6) then
-//    write (mpldb, 1)
-//    1 format ('*** MPCEQ: uninitialized or inadequately sized arrays')
-//    call mpabrt (99)
-//    endif
-//
-//    ia = sign (1.d0, a(2))
-//    na = min (int (abs (a(2))), mpnw)
-//    if (na == 0)  then
-//    b(1) = mpnw
-//    b(2) = 0.d0
-//    b(3) = 0.d0
-//    goto 110
-//    endif
-//    b(1) = mpnw
-//    b(2) = sign (na, ia)
-//
-//    do i = 2, na + 2
-//    b(i+1) = a(i+1)
-//    enddo
-//
-//    b(na+4) = 0.d0
-//    b(na+5) = 0.d0
-//
-//    110 continue
-//
-//    ia = sign (1.d0, a(la+2))
-//    na = min (int (abs (a(la+2))), mpnw)
-//    if (na == 0)  then
-//    b(lb+1) = mpnw
-//    b(lb+2) = 0.d0
-//    b(lb+3) = 0.d0
-//    goto 120
-//    endif
-//    b(lb+1) = mpnw
-//    b(lb+2) = sign (na, ia)
-//
-//    do i = 2, na + 2
-//    b(i+lb+1) = a(i+la+1)
-//    enddo
-//
-//    b(na+lb+4) = 0.d0
-//    b(na+lb+5) = 0.d0
-//
-//    120 continue
-//
-//    return
-//    end subroutine mpceq
+        //   Sets the MPC number B equal to A.
+        
+        var ia, la, lb, mpnw, na : Int
+        
+        // End of declaration
+        
+        la = Int(a[0])
+        lb = Int(b[0])
+        if (mpnw < 4 || a[0] < abs (a[2]) + 4 || a[la] < abs (a[la+2]) + 4 || Int(b[0]) < mpnw + 6 || Int(b[lb]) < mpnw + 6) {
+            print ("*** MPCEQ: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        ia = sign (1.0, a[2])
+        na = min (Int (abs (a[2])), mpnw)
+        if (na == 0)  {
+            b[1] = Double(mpnw)
+            b[2] = 0.0
+            b[3] = 0.0
+            // goto 110
+        } else {
+            b[1] = Double(mpnw)
+            b[2] = Double(sign (Double(na), Double(ia)))
+            
+            for i in 2...na + 2 {
+                b[i+1] = a[i+1]
+            }
+            
+            b[na+4] = 0.0
+            b[na+5] = 0.0
+        }
+        
+        // 110 continue
+        
+        ia = sign (1.0, a[la+2])
+        na = min (Int (abs (a[la+2])), mpnw)
+        if (na == 0)  {
+            b[lb+1] = Double(mpnw)
+            b[lb+2] = 0.0
+            b[lb+3] = 0.0
+            return // goto 120
+        }
+        b[lb+1] = Double(mpnw)
+        b[lb+2] = Double(sign (Double(na), Double(ia)))
+        
+        for i in 2...na + 2 {
+            b[i+lb+1] = a[i+la+1]
+        }
+        
+        b[na+lb+4] = 0.0
+        b[na+lb+5] = 0.0
+        
+        // 120 continue
+    } // mpceq
     
     static func mpcadd (_ a : MPRNumber, _ b : MPRNumber, _ c : inout MPRNumber, _ mpnw : Int) {
         
-    }
-    
-//    !   This routine adds the MPC numbers A and B.
-//
-//    implicit none
-//    integer la, lb, lc, mpnw
-//    real (mprknd) a(0:), b(0:), c(0:)
-//
-//    ! End of declaration
-//
-//    la = a(0)
-//    lb = b(0)
-//    lc = c(0)
-//    if (mpnw < 4 .or. a(0) < abs (a(2)) + 4 .or. a(la) < abs (a(la+2)) + 4 &
-//    .or. b(0) < abs (b(2)) + 4 .or. b(lb) < abs (b(lb+2)) + 4 .or. &
-//    c(0) < mpnw + 6 .or. c(lc) < mpnw + 6) then
-//    write (mpldb, 1)
-//    1 format ('*** MPCADD: uninitialized or inadequately sized arrays')
-//    call mpabrt (99)
-//    endif
-//
-//    call mpadd (a, b, c, mpnw)
-//    call mpadd (a(la:), b(lb:), c(lc:), mpnw)
-//    return
-//    end subroutine mpcadd
+        //   This routine adds the MPC numbers A and B.
+        
+        var la, lb, lc : Int
+        
+        // End of declaration
+        
+        la = Int(a[0])
+        lb = Int(b[0])
+        lc = Int(c[0])
+        if (mpnw < 4 || a[0] < abs (a[2]) + 4 || a[la] < abs (a[la+2]) + 4 ||
+            b[0] < abs (b[2]) + 4 || b[lb] < abs (b[lb+2]) + 4 ||
+            Int(c[0]) < mpnw + 6 || Int(c[lc]) < mpnw + 6) {
+            print ("*** MPCADD: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        mpadd (a, b, &c, mpnw)
+        var t = MPRNumber(c[lc...])
+        mpadd (MPRNumber(a[la...]), MPRNumber(b[lb...]), &t, mpnw)
+        c[lc...] = t[0...]
+    } //  mpcadd
     
     static func mpcmul (_ a : MPRNumber, _ b : MPRNumber, _ c : inout MPRNumber, _ mpnw : Int) {
-    }
-    
-//    !   This routine multiplies the MPC numbers A and B.
-//
-//    implicit none
-//    integer la, lb, lc, mpnw, mpnw1
-//    real (mprknd) a(0:), b(0:), c(0:), &
-//    s0(0:mpnw+6), s1(0:mpnw+6), s2(0:mpnw+6), s3(0:mpnw+6)
-//
-//    ! End of declaration
-//
-//    la = a(0)
-//    lb = b(0)
-//    lc = c(0)
-//    if (mpnw < 4 .or. a(0) < abs (a(2)) + 4 .or. a(la) < abs (a(la+2)) + 4 &
-//    .or. b(0) < abs (b(2)) + 4 .or. b(lb) < abs (b(lb+2)) + 4 .or. &
-//    c(0) < mpnw + 6 .or. c(lc) < mpnw + 6) then
-//    write (mpldb, 1)
-//    1 format ('*** MPCMUL: uninitialized or inadequately sized arrays')
-//    call mpabrt (99)
-//    endif
-//
-//    mpnw1 = mpnw + 1
-//    s0(0) = mpnw + 7
-//    s1(0) = mpnw + 7
-//    s2(0) = mpnw + 7
-//    s3(0) = mpnw + 7
-//
-//    call mpmul (a, b, s0, mpnw1)
-//    call mpmul (a(la:), b(lb:), s1, mpnw1)
-//    call mpsub (s0, s1, s2, mpnw1)
-//    call mpmul (a, b(lb:), s0, mpnw1)
-//    call mpmul (a(la:), b, s1, mpnw1)
-//    call mpadd (s0, s1, s3, mpnw1)
-//
-//    call mproun (s2, mpnw)
-//    call mproun (s3, mpnw)
-//    call mpeq (s2, c, mpnw)
-//    call mpeq (s3, c(lc:), mpnw)
-//
-//    return
-//    end subroutine mpcmul
+        //   This routine multiplies the MPC numbers A and B.
+        
+        var la, lb, lc, mpnw1 : Int
+        var s0 = MPRNumber(repeating: 0, count: mpnw+7)
+        var s1 = s0; var s2 = s0; var s3 = s0
+        
+        // End of declaration
+        
+        la = Int(a[0])
+        lb = Int(b[0])
+        lc = Int(c[0])
+        if (mpnw < 4 || a[0] < abs (a[2]) + 4 || a[la] < abs (a[la+2]) + 4
+            || b[0] < abs (b[2]) + 4 || b[lb] < abs (b[lb+2]) + 4 ||
+            Int(c[0]) < mpnw + 6 || Int(c[lc]) < mpnw + 6) {
+            print ("*** MPCMUL: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        mpnw1 = mpnw + 1
+        s0[0] = Double(mpnw + 7)
+        s1[0] = Double(mpnw + 7)
+        s2[0] = Double(mpnw + 7)
+        s3[0] = Double(mpnw + 7)
+        
+        mpmul (a, b, &s0, mpnw1)
+        mpmul (MPRNumber(a[la...]), MPRNumber(b[lb...]), &s1, mpnw1)
+        mpsub (s0, s1, &s2, mpnw1)
+        mpmul (a, MPRNumber(b[lb...]), &s0, mpnw1)
+        mpmul (MPRNumber(a[la...]), b, &s1, mpnw1)
+        mpadd (s0, s1, &s3, mpnw1)
+        
+        mproun (&s2, mpnw)
+        mproun (&s3, mpnw)
+        mpeq (s2, &c, mpnw)
+        var t = MPRNumber(c[lc...])
+        mpeq (s3, &t, mpnw)
+        c[lc...] = t[0...]
+    } // mpcmul
     
     static func mpcdiv (_ a : MPRNumber, _ b : MPRNumber, _ c : inout MPRNumber, _ mpnw : Int) {
-    }
-    
-//    !   This routine divides the MPC numbers A and B.
-//
-//    implicit none
-//    integer la, lb, lc, mpnw, mpnw1
-//    real (mprknd) a(0:), b(0:), c(0:), &
-//    s0(0:mpnw+6), s1(0:mpnw+6), s2(0:mpnw+6), s3(0:mpnw+6), s4(0:mpnw+6)
-//
-//    ! End of declaration
-//
-//    la = a(0)
-//    lb = b(0)
-//    lc = c(0)
-//    if (mpnw < 4 .or. a(0) < abs (a(2)) + 4 .or. a(la) < abs (a(la+2)) + 4 &
-//    .or. b(0) < abs (b(2)) + 4 .or. b(lb) < abs (b(lb+2)) + 4 .or. &
-//    c(0) < mpnw + 6 .or. c(lc) < mpnw + 6) then
-//    write (mpldb, 1)
-//    1 format ('*** MPCDIV: uninitialized or inadequately sized arrays')
-//    call mpabrt (99)
-//    endif
-//
-//    mpnw1 = mpnw + 1
-//    s0(0) = mpnw + 7
-//    s1(0) = mpnw + 7
-//    s2(0) = mpnw + 7
-//    s3(0) = mpnw + 7
-//    s4(0) = mpnw + 7
-//
-//    call mpmul (a, b, s0, mpnw1)
-//    call mpmul (a(la:), b(lb:), s1, mpnw1)
-//    call mpadd (s0, s1, s2, mpnw1)
-//    call mpmul (a, b(lb:), s0, mpnw1)
-//    s0(2) = - s0(2)
-//    call mpmul (a(la:), b, s1, mpnw1)
-//    call mpadd (s0, s1, s3, mpnw1)
-//
-//    call mpmul (b, b, s0, mpnw1)
-//    call mpmul (b(lb:), b(lb:), s1, mpnw1)
-//    call mpadd (s0, s1, s4, mpnw1)
-//    call mpdiv (s2, s4, s0, mpnw1)
-//    call mpdiv (s3, s4, s1, mpnw1)
-//
-//
-//    call mproun (s0, mpnw)
-//    call mproun (s1, mpnw)
-//    call mpeq (s0, c, mpnw)
-//    call mpeq (s1, c(lc:), mpnw)
-//
-//    return
-//    end subroutine mpcdiv
+        
+        //   This routine divides the MPC numbers A and B.
+        
+        var la, lb, lc, mpnw1 : Int
+        var s0 = MPRNumber(repeating: 0, count: mpnw+7)
+        var s1 = s0; var s2 = s0; var s3 = s0; var s4 = s0
+        
+        // End of declaration
+        
+        la = Int(a[0])
+        lb = Int(b[0])
+        lc = Int(c[0])
+        if (mpnw < 4 || a[0] < abs (a[2]) + 4 || a[la] < abs (a[la+2]) + 4
+            || b[0] < abs (b[2]) + 4 || b[lb] < abs (b[lb+2]) + 4 ||
+            Int(c[0]) < mpnw + 6 || Int(c[lc]) < mpnw + 6) {
+            print ("*** MPCDIV: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        mpnw1 = mpnw + 1
+        s0[0] = Double(mpnw + 7)
+        s1[0] = Double(mpnw + 7)
+        s2[0] = Double(mpnw + 7)
+        s3[0] = Double(mpnw + 7)
+        s4[0] = Double(mpnw + 7)
+        
+        mpmul (a, b, &s0, mpnw1)
+        mpmul (MPRNumber(a[la...]), MPRNumber(b[lb...]), &s1, mpnw1)
+        mpadd (s0, s1, &s2, mpnw1)
+        mpmul (a, MPRNumber(b[lb...]), &s0, mpnw1)
+        s0[2] = -s0[2]
+        mpmul (MPRNumber(a[la...]), b, &s1, mpnw1)
+        mpadd (s0, s1, &s3, mpnw1)
+        
+        mpmul (b, b, &s0, mpnw1)
+        mpmul (MPRNumber(b[lb...]), MPRNumber(b[lb...]), &s1, mpnw1)
+        mpadd (s0, s1, &s4, mpnw1)
+        mpdiv (s2, s4, &s0, mpnw1)
+        mpdiv (s3, s4, &s1, mpnw1)
+        
+        
+        mproun (&s0, mpnw)
+        mproun (&s1, mpnw)
+        mpeq (s0, &c, mpnw)
+        var t = MPRNumber(c[lc...])
+        mpeq (s1, &t, mpnw)
+        c[lc...] = t[0...]
+    } //  mpcdiv
     
     static func mpcsqrt (_ a : MPRNumber, _ b : inout MPRNumber, _ mpnw : Int) {
-    }
-    
-//    !   This routine returns the square root of the MPC argument A.
-//    !   The formula is:
-//
-//    !   1/Sqrt[2] * (Sqrt[r + a1] + I * a2 / Sqrt[r + a1])  if a1 >= 0, or
-//    !   1/Sqrt[2] * (|a2| / Sqrt[r - a1] + I * Sgn[a2] * Sqrt[r - a1]) if a1 < 0,
-//
-//    !   where r = Sqrt[a1^2 + a2^2], and a1 and a2 are the real and imaginary
-//    !   parts of A.
-//
-//    implicit none
-//    integer la, lb, mpnw, mpnw1
-//    real (mprknd) a(0:), b(0:), s0(0:mpnw+6), &
-//    s1(0:mpnw+6), s2(0:mpnw+6), s3(0:mpnw+6), s4(0:mpnw+6)
-//
-//    ! End of declaration
-//
-//    la = a(0)
-//    lb = b(0)
-//    if (mpnw < 4 .or. a(0) < abs (a(2)) + 4 .or. a(la) < abs (a(la+2)) + 4 &
-//    .or. b(0) < mpnw + 6 .or. b(lb) < mpnw + 6) then
-//    write (mpldb, 1)
-//    1 format ('*** MPCSQRT: uninitialized or inadequately sized arrays')
-//    call mpabrt (99)
-//    endif
-//
-//    mpnw1 = mpnw + 1
-//    s0(0) = mpnw + 7
-//    s1(0) = mpnw + 7
-//    s2(0) = mpnw + 7
-//    s3(0) = mpnw + 7
-//    s4(0) = mpnw + 7
-//
-//    call mpmul (a, a, s0, mpnw1)
-//    call mpmul (a(la:), a(la:), s1, mpnw1)
-//    call mpadd (s0, s1, s2, mpnw1)
-//    call mpsqrt (s2, s0, mpnw1)
-//
-//    if (a(2) >= 0.d0) then
-//    call mpadd (s0, a, s1, mpnw1)
-//    call mpsqrt (s1, s0, mpnw1)
-//    call mpdiv (a(la:), s0, s1, mpnw1)
-//    else
-//    call mpsub (s0, a, s2, mpnw1)
-//    call mpsqrt (s2, s1, mpnw1)
-//    call mpdiv (a(la:), s1, s0, mpnw1)
-//    s0(2) = abs (s0(2))
-//    s1(2) = sign (s1(2), a(la+2))
-//    endif
-//
-//    call mpdmc (0.5d0, 0, s3, mpnw1)
-//    call mpsqrt (s3, s2, mpnw1)
-//    call mpmul (s0, s2, s3, mpnw1)
-//    call mpmul (s1, s2, s4, mpnw1)
-//
-//    call mproun (s3, mpnw)
-//    call mproun (s4, mpnw)
-//    call mpeq (s3, b, mpnw)
-//    call mpeq (s4, b(lb:), mpnw)
-//
-//    return
-//    end subroutine mpcsqrt
+        
+        //   This routine returns the square root of the MPC argument A.
+        //   The formula is:
+        
+        //   1/Sqrt[2] * (Sqrt[r + a1] + I * a2 / Sqrt[r + a1])  if a1 >= 0, or
+        //   1/Sqrt[2] * (|a2| / Sqrt[r - a1] + I * Sgn[a2] * Sqrt[r - a1]) if a1 < 0,
+        
+        //   where r = Sqrt[a1^2 + a2^2], and a1 and a2 are the real and imaginary
+        //   parts of A.
+        
+        var lb, la, mpnw1 : Int
+        var s0 = MPRNumber(repeating: 0, count: mpnw+7)
+        var s1 = s0; var s2 = s0; var s3 = s0; var s4 = s0
+        
+        // End of declaration
+        
+        la = Int(a[0])
+        lb = Int(b[0])
+        if (mpnw < 4 || a[0] < abs (a[2]) + 4 || a[la] < abs (a[la+2]) + 4 || Int(b[0]) < mpnw + 6 || b[lb] < mpnw + 6) {
+            print ("*** MPCSQRT: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        mpnw1 = mpnw + 1
+        s0[0] = Double(mpnw + 7)
+        s1[0] = Double(mpnw + 7)
+        s2[0] = Double(mpnw + 7)
+        s3[0] = Double(mpnw + 7)
+        s4[0] = Double(mpnw + 7)
+        
+        mpmul (a, a, &s0, mpnw1)
+        mpmul (MPRNumber(a[la...]), MPRNumber(a[la...]), &s1, mpnw1)
+        mpadd (s0, s1, &s2, mpnw1)
+        mpsqrt (s2, &s0, mpnw1)
+        
+        if (a[2] >= 0.0) {
+            mpadd (s0, a, &s1, mpnw1)
+            mpsqrt (s1, &s0, mpnw1)
+            mpdiv (MPRNumber(a[la...]), s0, &s1, mpnw1)
+        } else {
+            mpsub (s0, a, &s2, mpnw1)
+            mpsqrt (s2, &s1, mpnw1)
+            mpdiv (MPRNumber(a[la...]), s1, &s0, mpnw1)
+            s0[2] = abs (s0[2])
+            s1[2] = Double(sign (s1[2], a[la+2]))
+        }
+        
+        mpdmc (0.5, 0, &s3, mpnw1)
+        mpsqrt (s3, &s2, mpnw1)
+        mpmul (s0, s2, &s3, mpnw1)
+        mpmul (s1, s2, &s4, mpnw1)
+        
+        mproun (&s3, mpnw)
+        mproun (&s4, mpnw)
+        mpeq (s3, &b, mpnw)
+        var t = MPRNumber(b[lb...])
+        mpeq (s4, &t, mpnw)
+        b[lb...] = t[0...]
+    } // mpcsqrt
 
     
     static func mpcsub (_ a : MPRNumber, _ b : MPRNumber, _ c : inout MPRNumber, _ mpnw : Int) {
-    }
-    
-//    !   This routine subtracts the MPC numbers A and B.
-//
-//    implicit none
-//    integer la, lb, lc, mpnw
-//    real (mprknd) a(0:), b(0:), c(0:)
-//
-//    ! End of declaration
-//
-//    la = a(0)
-//    lb = b(0)
-//    lc = c(0)
-//    if (mpnw < 4 .or. a(0) < abs (a(2)) + 4 .or. a(la) < abs (a(la+2)) + 4 &
-//    .or. b(0) < abs (b(2)) + 4 .or. b(lb) < abs (b(lb+2)) + 4 .or. &
-//    c(0) < mpnw + 6 .or. c(lc) < mpnw + 6) then
-//    write (mpldb, 1)
-//    1 format ('*** MPCSUB: uninitialized or inadequately sized arrays')
-//    call mpabrt (99)
-//    endif
-//
-//    call mpsub (a, b, c, mpnw)
-//    call mpsub (a(la:), b(lb:), c(lc:), mpnw)
-//    return
-//    end subroutine mpcsub
+        
+        //   This routine subtracts the MPC numbers A and B.
+        
+        var la, lb, lc : Int
+        
+        // End of declaration
+        
+        la = Int(a[0])
+        lb = Int(b[0])
+        lc = Int(c[0])
+        if (mpnw < 4 || a[0] < abs (a[2]) + 4 || a[la] < abs (a[la+2]) + 4
+            || b[0] < abs (b[2]) + 4 || b[lb] < abs (b[lb+2]) + 4 ||
+            Int(c[0]) < mpnw + 6 || Int(c[lc]) < mpnw + 6) {
+            print ("*** MPCSUB: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        mpsub (a, b, &c, mpnw)
+        var t = MPRNumber(c[lc...])
+        mpsub (MPRNumber(a[la...]), MPRNumber(b[lb...]), &t, mpnw)
+        c[lc...] = t[0...]
+    } // mpcsub
     
     static func mpdmc (_ a : Double, _ n : Int, _ b: inout MPRNumber, _ mpnw: Int) {
         
         //   This routine converts the DP number A * 2^N to MPR form in B.
         
-        //   NOTE however that if A = 0.1D0, for example, then B will NOT be the true
+        //   NOTE however that if A = 0.1D0, for example, { B will NOT be the true
         //   multiprecision equivalent of 1/10, since 0.1d0 is not an exact binary value.
         
-        //   Examples of exact binary values (good): 123456789.d0, 0.25d0, -5.3125d0.
+        //   Examples of exact binary values (good): 123456789.0, 0.25d0, -5.3125d0.
         //   Examples of inexact binary values (bad): 0.1d0, 1234567.8d0, -3333.3d0.
         
         var gi, n1, n2 : Int
@@ -437,7 +412,7 @@ extension MPFUN {
         //   12 significant decimal digits) in A.  If more nonzero bits are present,
         //   an error is flagged.
         
-        //   Examples of exact binary values (good): 123456789.d0, 0.25d0, -5.3125d0.
+        //   Examples of exact binary values (good): 123456789.0, 0.25d0, -5.3125d0.
         //   Examples of inexact binary values (bad): 0.1d0, 123467.8d0, -3333.3d0.
         
         var t1, t2 : Double
@@ -501,8 +476,8 @@ extension MPFUN {
         //   Sets B to the integer part of the MPR number A and sets C equal to the
         //   fractional part of A.  Note this is NOT the quite same as the greatest
         //   integer function as often defined in some mathematical books and papers.
-        //   Examples:  If A = 1.95, then B = 1., C = 0.95.
-        //     If A = -3.25, then B = -3., C = -0.25.
+        //   Examples:  If A = 1.95, { B = 1., C = 0.95.
+        //     If A = -3.25, { B = -3., C = -0.25.
         
         var ia, ma, na, nb, nc : Int
         
@@ -745,9 +720,9 @@ extension MPFUN {
         
         //   This routine returns up to MPNW mantissa words of the product.  If the
         //   complete double-long product of A and B is desired (for example in large
-        //   integer applications), then MPNW must be at least as large as the sum of
+        //   integer applications), { MPNW must be at least as large as the sum of
         //   the mantissa lengths of A and B.  In other words, if the precision levels
-        //   of A and B are both 64 words, then MPNW must be at least 128 words to
+        //   of A and B are both 64 words, { MPNW must be at least 128 words to
         //   produce the complete double-long product in C.
         
         var i1, i2, j3, ia, ib, na, nb, nc, n2 : Int
@@ -887,7 +862,7 @@ extension MPFUN {
         //   This routine multiplies the MPR number A by the DP number B to yield C.
         
         //   Note, however, that if B = 0.1D0 for example (or any other value that
-        //   is not either a whole number or exact binary fraction), then C will NOT
+        //   is not either a whole number or exact binary fraction), { C will NOT
         //   be the true multiprecision product A * B.  This is because the double
         //   precision value 0.1d0 is only a 15-digit approximation of 1/10, and thus
         //   the product C will only be good to 15 digits or so.
@@ -1005,7 +980,7 @@ extension MPFUN {
         //   (approximately 12 significant decimal digits) in B.  If more nonzero bits
         //   are present, an error is flagged.
         
-        //   Examples of exact binary values (good): 123456789.d0, 0.25d0, -5.3125d0.
+        //   Examples of exact binary values (good): 123456789.0, 0.25d0, -5.3125d0.
         //   Examples of inexact binary values (bad): 0.1d0, 123467.8d0, -3333.3d0.
         
         var t1, t2 : Double
@@ -1197,11 +1172,11 @@ extension MPFUN {
         
         //   This routine divides the MPR number A by the DP number B to yield C.
         
-        //   NOTE however that if A = 0.1D0, for example, then C will NOT be the true
+        //   NOTE however that if A = 0.1D0, for example, { C will NOT be the true
         //   multiprecision equivalent of the quotient, since 0.1d0 is not an exact
         //   binary value.
         
-        //   Examples of exact binary values (good): 123456789.d0, 0.25d0, -5.3125d0.
+        //   Examples of exact binary values (good): 123456789.0, 0.25d0, -5.3125d0.
         //   Examples of inexact binary values (bad): 0.1d0, 1234567.8d0, -3333.3d0.
         
         var iss, ia, ib, j, md, na, nc, n1 : Int
@@ -1371,7 +1346,7 @@ extension MPFUN {
         //   (approximately 12 significant decimal digits) in B.  If more nonzero bits
         //   are present, an error is flagged.
         
-        //   Examples of exact binary values (good): 123456789.d0, 0.25d0, -5.3125d0.
+        //   Examples of exact binary values (good): 123456789.0, 0.25d0, -5.3125d0.
         //   Examples of inexact binary values (bad): 0.1d0, 123467.8d0, -3333.3d0.
         
         var t1, t2 : Double
@@ -1482,7 +1457,7 @@ extension MPFUN {
             mpabrt (56)
         }
         
-        //   Add or subtract 1/2 from the input, depending on its sign, then
+        //   Add or subtract 1/2 from the input, depending on its sign, {
         //   return the greatest integer.
         
         s0[0] = Double(mpnw + 6)
@@ -2421,7 +2396,7 @@ extension MPFUN {
     } //  mpfftrc
     
 
-    static func mpfft1 (_ iss : Int, _ m : Int, _ n1 : Int, _ n2 : Int, _ x: inout [MPRComplex], _ y: inout MPRComplex) {
+    static func mpfft1 (_ iss : Int, _ m : Int, _ n1 : Int, _ n2 : Int, _ x: inout [MPRComplex], _ y: inout [MPRComplex]) {
         
         //   This routine performs a complex-to-complex FFT.  IS is the sign of the
         //   transform, N = 2^M is the size of the transform.  N1 = 2^M1 and N2 = 2^M2,
@@ -2433,12 +2408,12 @@ extension MPFUN {
         
         //   This employs the two-pass variant of the "four-step" FFT.  See the
         //   article by David H. Bailey in J. of Supercomputing, March 1990, p. 23-35.
-        var iss, iu, j, j2, k, ku,m1, m2, nr1, nr2 : Int
+        var iss, iu, j2, ku, m1, m2, nr1, nr2 : Int
         let zero = MPRComplex(repeating: Complex64(), count:mpnrow+mpnsp1+1)
         var z1 = [MPRComplex](repeating: zero, count:n1+1)
         var z2 = z1
         
-        let n = Int(pow(2.0, Double(m)))
+      //  let n = Int(pow(2.0, Double(m)))
         m1 = (m + 1) / 2
         m2 = m - m1
         nr1 = min (n1, mpnrow)
@@ -2457,7 +2432,7 @@ extension MPFUN {
             
             //   Perform NR1 FFTs, each of length N2.
             
-            mpfft2 (iss, nr1, m2, n2, &z1, z2)
+            mpfft2 (iss, nr1, m2, n2, &z1, &z2)
             
             //   Multiply the resulting NR1 x N2 complex block by roots of unity and
             //   store transposed into the appropriate section of Y.
@@ -2521,14 +2496,12 @@ extension MPFUN {
         //   The arrays MPUU1 and MPUU2 must have been initialized by calling MPINIFFT.
         //   This routine is not intended to be called directly by the user.
         
-        var iss, j, l, m, n, ns : Int
-        
         //   Perform the second variant of the Stockham FFT.
         var flag = false
         for l in stride(from: 1, through:m, by:2) {
-            mpfft3 (iss, l, ns, m, n, x, y)
+            mpfft3 (iss, l, ns, m, n, &x, &y)
             if (l == m) { flag = true; break /* goto 100 */ }
-            mpfft3 (iss, l + 1, ns, m, n, y, x)
+            mpfft3 (iss, l + 1, ns, m, n, &y, &x)
         }
         
         if !flag { return }
@@ -2547,7 +2520,7 @@ extension MPFUN {
         
     } //  mpfft2
     
-    static func mpfft3 (_ iss : Int, _ l : Int, _ ns : Int, _ m : Int, _ n : Int, _ x: inout MPRComplex, _ y: inout MPRComplex) {
+    static func mpfft3 (_ iss : Int, _ l : Int, _ ns : Int, _ m : Int, _ n : Int, _ x: inout [MPRComplex], _ y: inout [MPRComplex]) {
     
     //   This performs the L-th iteration of the second variant of the Stockham FFT
     //   on the NS vectors in X.  X is input/output, and Y is a scratch array.
@@ -2759,7 +2732,7 @@ extension MPFUN {
 //    } else {
 //    t2 = aint (t1 - 0.5d0)
 //    }
-//    c(i] = t2
+//    c[i] = t2
 //    c0 = max (c0, abs (dble ((t2 - t1))))
 //    }
 //
@@ -2793,7 +2766,7 @@ extension MPFUN {
 //    // End of declaration
 //
 //    if (mpnw < 4 || a[0] < abs (a[2]) + 4 || b[0] < abs (b[2]) + 4 || &
-//    c(0] < mpnw + 6) {
+//    c[0] < mpnw + 6) {
 //    write (mpldb, 1)
 //    1 format ("*** MPMULX: uninitialized or inadequately sized arrays")
 //    mpabrt (99)
@@ -2951,7 +2924,7 @@ extension MPFUN {
     //   NOTE however that if A = 0.1q0, for example, { B will NOT be the true
     //   multiprecision equivalent of 1/10, since 0.1q0 is not an exact binary value.
     
-    //   Examples of exact binary values (good): 123456789.d0, 0.25d0, -5.3125d0.
+    //   Examples of exact binary values (good): 123456789.0, 0.25d0, -5.3125d0.
     //   Examples of inexact binary values (bad): 0.1d0, 1234567.8d0, -3333.3d0.
 //
 //    implicit none
@@ -2960,7 +2933,7 @@ extension MPFUN {
 //    //>  Uncomment this line if real*16 is supported.
 //    // parameter (knd = kind (0.q0))
 //    //>  Otherwise uncomment this line.
-//    parameter (knd = kind (0.d0))
+//    parameter (knd = kind (0.0))
 //
 //    real (knd) a, aa
 //    real (mprknd) b[0:*)
