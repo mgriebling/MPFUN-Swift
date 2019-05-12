@@ -63,7 +63,7 @@ extension MPFUN {
         
         //   Sets the MPC number B equal to A.
         
-        var ia, la, lb, mpnw, na : Int
+        var ia, la, lb, na : Int
         
         // End of declaration
         
@@ -249,7 +249,7 @@ extension MPFUN {
         
         la = Int(a[0])
         lb = Int(b[0])
-        if (mpnw < 4 || a[0] < abs (a[2]) + 4 || a[la] < abs (a[la+2]) + 4 || Int(b[0]) < mpnw + 6 || b[lb] < mpnw + 6) {
+        if (mpnw < 4 || a[0] < abs (a[2]) + 4 || a[la] < abs (a[la+2]) + 4 || Int(b[0]) < mpnw + 6 || Int(b[lb]) < mpnw + 6) {
             print ("*** MPCSQRT: uninitialized or inadequately sized arrays")
             mpabrt (99)
         }
@@ -2256,7 +2256,7 @@ extension MPFUN {
 //        return
     } //  mpdivx
     
-    static func mpfftcr (_ iss : Int, _ m : Int, _ n : Int, _ nsq : Int, x : inout MPRComplex, y : inout MPRNumber) {
+    static func mpfftcr (_ iss : Int, _ m : Int, _ n : Int, _ nsq : Int, _ x : inout MPRComplex, _ y : inout MPRNumber) {
         
         //   This performs an N-point complex-to-real FFT, where N = 2^M.  X is the
         //   double complex input array, and Y is the double precision output array.
@@ -2314,8 +2314,9 @@ extension MPFUN {
         }
 
         //   Perform a normal N/2-point FFT on DC1.
-
-        mpfft1 (iss, m - 1, n1, n2 / n1, &dc1, &x)
+        // Not sure how to deal with this?
+        guard false else { return }
+       // mpfft1 (iss, m - 1, n1, n2 / n1, &dc1, &x)
 
         //   Copy DC1 to Y such that DC1(k) = Y(2k-1) + i Y(2k).
 
@@ -2360,7 +2361,9 @@ extension MPFUN {
         
         //   Perform a normal N/2-point FFT on DC1.
         
-        mpfft1 (iss, m - 1, n1, n2 / n1, &dc1, &y)
+        // Not sure how to deal with this?
+        guard false else { return }
+        // mpfft1 (iss, m - 1, n1, n2 / n1, &dc1, &y)
         
         //   Reconstruct the FFT of X.
         
@@ -2408,7 +2411,7 @@ extension MPFUN {
         
         //   This employs the two-pass variant of the "four-step" FFT.  See the
         //   article by David H. Bailey in J. of Supercomputing, March 1990, p. 23-35.
-        var iss, iu, j2, ku, m1, m2, nr1, nr2 : Int
+        var iu, j2, ku, m1, m2, nr1, nr2 : Int
         let zero = MPRComplex(repeating: Complex64(), count:mpnrow+mpnsp1+1)
         var z1 = [MPRComplex](repeating: zero, count:n1+1)
         var z2 = z1
@@ -2431,7 +2434,6 @@ extension MPFUN {
             }
             
             //   Perform NR1 FFTs, each of length N2.
-            
             mpfft2 (iss, nr1, m2, n2, &z1, &z2)
             
             //   Multiply the resulting NR1 x N2 complex block by roots of unity and
@@ -2470,7 +2472,7 @@ extension MPFUN {
             //   Copy NR2 x N1 complex block back into X array.  It"s a little more
             //   complicated if M is odd.
             
-            if m % 2 == 0 {
+            if m.isMultiple(of: 2) {
                 for j in 1...n1 {
                     for k in 1...nr2 {
                         x[i+k][j] = z2[k][j]
@@ -2521,494 +2523,473 @@ extension MPFUN {
     } //  mpfft2
     
     static func mpfft3 (_ iss : Int, _ l : Int, _ ns : Int, _ m : Int, _ n : Int, _ x: inout [MPRComplex], _ y: inout [MPRComplex]) {
-    
-    //   This performs the L-th iteration of the second variant of the Stockham FFT
-    //   on the NS vectors in X.  X is input/output, and Y is a scratch array.
-    //   The arrays MPUU1 and MPUU2 must have been initialized by calling MPINIFFT.
-    //   This routine is not intended to be called directly by the user.
-    
-//    implicit none
-//    integer i, is, i11, i12, i21, i22, j, k, l, li, lj, lk, ku, m, n, n1, ns
-//    complex (mprknd) x(mpnrow+mpnsp1,n), y(mpnrow+mpnsp1,n), u1, x1, x2
-//
-//    //   Set initial parameters.
-//
-//    n1 = n / 2
-//    lk = 2 ** (l - 1)
-//    li = 2 ** (m - l)
-//    lj = 2 * lk
-//    ku = li + 1
-//
-//    for i in 0, li - 1
-//    i11 = i * lk + 1
-//    i12 = i11 + n1
-//    i21 = i * lj + 1
-//    i22 = i21 + lk
-//    if (iss == 1) {
-//    u1 = mpuu1(i+ku)
-//    } else {
-//    u1 = conjg (mpuu1(i+ku))
-//    }
-//
-//    for k = 0, lk - 1
-//    for j = 1, ns
-//    x1 = x[j,i11+k]
-//    x2 = x[j,i12+k]
-//    y[j,i21+k] = x1 + x2
-//    y[j,i22+k] = u1 * (x1 - x2)
-//    }
-//    }
-//    }
-//
-//    return
+        
+        //   This performs the L-th iteration of the second variant of the Stockham FFT
+        //   on the NS vectors in X.  X is input/output, and Y is a scratch array.
+        //   The arrays MPUU1 and MPUU2 must have been initialized by calling MPINIFFT.
+        //   This routine is not intended to be called directly by the user.
+        
+        var i11, i12, i21, i22, li, lj, lk, ku, n1 : Int
+        var u1, x1, x2 : Complex64
+        
+        //   Set initial parameters.
+        
+        n1 = n / 2
+        lk = Int(pow(2, Double(l - 1)))
+        li = Int(pow(2, Double(m - l)))
+        lj = 2 * lk
+        ku = li + 1
+        
+        for i in 0...li - 1 {
+            i11 = i * lk + 1
+            i12 = i11 + n1
+            i21 = i * lj + 1
+            i22 = i21 + lk
+            if (iss == 1) {
+                u1 = mpuu1[i+ku]
+            } else {
+                u1 = mpuu1[i+ku].conj
+            }
+            
+            for k in 0...lk - 1 {
+                for j in 1...ns {
+                    x1 = x[j][i11+k]
+                    x2 = x[j][i12+k]
+                    y[j][i21+k] = x1 + x2
+                    y[j][i22+k] = u1 * (x1 - x2)
+                }
+            }
+        }
     } //  mpfft3
     
     static func mpinifft (_ mpnw : Int) {
-    
-    //   This computes the root of unity arrays UU1 and UU2, which are required by
-    //   the FFT routines, and places this data in the proper arrays defined in
-    //   module MPFUNA.  MPNW is the largest precision level (in words) that will be
-    //   subsequently used for this run.
-    
-//    implicit none
-//    integer i, iu, j, k, ku, ln, m, mm, mm1, mm2, mq, nn, nn1, nn2, nq, mpnw, nwds
-//    real (mprknd) cl2, d1, mprxx
-//    parameter (cl2 = 1.4426950408889633d0, mprxx = 1d-14)
-//    real (mprknd) pi, t1, ti, tpn
-//
-//    //  Determine sizes for FFT arrays.  Three words are added to mpnw, since many
-//    //  routines in MPFUND in particular increase the working precision upon entry.
-//
-//    nwds = mpnw + 3
-//    d1 = 1.5d0 * (nwds + 1)
-//    m = cl2 * log (d1) + 1 - mprxx
-//    mq = m + 2
-//    nq = 2 ** mq
-//
-//    if (mq + nq > mplfftx) {
-//    write (6, 1) mq + nq
-//    1 format ("*** MPINIFFT: Insufficient space for arrays mpuu1 and mpuu2."/ &
-//    "At least",i12," double complex cells must be allocated for each of"/ &
-//    "these arrays in module mpfuna. See documentation for details.")
-//    mpabrt (91)
-//    }
-//
-//    mpuu1(1) = mq
-//    ku = 2
-//    ln = 1
-//    pi = acos (-1)
-//
-//    for j = 1, mq
-//    t1 = pi / ln
-//
-//    for i in 0, ln - 1
-//    ti = i * t1
-//    mpuu1(i+ku) = Complex64(cos (ti), sin (ti), mprknd)
-//    }
-//
-//    ku = ku + ln
-//    ln = 2 * ln
-//    }
-//
-//    // write (6, 2) ku - 1
-//    // 2 format ("MPINIFFT: Size of table mpuu1 =",i10)
-//
-//    ku = mq + 1
-//    mpuu2(1) = mq
-//
-//    for k = 2, mq
-//    mpuu2(k) = Complex64(0, 0, mprknd)
-//    }
-//
-//    for k = 2, mq - 1
-//    mpuu2(k) = ku
-//    mm = k
-//    nn = 2 ** mm
-//    mm1 = (mm + 1) / 2
-//    mm2 = mm - mm1
-//    nn1 = 2 ** mm1
-//    nn2 = 2 ** mm2
-//    tpn = 2 * pi / nn
-//
-//    for j = 0, nn2 - 1
-//    for i in 0, nn1 - 1
-//    iu = ku + i + j * nn1
-//    t1 = tpn * i * j
-//    mpuu2(iu) = Complex64(cos (t1), sin (t1), mprknd)
-//    }
-//    }
-//
-//    ku = ku + nn
-//    }
-//
-//    // write (6, 3) ku - 1
-//    // 3 format ("MPINIFFT: Size of table mpuu2 =",i10)
-//
-//    return
+        
+        //   This computes the root of unity arrays UU1 and UU2, which are required by
+        //   the FFT routines, and places this data in the proper arrays defined in
+        //   module MPFUNA.  MPNW is the largest precision level (in words) that will be
+        //   subsequently used for this run.
+        
+        var iu, ku, ln, m, mm, mm1, mm2, mq, nn, nn1, nn2, nq, nwds : Int
+        var d1 : Double
+        let cl2 = 1.4426950408889633; let mprxx = 1e-14
+        var pi, t1, ti, tpn : Double
+        
+        //  Determine sizes for FFT arrays.  Three words are added to mpnw, since many
+        //  routines in MPFUND in particular increase the working precision upon entry.
+        
+        nwds = mpnw + 3
+        d1 = 1.5 * Double((nwds + 1))
+        m = Int(cl2 * log (d1) + 1 - mprxx)
+        mq = m + 2
+        nq = Int(pow(2, Double(mq)))
+        
+        if (mq + nq > mplfftx) {
+            print ("*** MPINIFFT: Insufficient space for arrays mpuu1 and mpuu2.",
+                "At least \(mq + nq) double complex cells must be allocated for each of",
+                "these arrays in module mpfuna. See documentation for details.")
+            mpabrt (91)
+        }
+        
+        mpuu1[1] = Complex64(Double(mq),0)
+        ku = 2
+        ln = 1
+        pi = acos (-1)
+        
+        for _ in 1...mq {
+            t1 = pi / Double(ln)
+            
+            for i in 0...ln - 1 {
+                ti = Double(i) * t1
+                mpuu1[i+ku] = Complex64(cos (ti), sin (ti))
+            }
+            
+            ku = ku + ln
+            ln = 2 * ln
+        }
+        
+        // write (6, 2) ku - 1
+        // 2 format ("MPINIFFT: Size of table mpuu1 =",i10)
+        
+        ku = mq + 1
+        mpuu2[1] = Complex64(Double(mq),0)
+        
+        for k in 2...mq {
+            mpuu2[k] = Complex64(0, 0)
+        }
+        
+        for k in 2...mq - 1 {
+            mpuu2[k] = Complex64(Double(ku),0)
+            mm = k
+            nn = Int(pow(2, Double(mm)))
+            mm1 = (mm + 1) / 2
+            mm2 = mm - mm1
+            nn1 = Int(pow(2, Double(mm1)))
+            nn2 = Int(pow(2, Double(mm2)))
+            tpn = 2 * pi / Double(nn)
+            
+            for j in 0...nn2 - 1 {
+                for i in 0...nn1 - 1 {
+                    iu = ku + i + j * nn1
+                    t1 = tpn * Double(i * j)
+                    mpuu2[iu] = Complex64(cos (t1), sin (t1))
+                }
+            }
+            
+            ku = ku + nn
+        }
+        
+        // write (6, 3) ku - 1
+        // 3 format ("MPINIFFT: Size of table mpuu2 =",i10)
+        
     } //  mpinifft
    
  
     static func mplconv (_ iq: Int, _ n: Int, _ nsq: Int, _ a: MPRNumber, _ b: MPRNumber, _ c: inout MPRNumber) {
-    
-    //   This computes the linear convolution of A and B, returning the result
-    //   in C.  If IQ is 1, { it is presumed B = A; if IQ = 2, { A //= B.
-    //   NSQ is a spacing parameter, which should be set to more than sqrt (3*n).
-    
-//    implicit none
-//    integer i, iq, m1, m2, n, n1, n2, n4, nm, nsq
-//    real (mprknd) cl2, c0, mprxx, mpffterrmx
-//    parameter (cl2 = 1.4426950408889633d0, mprxx = 1d-14, mpffterrmx = 0.375d0)
-//    real (mprknd) a(n), an, b(n), c(2*n), d1(6*n+2), d2(6*n+2), d3(6*n+2), t1, t2
-//    complex (mprknd) dc1(3*n+nsq*mpnsp1+3), dc2(3*n+nsq*mpnsp1+3)
-//
-//    t1 = n
-//    m1 = cl2 * log (t1) + 1 - mprxx
-//    n1 = 2 ** m1
-//    m2 = m1 + 1
-//    n2 = 2 * n1
-//    n4 = 2 * n2
-//    nm = min (2 * n, n2)
-//
-//    if (abs (iq) == 1) {
-//
-//    //   Compute the square of a -- only one forward FFT is needed.
-//
-//    for i in 1, n
-//    d1(i] = a[i]
-//    }
-//
-//    for i in n + 1, n2
-//    d1(i] = 0
-//    }
-//
-//    //   Perform a forward real-to-complex FFT on the vector in a.
-//
-//    mpfftrc (1, m2, n2, nsq, d1, dc1)
-//
-//    //   Square the resulting complex vector.
-//
-//    for i in 1, n1 + 1
-//    dc1[i] = dc1[i] ** 2
-//    }
-//    } else {
-//
-//    //   Compute the product of a and b -- two forward FFTs are needed.
-//    for i in 1, n
-//    d1(i] = a[i]
-//    d2(i] = b[i]
-//    }
-//
-//    for i in n + 1, n2
-//    d1(i] = 0
-//    d2(i] = 0
-//    }
-//
-//    //   Perform forward real-to-complex FFTs on the vectors in a and b.
-//
-//    mpfftrc (1, m2, n2, nsq, d1, dc1)
-//    mpfftrc (1, m2, n2, nsq, d2, dc2)
-//
-//    //   Multiply the resulting complex vectors.
-//
-//    for i in 1, n1 + 1
-//    dc1[i] = dc1[i] * dc2(i]
-//    }
-//    }
-//
-//    //   Perform an inverse complex-to-real FFT on the resulting data.
-//
-//    mpfftcr (-1, m2, n2, nsq, dc1, d3)
-//
-//    //   Divide by N4.
-//
-//    an = 1 / n4
-//    c0 = 0
-//
-//    for i in 1, nm
-//    t1 = an * d3(i]
-//    //  t2 = anint (t1)
-//    if (d3(i] >= 0) {
-//    t2 = aint (t1 + 0.5d0)
-//    } else {
-//    t2 = aint (t1 - 0.5d0)
-//    }
-//    c[i] = t2
-//    c0 = max (c0, abs (dble ((t2 - t1))))
-//    }
-//
-//    mpffterr = max (c0, mpffterr)
-//    if (c0 > mpffterrmx) {
-//    write (6, 1) c0
-//    1 format ("*** MPLCONV: excessive rounding error =",f12.6)
-//    mpabrt (55)
-//    }
-//
-//    return
+        
+        //   This computes the linear convolution of A and B, returning the result
+        //   in C.  If IQ is 1, { it is presumed B = A; if IQ = 2, { A //= B.
+        //   NSQ is a spacing parameter, which should be set to more than sqrt (3*n).
+        
+        var m1, m2, n1, n2, n4, nm : Int
+        var c0, an, t1, t2 : Double
+        let cl2 = 1.4426950408889633; let mprxx = 1e-14; let mpffterrmx = 0.375
+        var d1 = MPRNumber(repeating:0, count:6*n+3); var d2 = d1; var d3 = d1
+        var dc1 = MPRComplex(repeating: Complex64(), count:3*n+nsq*mpnsp1+4); var dc2 = dc1
+        
+        t1 = Double(n)
+        m1 = Int(cl2 * log (t1) + Double(1 - mprxx))
+        n1 = Int(pow(2, Double(m1)))
+        m2 = m1 + 1
+        n2 = 2 * n1
+        n4 = 2 * n2
+        nm = min (2 * n, n2)
+        
+        if (abs (iq) == 1) {
+            
+            //   Compute the square of a -- only one forward FFT is needed.
+            
+            for i in 1...n {
+                d1[i] = a[i]
+            }
+            
+            for i in n + 1...n2 {
+                d1[i] = 0
+            }
+            
+            //   Perform a forward real-to-complex FFT on the vector in a.
+            
+            mpfftrc (1, m2, n2, nsq, d1, &dc1)
+            
+            //   Square the resulting complex vector.
+            
+            for i in 1...n1 + 1 {
+                dc1[i] = dc1[i] ** 2
+            }
+        } else {
+            
+            //   Compute the product of a and b -- two forward FFTs are needed.
+            for i in 1...n {
+                d1[i] = a[i]
+                d2[i] = b[i]
+            }
+            
+            for i in n + 1...n2 {
+                d1[i] = 0
+                d2[i] = 0
+            }
+            
+            //   Perform forward real-to-complex FFTs on the vectors in a and b.
+            
+            mpfftrc (1, m2, n2, nsq, d1, &dc1)
+            mpfftrc (1, m2, n2, nsq, d2, &dc2)
+            
+            //   Multiply the resulting complex vectors.
+            
+            for i in 1...n1 + 1 {
+                dc1[i] = dc1[i] * dc2[i]
+            }
+        }
+        
+        //   Perform an inverse complex-to-real FFT on the resulting data.
+        
+        mpfftcr (-1, m2, n2, nsq, &dc1, &d3)
+        
+        //   Divide by N4.
+        
+        an = Double(1 / n4)
+        c0 = 0
+        
+        for i in 1...nm {
+            t1 = an * d3[i]
+            //  t2 = anint (t1)
+            if (d3[i] >= 0) {
+                t2 = aint (t1 + 0.5)
+            } else {
+                t2 = aint (t1 - 0.5)
+            }
+            c[i] = t2
+            c0 = max (c0, abs (Double ((t2 - t1))))
+        }
+        
+        mpffterr = max (c0, mpffterr)
+        if (c0 > mpffterrmx) {
+            print ("*** MPLCONV: excessive rounding error = \(c0)")
+            mpabrt (55)
+        }
     } //  mplconv
     
-    static func mpmulx (_ a: MPRNumber, _ b: MPRNumber, _ c: inout MPRNumber, _ mpnw: Int) {
     
-    //   This routine multiplies MP numbers A and B to yield the MP product C,
-    //   using a FFT-convolution technique.  Before calling MPMULX, the arrays
-    //   UU1 and UU2 must be initialized by calling MPINIFFT.  For modest levels
-    //   of precision, use MPMUL.
-//
-//    implicit none
-//    integer i, i1, ia, ib, j, k, mpnw, na, nb, nc, nn, nx
-//    real (mprknd) mprxx
-//    parameter (mprxx = 1d-14)
-//    real (mprknd) a(0:), b(0:), c(0:), d(0:mpnw+7), &
-//    t0, t1, t2, t3, t4, t5, r16, t16, r32, t32, r48, t48
-//    parameter (r16 = 0.5d0**16, t16 = 2**16, r32 = 0.5d0**32, t32 = 2**32, &
-//    r48 = 0.5d0**48, t48 = 2**48)
-//    real (mprknd) d1(0:3*mpnw+16), d2(0:3*mpnw+16), d3(0:6*mpnw+32)
-//
-//    // End of declaration
-//
-//    if (mpnw < 4 || a[0] < abs (a[2]) + 4 || b[0] < abs (b[2]) + 4 || &
-//    c[0] < mpnw + 6) {
-//    write (mpldb, 1)
-//    1 format ("*** MPMULX: uninitialized or inadequately sized arrays")
-//    mpabrt (99)
-//    }
-//
-//    ia = sign (1, a[2])
-//    ib = sign (1, b[2])
-//    na = min (int (abs (a[2])), mpnw)
-//    nb = min (int (abs (b[2])), mpnw)
-//    nc = min (na + nb, mpnw)
-//    nn = 3 * max (na, nb)
-//    nx = sqrt (3 * nn) + mprxx
-//
-//    //   Divide each word into three 16-bit chunks.
-//
-//    for i in 0, na - 1
-//    t1 = a[i+4]
-//    d1(3*i] = aint (r32 * t1)
-//    t1 = t1 - t32 * d1(3*i]
-//    d1(3*i+1] = aint (r16 * t1)
-//    d1(3*i+2] = t1 - t16 * d1(3*i+1]
-//    }
-//
-//    for i in 3 * na, nn - 1
-//    d1(i] = 0
-//    }
-//
-//    //   If A is the same array as B, { there is no need to deal with B.
-//
-//    if (loc (a) == loc (b)) {
-//    mplconv (1, nn, nx, d1, d2, d3)
-//    } else {
-//    for i in 0, nb - 1
-//    t1 = b[i+4]
-//    d2(3*i] = aint (r32 * t1)
-//    t1 = t1 - t32 * d2(3*i]
-//    d2(3*i+1] = aint (r16 * t1)
-//    d2(3*i+2] = t1 - t16 * d2(3*i+1]
-//    }
-//
-//    for i in 3 * nb, nn - 1
-//    d2(i] = 0
-//    }
-//
-//    mplconv (2, nn, nx, d1, d2, d3)
-//    }
-//
-//    //   Release carries.
-//
-//    for i in 0, 3 * nc + 13
-//    d1(i] = 0
-//    }
-//
-//    for i in 0, min (3 * nc + 9, 2 * nn - 1)
-//    t0 = d3(i]
-//    t1 = aint (r48 * t0)
-//    t2 = t0 - t48 * t1
-//    t3 = aint (r32 * t2)
-//    t4 = t2 - t32 * t3
-//    t5 = aint (r16 * t4)
-//    d1(i+3] = t4 - t16 * t5
-//    d1(i+2] = d1(i+2] + t5
-//    d1(i+1] = d1(i+1] + t3
-//    d1(i] = d1(i] + t1
-//    }
-//
-//    //  Recombine words, with proper offset.
-//
-//    d[0] = 0
-//    d[1] = 0
-//    d[2] = 0
-//    d[3] = 0
-//
-//    for i in 0, nc + 3
-//    d[i+4] = t32 * d1(3*i+2] + t16 * d1(3*i+3] + d1(3*i+4]
-//    }
-//
-//    d[0] = mpnw + 6
-//    d[1] = mpnw
-//    d[2] = sign (nc, ia * ib)
-//    d[3] = a[3] + b[3] + 1
-//
-//    //   Fix up the result.
-//
-//    d1(0] = mpnw + 6
-//    mpnorm (d, c, mpnw)
-//
-//    190 continue
-//
-//    return
+    static func mpmulx (_ a: MPRNumber, _ b: MPRNumber, _ c: inout MPRNumber, _ mpnw: Int) {
+        
+        //   This routine multiplies MP numbers A and B to yield the MP product C,
+        //   using a FFT-convolution technique.  Before calling MPMULX, the arrays
+        //   UU1 and UU2 must be initialized by calling MPINIFFT.  For modest levels
+        //   of precision, use MPMUL.
+        
+        var ia, ib, na, nb, nc, nn, nx : Int
+        let mprxx = 1e-14
+        var d = MPRNumber(repeating: 0, count:mpnw+8)
+        var t0, t1, t2, t3, t4, t5 : Double
+        let r16 = pow(0.5, Double(16)); let t16 = Double(1<<16); let r32 = pow(0.5, Double(32))
+        let t32 = Double(1<<32); let r48 = pow(0.5, Double(48)); let t48 = Double(1<<48)
+        var d1 = MPRNumber(repeating: 0, count:3*mpnw+17); var d2 = d1
+        var d3 = MPRNumber(repeating: 0, count:6*mpnw+33)
+        
+        // End of declaration
+        
+        if mpnw < 4 || a[0] < abs (a[2]) + 4 || b[0] < abs (b[2]) + 4 || Int(c[0]) < mpnw + 6 {
+            print ("*** MPMULX: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        ia = sign (1, a[2])
+        ib = sign (1, b[2])
+        na = min (Int (abs (a[2])), mpnw)
+        nb = min (Int (abs (b[2])), mpnw)
+        nc = min (na + nb, mpnw)
+        nn = 3 * max (na, nb)
+        nx = Int(sqrt (Double(3 * nn)) + mprxx)
+        
+        //   Divide each word into three 16-bit chunks.
+        
+        for i in 0...na - 1 {
+            t1 = a[i+4]
+            d1[3*i] = aint (r32 * t1)
+            t1 = t1 - t32 * d1[3*i]
+            d1[3*i+1] = aint (r16 * t1)
+            d1[3*i+2] = t1 - t16 * d1[3*i+1]
+        }
+        
+        for i in 3 * na...nn - 1 {
+            d1[i] = 0
+        }
+        
+        //   If A is the same array as B, { there is no need to deal with B.
+        
+        //        if (loc (a) == loc (b)) {
+        //            mplconv (1, nn, nx, d1, d2, &d3)
+        //        } else {
+        for i in 0...nb - 1 {
+            t1 = b[i+4]
+            d2[3*i] = aint (r32 * t1)
+            t1 = t1 - t32 * d2[3*i]
+            d2[3*i+1] = aint (r16 * t1)
+            d2[3*i+2] = t1 - t16 * d2[3*i+1]
+        }
+        
+        for i in 3 * nb...nn - 1 {
+            d2[i] = 0
+        }
+        
+        mplconv (2, nn, nx, d1, d2, &d3)
+        //       }
+        
+        //   Release carries.
+        
+        for i in 0...3 * nc + 13 {
+            d1[i] = 0
+        }
+        
+        for i in 0...min (3 * nc + 9, 2 * nn - 1) {
+            t0 = d3[i]
+            t1 = aint (r48 * t0)
+            t2 = t0 - t48 * t1
+            t3 = aint (r32 * t2)
+            t4 = t2 - t32 * t3
+            t5 = aint (r16 * t4)
+            d1[i+3] = t4 - t16 * t5
+            d1[i+2] = d1[i+2] + t5
+            d1[i+1] = d1[i+1] + t3
+            d1[i] = d1[i] + t1
+        }
+        
+        //  Recombine words, with proper offset.
+        
+        d[0] = 0
+        d[1] = 0
+        d[2] = 0
+        d[3] = 0
+        
+        for i in 0...nc + 3 {
+            d[i+4] = t32 * d1[3*i+2] + t16 * d1[3*i+3] + d1[3*i+4]
+        }
+        
+        d[0] = Double(mpnw + 6)
+        d[1] = Double(mpnw)
+        d[2] = Double(sign (Double(nc), Double(ia * ib)))
+        d[3] = a[3] + b[3] + 1
+        
+        //   Fix up the result.
+        
+        d1[0] = Double(mpnw + 6)
+        mpnorm (d, &c, mpnw)
+        
+        // 190 continue
     } //  mpmulx
     
     //>   These two subroutines are for real*16 support.  See "Uncomment" below
     //>   for differences.
     
-    static func mpmqc (_ a: inout MPRNumber, _ b: Double, _ n: Int, _ mpnw: Int) {
-    
-    //   This returns a quad (real*16) approximation the MPR number A in the form B * 2^n.
-    
-//    implicit none
-//    integer i, knd, mpnw, n, na
-//
-//    //>  Uncomment this line if real*16 is supported.
-//    // parameter (knd = kind (0.q0))
-//    //>  Otherwise uncomment this line.
-//    parameter (knd = kind (0))
-//
-//    real (knd) aa, b
-//    real (mprknd) a(0:)
-//
-//    // End of declaration
-//
-//    if (mpnw < 4 || a[0] < abs (a[2]) + 4) {
-//    write (mpldb, 1)
-//    1 format ("*** MPMQC: uninitialized or inadequately sized arrays")
-//    mpabrt (99)
-//    }
-//
-//    if (a[2] == 0)  {
-//    b = 0
-//    n = 0
-//    goto 100
-//    }
-//
-//    na = abs (a[2])
-//    aa = a[4]
-//    if (na >= 2) aa = aa + mprdx * a[5]
-//    if (na >= 3) aa = aa + mprx2 * a[6]
-//    if (na >= 4) aa = aa + mprdx * mprx2 * a[7]
-//
-//    n = mpnbt * a[3]
-//    b = sign (aa, real (a[2], knd))
-//
-//    //   Reduce b to within 1 and 2.
-//
-//    na = log (abs (b)) / log (2) + mprdx
-//    b = b / 2**na
-//    n = n + na
-//    if (abs (b) < 1) {
-//    b = 2 * b
-//    n = n - 1
-//    } else if (abs (b) > 2) {
-//    b = 0.5d0 * b
-//    n = n + 1
-//    }
-//
-//    100  continue
-//    return
+    static func mpmqc (_ a: MPRNumber, _ b: inout Double, _ n: inout Int, _ mpnw: Int) {
+        
+        //   This returns a quad (real*16) approximation the MPR number A in the form B * 2^n.
+        
+        var na : Int
+        
+        //>  Uncomment this line if real*16 is supported.
+        // parameter (knd = kind (0.q0))
+        //>  Otherwise uncomment this line.
+        var aa, b : Double
+        
+        
+        // End of declaration
+        
+        if mpnw < 4 || a[0] < abs (a[2]) + 4 {
+            print ("*** MPMQC: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        if a[2] == 0  {
+            b = 0
+            n = 0
+            return // goto 100
+        }
+        
+        na = Int(abs (a[2]))
+        aa = a[4]
+        if (na >= 2) { aa = aa + mprdx * a[5] }
+        if (na >= 3) { aa = aa + mprx2 * a[6] }
+        if (na >= 4) { aa = aa + mprdx * mprx2 * a[7]}
+        
+        n = mpnbt * Int(a[3])
+        b = Double(sign (aa, a[2]))
+        
+        //   Reduce b to within 1 and 2.
+        
+        na = Int(log(abs (b)) / log(2) + mprdx)
+        b = b / Double(1<<na)
+        n = n + na
+        if (abs (b) < 1) {
+            b = 2 * b
+            n = n - 1
+        } else if (abs (b) > 2) {
+            b = 0.5 * b
+            n = n + 1
+        }
+        
+        // 100  continue
     } //  mpmqc
     
     static func mpqmc (_ a: Double, _ n: Int, _ b: inout MPRNumber, _ mpnw: Int) {
-    
-    //   This routine converts the quad (real*16) number A * 2^N to MPR form in B.
-    
-    //   NOTE however that if A = 0.1q0, for example, { B will NOT be the true
-    //   multiprecision equivalent of 1/10, since 0.1q0 is not an exact binary value.
-    
-    //   Examples of exact binary values (good): 123456789.0, 0.25d0, -5.3125d0.
-    //   Examples of inexact binary values (bad): 0.1d0, 1234567.8d0, -3333.3d0.
-//
-//    implicit none
-//    integer i, k, knd, mpnw, n, n1, n2
-//
-//    //>  Uncomment this line if real*16 is supported.
-//    // parameter (knd = kind (0.q0))
-//    //>  Otherwise uncomment this line.
-//    parameter (knd = kind (0.0))
-//
-//    real (knd) a, aa
-//    real (mprknd) b[0:*)
-//
-//    // End of declaration
-//
-//    if (mpnw < 4 || b[0] < mpnw + 6) {
-//    write (mpldb, 1)
-//    1 format ("*** MPQMC: uninitialized or inadequately sized arrays")
-//    mpabrt (99)
-//    }
-//
-//    //   Check for zero.
-//
-//    if (a == 0) {
-//    b[1] = mpnw
-//    b[2] = 0
-//    b[3] = 0
-//    goto 150
-//    }
-//    n1 = n / mpnbt
-//    n2 = n - mpnbt * n1
-//    aa = abs (a) * 2.q0 ** n2
-//
-//    //   Reduce AA to within 1 and MPBDX.
-//
-//    if (aa >= mpbdx) {
-//
-//    for k = 1, 350
-//    aa = mprdx * aa
-//    if (aa < mpbdx) {
-//    n1 = n1 + k
-//    goto 120
-//    }
-//    }
-//
-//    } else if (aa < 1) {
-//
-//    for k = 1, 350
-//    aa = mpbdx * aa
-//    if (aa >= 1) {
-//    n1 = n1 - k
-//    goto 120
-//    }
-//    }
-//
-//    }
-//
-//    //   Store successive sections of AA into B.
-//
-//    120  continue
-//
-//    b[3] = n1
-//    b[4] = aint (aa)
-//    aa = mpbdx * (aa - b[3+1])
-//    b[5] = aint (aa)
-//    aa = mpbdx * (aa - b[4+1])
-//    b[6] = aint (aa)
-//    aa = mpbdx * (aa - b[5+1])
-//    b[7] = aint (aa)
-//    b[8] = 0
-//    b[9] = 0
-//
-//    for i in 7, 3, -1
-//    if (b[i+1] //= 0) goto 140
-//    }
-//
-//    140  continue
-//
-//    b[1] = mpnw
-//    aa = i - 2
-//    b[2] = sign (aa, a)
-//
-//    150 continue
-//    return
+        
+        //   This routine converts the quad (real*16) number A * 2^N to MPR form in B.
+        
+        //   NOTE however that if A = 0.1q0, for example, { B will NOT be the true
+        //   multiprecision equivalent of 1/10, since 0.1q0 is not an exact binary value.
+        
+        //   Examples of exact binary values (good): 123456789.0, 0.25d0, -5.3125d0.
+        //   Examples of inexact binary values (bad): 0.1d0, 1234567.8d0, -3333.3d0.
+        
+        var n1, n2 : Int
+        
+        //>  Uncomment this line if real*16 is supported.
+        // parameter (knd = kind (0.q0))
+        //>  Otherwise uncomment this line.
+        
+        var aa : Double
+        
+        // End of declaration
+        
+        if mpnw < 4 || Int(b[0]) < mpnw + 6 {
+            print ("*** MPQMC: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        //   Check for zero.
+        
+        if a == 0 {
+            b[1] = Double(mpnw)
+            b[2] = 0
+            b[3] = 0
+            return // goto 150
+        }
+        n1 = n / mpnbt
+        n2 = n - mpnbt * n1
+        aa = abs (a) * pow(2.0, Double(n2))
+        
+        //   Reduce AA to within 1 and MPBDX.
+        
+        if (aa >= mpbdx) {
+            
+            for k in 1...350 {
+                aa = mprdx * aa
+                if (aa < mpbdx) {
+                    n1 = n1 + k
+                    break // goto 120
+                }
+            }
+            
+        } else if (aa < 1) {
+            
+            for k in 1...350 {
+                aa = mpbdx * aa
+                if (aa >= 1) {
+                    n1 = n1 - k
+                    break // goto 120
+                }
+            }
+            
+        }
+        
+        //   Store successive sections of AA into B.
+        
+        // 120  continue
+        
+        b[3] = Double(n1)
+        b[4] = aint (aa)
+        aa = mpbdx * (aa - b[3+1])
+        b[5] = aint (aa)
+        aa = mpbdx * (aa - b[4+1])
+        b[6] = aint (aa)
+        aa = mpbdx * (aa - b[5+1])
+        b[7] = aint (aa)
+        b[8] = 0
+        b[9] = 0
+        
+        var i = 7
+        while i >= 3 {
+            if b[i+1] != 0  { break /* goto 140 */ }
+            i -= 1
+        }
+        
+        // 140  continue
+        
+        b[1] = Double(mpnw)
+        aa = Double(i - 2)
+        b[2] = Double(sign (aa, a))
+        
+        //150 continue
+        // return
     } //  mpqmc
     
     

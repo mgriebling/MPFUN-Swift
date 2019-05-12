@@ -101,6 +101,7 @@ public class MPFUN {
     static let mpnrow = 16
     static let mpnsp1 = 2
     static let mpnsp2 = 9
+    static let mplfftx = 2100000
     
     static let mpbdx = pow(2, Double(mpnbt))
     static let mpbx2 = mpbdx * mpbdx
@@ -110,6 +111,7 @@ public class MPFUN {
     static let mpb24x = pow(2.0, 24.0)
     static let mpr24x = pow(0.5, 24.0)
     static let mprx2 = mprdx*mprdx
+    static var mpffterr = 0.0
     
     static var mplog2con = Array<Double>(arrayLiteral:
         // Entries 0...199
@@ -5259,7 +5261,7 @@ public class MPFUN {
     )
     
     // We need to split the arrays to get around a Swift compiler bug that crashes with very large arrays
-    static let mpuu1 = mpuu1_1 + mpuu1_2 + mpuu1_3 + mpuu1_4 + mpuu1_5 + mpuu1_6 + mpuu1_7 + mpuu1_8 + mpuu1_9 + mpuu1_10 +
+    static var mpuu1 = mpuu1_1 + mpuu1_2 + mpuu1_3 + mpuu1_4 + mpuu1_5 + mpuu1_6 + mpuu1_7 + mpuu1_8 + mpuu1_9 + mpuu1_10 +
                     mpuu1_11 + mpuu1_12 + mpuu1_13 + mpuu1_14 + mpuu1_15 + mpuu1_16 + mpuu1_17 + mpuu1_18 + mpuu1_19 + mpuu1_20 +
                     mpuu1_21 + mpuu1_22 + mpuu1_23 + mpuu1_24 + mpuu1_25 + mpuu1_26 + mpuu1_27 + mpuu1_28 + mpuu1_29 + mpuu1_30 +
                     mpuu1_31 + mpuu1_32 + mpuu1_33 + mpuu1_34 + mpuu1_35 + mpuu1_36 + mpuu1_37 + mpuu1_38 + mpuu1_39 + mpuu1_40
@@ -9655,7 +9657,7 @@ public class MPFUN {
     )
     
     // We need to split the arrays to get around a Swift compiler bug that crashes with very large arrays
-    static let mpuu2 = mpuu2_1 + mpuu2_2 + mpuu2_3 + mpuu2_4 + mpuu2_5 + mpuu2_6 + mpuu2_7 + mpuu2_8 + mpuu2_9 + mpuu2_10 +
+    static var mpuu2 = mpuu2_1 + mpuu2_2 + mpuu2_3 + mpuu2_4 + mpuu2_5 + mpuu2_6 + mpuu2_7 + mpuu2_8 + mpuu2_9 + mpuu2_10 +
         mpuu2_11 + mpuu2_12 + mpuu2_13 + mpuu2_14 + mpuu2_15 + mpuu2_16 + mpuu2_17 + mpuu2_18 + mpuu2_19 + mpuu2_20 +
         mpuu2_21 + mpuu2_22 + mpuu2_23 + mpuu2_24 + mpuu2_25 + mpuu2_26 + mpuu2_27 + mpuu2_28 + mpuu2_29 + mpuu2_30 +
         mpuu2_31 + mpuu2_32 + mpuu2_33 + mpuu2_34 + mpuu2_35 + mpuu2_36 + mpuu2_37 + mpuu2_38 + mpuu2_39 + mpuu2_40 + mpuu2_41
