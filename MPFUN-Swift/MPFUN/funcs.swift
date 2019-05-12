@@ -296,15 +296,10 @@ extension MPFUN {
         
         //   This routine subtracts the MPC numbers A and B.
         
-        var la, lb, lc : Int
-        
-        // End of declaration
-        
-        la = Int(a[0])
-        lb = Int(b[0])
-        lc = Int(c[0])
-        if (mpnw < 4 || a[0] < abs (a[2]) + 4 || a[la] < abs (a[la+2]) + 4
-            || b[0] < abs (b[2]) + 4 || b[lb] < abs (b[lb+2]) + 4 ||
+        let la = Int(a[0])
+        let lb = Int(b[0])
+        let lc = Int(c[0])
+        if (mpnw < 4 || a[0] < abs (a[2]) + 4 || a[la] < abs (a[la+2]) + 4 || b[0] < abs (b[2]) + 4 || b[lb] < abs (b[lb+2]) + 4 ||
             Int(c[0]) < mpnw + 6 || Int(c[lc]) < mpnw + 6) {
             print ("*** MPCSUB: uninitialized or inadequately sized arrays")
             mpabrt (99)
@@ -315,6 +310,35 @@ extension MPFUN {
         mpsub (MPRNumber(a[la...]), MPRNumber(b[lb...]), &t, mpnw)
         c[lc...] = t[0...]
     } // mpcsub
+    
+  
+    static func mpcpr (_ a : MPRNumber, _ b : MPRNumber, _ ic : inout Int, _ mpnw : Int) {
+        
+        //   This routine compares the MPR numbers A and B and returns in IC the value
+        //   -1, 0, or 1 depending on whether A < B, A = B, or A > B.
+        //   Note that the first and second words do NOT need to be the same for the
+        //   result to be "equal".
+        
+        var s0 = MPRNumber(repeating: 0, count:mpnw+6)
+        
+        // End of declaration
+        
+        if mpnw < 4 || a[0] < abs (a[2]) + 4 || b[0] < abs (b[2]) + 4 {
+            print ("*** MPCPR: uninitialized or inadequately sized arrays")
+            mpabrt (99)
+        }
+        
+        s0[0] = Double(mpnw + 6)
+        mpsub (a, b, &s0, mpnw)
+        if s0[2].isSignMinus {
+            ic = -1
+        } else if s0[2].isZero {
+            ic = 0
+        } else {
+            ic = 1
+        }
+    } // mpcpr
+    
     
     static func mpdmc (_ a : Double, _ n : Int, _ b: inout MPRNumber, _ mpnw: Int) {
         
@@ -1084,7 +1108,7 @@ extension MPFUN {
             
             //   Compute trial dividend and trial quotient term.
             
-            t1 = mpbdx**2 * d[j] + mpbdx * d[j+1] + d[j+2]
+            t1 = mpbdx * mpbdx * d[j] + mpbdx * d[j+1] + d[j+2]
             if j <= mpnw + 2 { t1 = t1 + mprdx * d[j+3] }
             t0 = aint (rb * t1)
             
@@ -1277,7 +1301,7 @@ extension MPFUN {
             
             //   Compute trial dividend and trial quotient term.
             
-            t1 = mpbdx**2 * d[j] + mpbdx * d[j+1] + d[j+2]
+            t1 = mpbdx*mpbdx * d[j] + mpbdx * d[j+1] + d[j+2]
             if j <= mpnw + 2 { t1 = t1 + mprdx * d[j+3] }
             t0 = aint (rb * t1)
             
@@ -1825,7 +1849,7 @@ extension MPFUN {
         mpeq (s1, &b, mpnw)
     } //  mpnrtr
     
-    static func mpoutw (_ iu : Int, _ anam : String, _ a : MPRNumber, _ mpnw : Int) {
+    static func mpoutw (_ anam : String, _ a : MPRNumber, _ mpnw : Int) {
         
         //   This outputs the words of A up to the end of the active mantissa.
         //   This is for internal debugging only; it should not be called by user.
@@ -2265,7 +2289,7 @@ extension MPFUN {
         //   The arrays MPUU1 and MPUU2 must have been initialized by calling MPINIFFT.
         //   This routine is not intended to be called directly by the user.
         
-        var ku, mx, n1, n2, n4 : Int
+        var ku, mx, n2, n4 : Int
         var dc1 = MPRComplex(repeating:Complex64(), count:n/2)
         var ai, a1, a2, x1, x2 : Complex64
 
@@ -2278,7 +2302,7 @@ extension MPFUN {
             mpabrt (677)
         }
 
-        n1 = Int(pow(2, Double(m / 2)))
+        //n1 = Int(pow(2, Double(m / 2)))
         n2 = n / 2
         n4 = n / 4
         ai = Complex64(0, 1)
@@ -2320,10 +2344,10 @@ extension MPFUN {
 
         //   Copy DC1 to Y such that DC1(k) = Y(2k-1) + i Y(2k).
 
-        for k in 1...n / 2 {
-            y[2*k-1] = dc1[k].re
-            y[2*k] = dc1[k].im
-        }
+//        for k in 1...n / 2 {
+//            y[2*k-1] = dc1[k].re
+//            y[2*k] = dc1[k].im
+//        }
     } //  mpfftcr
     
     static func mpfftrc (_ iss : Int, _ m : Int, _ n : Int, _ nsq : Int, _ x: MPRNumber, _ y: inout MPRComplex) {
@@ -2333,9 +2357,9 @@ extension MPFUN {
         //   The arrays MPUU1 and MPUU2 must have been initialized by calling MPINIFFT.
         //   This routine is not intended to be called directly by the user.
         
-        var ku, mx, n1, n2, n4 : Int
+        var mx, n2 : Int
         var dc1 = MPRComplex(repeating:Complex64(), count:n/2)
-        var ai, a1, a2, z1, z2 : Complex64
+        // var ai, a1, a2, z1, z2 : Complex64
         
         mx = Int(mpuu1[1].re)
         
@@ -2347,11 +2371,11 @@ extension MPFUN {
             mpabrt (677)
         }
         
-        n1 = Int(pow(2, Double(m / 2)))
+        //n1 = Int(pow(2, Double(m / 2)))
         n2 = n / 2
         // n21 = n2 + 1
-        n4 = n / 4
-        ai = Complex64(0, -1)
+//        n4 = n / 4
+//        let ai = Complex64(0, -1)
         
         //   Copy X to DC1 such that DC1(k) = X(2k-1) + i X(2k).
         
@@ -2367,34 +2391,34 @@ extension MPFUN {
         
         //   Reconstruct the FFT of X.
         
-        y[1] = Complex64(2 * (dc1[1].re + dc1[1].im), 0)
-        if (iss == 1) {
-            y[n4+1] = 2 * dc1[n4+1]
-        } else {
-            y[n4+1] = 2 * dc1[n4+1].conj
-        }
-        y[n2+1] = Complex64(2 * (dc1[1].re - dc1[1].im), 0)
-        ku = n2
-        
-        if (iss == 1) {
-            for k in 2...n4 {
-                z1 = dc1[k]
-                z2 = dc1[n2+2-k].conj
-                a1 = z1 + z2
-                a2 = ai * mpuu1[k+ku] * (z1 - z2)
-                y[k] = a1 + a2
-                y[n2+2-k] = (a1 - a2).conj
-            }
-        } else {
-            for k in 2...n4 {
-                z1 = dc1[k]
-                z2 = dc1[n2+2-k].conj
-                a1 = z1 + z2
-                a2 = ai * mpuu1[k+ku].conj * (z1 - z2)
-                y[k] = a1 + a2
-                y[n2+2-k] = (a1 - a2).conj
-            }
-        }
+//        y[1] = Complex64(2 * (dc1[1].re + dc1[1].im), 0)
+//        if (iss == 1) {
+//            y[n4+1] = 2 * dc1[n4+1]
+//        } else {
+//            y[n4+1] = 2 * dc1[n4+1].conj
+//        }
+//        y[n2+1] = Complex64(2 * (dc1[1].re - dc1[1].im), 0)
+//        ku = n2
+//
+//        if (iss == 1) {
+//            for k in 2...n4 {
+//                z1 = dc1[k]
+//                z2 = dc1[n2+2-k].conj
+//                a1 = z1 + z2
+//                a2 = ai * mpuu1[k+ku] * (z1 - z2)
+//                y[k] = a1 + a2
+//                y[n2+2-k] = (a1 - a2).conj
+//            }
+//        } else {
+//            for k in 2...n4 {
+//                z1 = dc1[k]
+//                z2 = dc1[n2+2-k].conj
+//                a1 = z1 + z2
+//                a2 = ai * mpuu1[k+ku].conj * (z1 - z2)
+//                y[k] = a1 + a2
+//                y[n2+2-k] = (a1 - a2).conj
+//            }
+//        }
         
     } //  mpfftrc
     
@@ -2683,7 +2707,7 @@ extension MPFUN {
             //   Square the resulting complex vector.
             
             for i in 1...n1 + 1 {
-                dc1[i] = dc1[i] ** 2
+                dc1[i] = dc1[i] * dc1[i]
             }
         } else {
             
