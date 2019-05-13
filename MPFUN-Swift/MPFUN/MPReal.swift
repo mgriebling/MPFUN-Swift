@@ -1,6 +1,7 @@
 //
 //  MPReal.swift
-//  MPFUN-Swift
+//  MPFUN-Swift - Arbitrary-precision floating point library translated
+//  from the MPFUN95 Fortran routines by David H. Bailey.
 //
 //  Created by Mike Griebling on 4 May 2019.
 //  Copyright © 2019 Computer Inspirations. All rights reserved.
@@ -170,25 +171,30 @@ extension MPReal : Strideable {
 extension MPReal : FloatingPoint {
     
     public mutating func round(_ rule: FloatingPointRoundingRule) {
+        var dummy = MPReal()
         switch rule {
         case .awayFromZero: break
         case .down: break
-        case .toNearestOrAwayFromZero: break
-        case .toNearestOrEven: break
-        case .towardZero: break
+        case .toNearestOrAwayFromZero: MPFUN.mpnint(number, &number, MPReal.mpwds6)
+        case .toNearestOrEven: MPFUN.mpnint(number, &number, MPReal.mpwds6)
+        case .towardZero: MPFUN.mpinfr(number, &number, &dummy.number, MPReal.mpwds6)
         case .up: break
         @unknown default: assert(false, "MPReal unknown rounding rule")
         }
     }
     
     public init(sign: FloatingPointSign, exponent: Int, significand: MPReal) {
-        self.init()
+        self = significand
+        number[3] = Double(exponent)
+        number[2] = sign == .minus ? -1 : 1
+        MPFUN.mpnorm(number, &number, MPReal.mpwds6)
     }
     
     public init(signOf: MPReal, magnitudeOf: MPReal) {
-        let sign = signOf.sign
+        self.init()
         let mag = magnitudeOf.magnitude
-        self.init(sign: sign, exponent: 0, significand: mag)
+        if signOf.sign == .minus { self = -mag }
+        else { self = mag }
     }
     
     public init<Source>(_ value: Source) where Source : BinaryInteger {
@@ -196,7 +202,7 @@ extension MPReal : FloatingPoint {
     }
     
     public static var radix: Int {
-        return 2
+        return Int(MPFUN.mpbdx)
     }
     
     public static var nan: MPReal {
@@ -212,23 +218,32 @@ extension MPReal : FloatingPoint {
     }
     
     public static var greatestFiniteMagnitude: MPReal {
-        return MPReal()
+        var result = MPReal()
+        MPFUN.mpdmc(1, Int(MPFUN.mpexpmx), &result.number, MPReal.mpwds6)
+        return result
     }
     
     public static var pi: MPReal {
-       return MPReal()
+        var result = MPReal()
+        MPFUN.mppiq(&result.number, MPReal.mpwds6)
+       return result
     }
     
     public var ulp: MPReal {
-        return MPReal()
+        var result = MPReal()
+        let exp = exponent > 0 ? -exponent : exponent
+        MPFUN.mpdmc(1, exp, &result.number, MPReal.mpwds6)
+        return result
     }
     
     public static var leastNormalMagnitude: MPReal {
-        return MPReal()
+        var result = MPReal()
+        MPFUN.mpdmc(1, -Int(MPFUN.mpexpmx), &result.number, MPReal.mpwds6)
+        return result
     }
     
     public static var leastNonzeroMagnitude: MPReal {
-        return MPReal()
+        return leastNormalMagnitude
     }
     
     public var sign: FloatingPointSign {
@@ -236,20 +251,22 @@ extension MPReal : FloatingPoint {
         return ia < 0 ? .minus : .plus
     }
     
-    public var exponent: Int {
-        return Int(number[3])
-    }
+    public var exponent: Int { return Int(number[3]) }
     
     public var significand: MPReal {
-        return self
+        var result = self
+        result.number[3] = 0  // zero the exponent
+        result.number[2] = abs(result.number[2]) // clear the sign
+        return result
     }
     
     public static func / (lhs: MPReal, rhs: MPReal) -> MPReal {
-        return MPReal()
+        var result = MPReal()
+        MPFUN.mpdiv(lhs.number, rhs.number, &result.number, MPReal.mpwds6)
+        return result
     }
     
-    public static func /= (lhs: inout MPReal, rhs: MPReal) {
-    }
+    public static func /= (lhs: inout MPReal, rhs: MPReal) { lhs = lhs / rhs }
     
     public mutating func formRemainder(dividingBy other: MPReal) {
     }
@@ -257,16 +274,11 @@ extension MPReal : FloatingPoint {
     public mutating func formTruncatingRemainder(dividingBy other: MPReal) {
     }
     
-    public mutating func formSquareRoot() {
-        MPFUN.mpsqrt(self.number, &self.number, MPReal.mpwds6)
-    }
-    
-    public mutating func addProduct(_ lhs: MPReal, _ rhs: MPReal) {
-        self += lhs * rhs
-    }
+    public mutating func formSquareRoot() { MPFUN.mpsqrt(self.number, &self.number, MPReal.mpwds6) }
+    public mutating func addProduct(_ lhs: MPReal, _ rhs: MPReal) { self += lhs * rhs }
     
     public var nextUp: MPReal {
-        return self
+        return self + ulp
     }
     
     public func isEqual(to other: MPReal) -> Bool {
@@ -275,13 +287,8 @@ extension MPReal : FloatingPoint {
         return code == 0
     }
     
-    public func isLess(than other: MPReal) -> Bool {
-        return self < other
-    }
-    
-    public func isLessThanOrEqualTo(_ other: MPReal) -> Bool {
-        return isEqual(to: other) || isLess(than: other)
-    }
+    public func isLess(than other: MPReal) -> Bool { return self < other }
+    public func isLessThanOrEqualTo(_ other: MPReal) -> Bool { return isEqual(to: other) || isLess(than: other) }
     
     public func isTotallyOrdered(belowOrEqualTo other: MPReal) -> Bool {
         return true
