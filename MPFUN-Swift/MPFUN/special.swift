@@ -10,14 +10,14 @@ import Foundation
 
 extension MPFUN {
     
-    static func mpberner (_ nb1 : Int, _ nb2 : Int, berne : inout Array<MPRNumber>, _ mpnw : Int) {
+    static func mpberner (_ nb1 : Int, _ nb2 : Int, berne : inout Array<MPReal>, _ mpnw : Int) {
         
         //  This returns the even Bernouli numbers B(2*k), from B(2) = 1/6 up to
         //  B(2*nb2).  The array berne must be dimensioned as shown below.
         
         var ia, na, mpnw1  : Int
         // var berne(0:nb1+5,nb2),
-        var t1 = MPRNumber(repeating: 0, count: mpnw+7)
+        var t1 = MPReal(repeating: 0, count: mpnw+7)
         var t2 = t1; var t3 = t1; var t4 = t1; var t5 = t1
         
         //  End of declaration
@@ -67,7 +67,7 @@ extension MPFUN {
         
     } // mpberner
     
-    static func mpbesseljr (_ anu : MPRNumber, _ t : MPRNumber, _ z : inout MPRNumber, _ mpnw : Int) {
+    static func mpbesseljr (_ anu : MPReal, _ t : MPReal, _ z : inout MPReal, _ mpnw : Int) {
         
         //   This evaluates the function BesselJ (ANU, T).  ANU must be nonnegative and
         //   not greater than 10^6 (this limit can be adjusted below).  To compensate
@@ -80,7 +80,7 @@ extension MPFUN {
         //     anumx = upper limit of anu argument; default = 1000.
         
         var mpnw1 : Int
-        var t0 = MPRNumber(repeating:0, count: 3*mpnw/2+6)
+        var t0 = MPReal(repeating:0, count: 3*mpnw/2+6)
         var t1 = t0; var t2 = t0; var t3 = t0
         var t4 = t0; var t5 = t0; var t6 = t0
         let itrmx = 100000; let dasy = 25.0; let anumx = 1.0e6
@@ -226,7 +226,7 @@ extension MPFUN {
         
     } //  mpbesseljr
 
-    static func mpgammar (_ t : MPRNumber, _ z: inout MPRNumber, _ mpnw : Int) {
+    static func mpgammar (_ t : MPReal, _ z: inout MPReal, _ mpnw : Int) {
         
         //   This evaluates the gamma function, using an algorithm of R. W. Potter.
         //   The argument t must not exceed 10^8 in size (this limit is set below),
@@ -240,8 +240,8 @@ extension MPFUN {
         var mpnw1,nt, n2, n3 : Int
         var alpha, d2, d3 : Double
         let al2 = 0.69314718055994530942; let dmax = 1.0e8; let itrmx = 100000
-        var f1 = MPRNumber(repeating:0, count:9)
-        var sum1 = MPRNumber(repeating:0, count:mpnw+7)
+        var f1 = MPReal(repeating:0, count:9)
+        var sum1 = MPReal(repeating:0, count:mpnw+7)
         var sum2 = sum1; var tn = sum1; var t1 = sum1; var t2 = sum1; var t3 = sum1
         var t4 = sum1; var t5 = sum1; var t6 = sum1
         
@@ -422,15 +422,15 @@ extension MPFUN {
         
     } // mpgammar
 
-    static func mpincgammar (_ s : MPRNumber, _ z : MPRNumber, _ g : inout MPRNumber, _ mpnw : Int) {
+    static func mpincgammar (_ s : MPReal, _ z : MPReal, _ g : inout MPReal, _ mpnw : Int) {
         
         //  This returns the incomplete gamma function, using a combination of formula
         //  8.7.3 of the DLMF (for modest-sized z) and formula 8.11.2 (for large z).
         
         var mpnw1 : Int
         let dmax = 40.0; let itrmax = 1000000
-        var f1 = MPRNumber(repeating:0, count:9)
-        var t0 = MPRNumber(repeating:0, count:mpnw+7)
+        var f1 = MPReal(repeating:0, count:9)
+        var t0 = MPReal(repeating:0, count:mpnw+7)
         var t1 = t0; var t2 = t0; var t3 = t0
         var t4 = t0; var t5 = t0; var t6 = t0
         
@@ -565,7 +565,7 @@ extension MPFUN {
         
     } // mpincgammar
 
-    static func mpzetar (_ ss : MPRNumber, _ zz : inout MPRNumber, _ mpnw : Int) {
+    static func mpzetar (_ ss : MPReal, _ zz : inout MPReal, _ mpnw : Int) {
         
         //   This returns the zeta function at positive real argument SS using an algorithm
         //   due to Peter Borwein.
@@ -573,9 +573,9 @@ extension MPFUN {
         var mpnw1, n : Int
         var d1 : Double
         let itrmax = 1000000; let dfrac = 16.0; let dlogb = 33.27106466687737
-        var t1 = MPRNumber(repeating: 0, count:mpnw+7); var t2 = t1; var t3 = t1; var t4 = t1
+        var t1 = MPReal(repeating: 0, count:mpnw+7); var t2 = t1; var t3 = t1; var t4 = t1
         var t5 = t1; var tn = t1; var tt = t1; var s = t1
-        var f1 = MPRNumber(repeating: 0, count:9)
+        var f1 = MPReal(repeating: 0, count:9)
         var sgn : Double
         
         //  End of declaration
@@ -800,7 +800,7 @@ extension MPFUN {
         mpeq (t1, &zz, mpnw)
     } // mpzetar
 
-    static func mpzetaemr (_ nb1: Int, _ nb2: Int, _ berne: [MPRNumber], s: MPRNumber, _ z: inout MPRNumber, _ mpnw: Int) {
+    static func mpzetaemr (_ nb1: Int, _ nb2: Int, _ berne: [MPReal], s: MPReal, _ z: inout MPReal, _ mpnw: Int) {
         
         //  This evaluates the Riemann zeta function, using the combination of
         //  the definition formula (for large s), and an Euler-Maclaurin scheme
@@ -810,10 +810,10 @@ extension MPFUN {
         var ia, mpnw1, na, nn : Int
         var d1 : Double
         let itrmax = 1000000; let dfrac = 8.5; let dlogb = 33.27106466687737
-        var t1 = MPRNumber(repeating: 0, count:mpnw+7); var t2 = t1; var t3 = t1; var t4 = t1
+        var t1 = MPReal(repeating: 0, count:mpnw+7); var t2 = t1; var t3 = t1; var t4 = t1
         var t5 = t1; var t6 = t1; var tt = t1; var s = t1; var t0 = t1; var t7 = t1; var t8 = t1
         var t9 = t1
-        var f1 = MPRNumber(repeating: 0, count:9)
+        var f1 = MPReal(repeating: 0, count:9)
         
         // End of declaration
         

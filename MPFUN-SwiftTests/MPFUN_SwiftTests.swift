@@ -19,7 +19,7 @@ class MPFUN_SwiftTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
     
-    private func checkdp (_ t1: MPFUN.MPRNumber, _ d1: Double, _ ndp: Int) {
+    private func checkdp (_ t1: MPFUN.MPReal, _ d1: Double, _ ndp: Int) {
 //        let dtol = 1e-14
         
 //        if (abs ((Double(t1) - d1) / d1) > dtol) {

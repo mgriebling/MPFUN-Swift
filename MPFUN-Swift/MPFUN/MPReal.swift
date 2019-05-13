@@ -11,7 +11,7 @@ import Foundation
 
 public struct MPReal : Codable {
     
-    var number : MPFUN.MPRNumber
+    var number : MPFUN.MPReal
     
     // default precision level in digits
     public static var digitPrecision = 1200 {
@@ -23,29 +23,31 @@ public struct MPReal : Codable {
     
     // dependent variables that are altered from the precision
     static var mpwds = digitPrecision / MPFUN.mpndpw + 2
-    static var mpwds6 = mpwds + 6
+    static var mpwds6 = mpwds + 7
     
     public init(_ numberWords : Int = 0) {
         //   Set initial number = 0
         let words = numberWords == 0 ? MPReal.mpwds6 : numberWords
-        number = MPFUN.MPRNumber(repeating: 0, count: words)
+        number = MPFUN.MPReal(repeating: 0, count: words)
         number[0] = Double(words)
         number[1] = 7
         number[2] = 1
     }
     
     init(_ s : String, _ numberWords : Int = 0) {
-        self.init(numberWords)
-        MPFUN.mpctomp(s, &number, numberWords)
+        let words = numberWords == 0 ? MPReal.mpwds6 : numberWords
+        self.init(words)
+        MPFUN.mpctomp(s, &number, MPReal.mpwds)
     }
     
     init(_ i: Int, _ numberWords : Int = 0) {
         //   Set f = i
-        self.init(numberWords)
-        number[0] = 9.0
+        let words = numberWords == 0 ? MPReal.mpwds6 : numberWords
+        self.init(words)
+        number[0] = 9
  //       number[1] = Double(numberWords)
-        number[2] = 1.0
-        number[3] = 0.0
+        number[2] = 1
+        number[3] = 0
         number[4] = Double(i)
     }
     
@@ -155,16 +157,15 @@ extension MPReal : SignedNumeric { }
 
 extension MPReal : Strideable {
     
-    public func distance(to other: MPReal) -> Double {
-        return 0  // TBD
+    public func distance(to other: MPReal) -> MPReal {
+        return other - self
     }
     
-    public func advanced(by n: Double) -> MPReal {
-        return self // TBD
+    public func advanced(by n: MPReal) -> MPReal {
+        return self + n
     }
     
-    
-    public typealias Stride = Double
+    public typealias Stride = MPReal
     
 }
 
@@ -197,25 +198,11 @@ extension MPReal : FloatingPoint {
         else { self = mag }
     }
     
-    public init<Source>(_ value: Source) where Source : BinaryInteger {
-        self.init(exactly: value)!
-    }
-    
-    public static var radix: Int {
-        return Int(MPFUN.mpbdx)
-    }
-    
-    public static var nan: MPReal {
-        return MPReal()
-    }
-    
-    public static var signalingNaN: MPReal {
-        return MPReal()
-    }
-    
-    public static var infinity: MPReal {
-       return MPReal()
-    }
+    public init<Source>(_ value: Source) where Source : BinaryInteger { self.init(exactly: value)! }    
+    public static var radix: Int { return Int(MPFUN.mpbdx) }
+    public static var nan: MPReal { return MPReal() }
+    public static var signalingNaN: MPReal { return MPReal()}
+    public static var infinity: MPReal { return MPReal() }
     
     public static var greatestFiniteMagnitude: MPReal {
         var result = MPReal()
@@ -269,17 +256,18 @@ extension MPReal : FloatingPoint {
     public static func /= (lhs: inout MPReal, rhs: MPReal) { lhs = lhs / rhs }
     
     public mutating func formRemainder(dividingBy other: MPReal) {
+        let q = (self / other).rounded(.toNearestOrEven)
+        self = self - q * other
     }
     
     public mutating func formTruncatingRemainder(dividingBy other: MPReal) {
+        let q = (self / other).rounded(.towardZero)
+        self = self - q * other
     }
     
     public mutating func formSquareRoot() { MPFUN.mpsqrt(self.number, &self.number, MPReal.mpwds6) }
     public mutating func addProduct(_ lhs: MPReal, _ rhs: MPReal) { self += lhs * rhs }
-    
-    public var nextUp: MPReal {
-        return self + ulp
-    }
+    public var nextUp: MPReal { return self + ulp }
     
     public func isEqual(to other: MPReal) -> Bool {
         var code = 0
@@ -289,43 +277,15 @@ extension MPReal : FloatingPoint {
     
     public func isLess(than other: MPReal) -> Bool { return self < other }
     public func isLessThanOrEqualTo(_ other: MPReal) -> Bool { return isEqual(to: other) || isLess(than: other) }
-    
-    public func isTotallyOrdered(belowOrEqualTo other: MPReal) -> Bool {
-        return true
-    }
-    
-    public var isNormal: Bool {
-        return true  // TBD
-    }
-    
-    public var isFinite: Bool {
-        return false // TBD
-    }
-    
-    public var isZero: Bool {
-        return false
-    }
-    
-    public var isSubnormal: Bool {
-        return false
-    }
-    
-    public var isInfinite: Bool {
-        return false // TBD
-    }
-    
-    public var isNaN: Bool {
-        return false
-    }
-    
-    public var isSignalingNaN: Bool {
-        return false
-    }
-    
-    public var isCanonical: Bool {
-        return true
-    }
-    
+    public func isTotallyOrdered(belowOrEqualTo other: MPReal) -> Bool { return true  }
+    public var isNormal: Bool { return !isZero }
+    public var isFinite: Bool { return true  }
+    public var isZero: Bool { return number[2] == 0 }
+    public var isSubnormal: Bool { return false }
+    public var isInfinite: Bool {return false }
+    public var isNaN: Bool { return false }
+    public var isSignalingNaN: Bool { return false }
+    public var isCanonical: Bool { return true }
     public typealias Exponent = Int
     
 }

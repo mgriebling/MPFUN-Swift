@@ -20,8 +20,10 @@ extension MPFUN {
         return Double(Int(a))
     }
     
-    public typealias MPRNumber = Array<Double>
-    public typealias MPRComplex = Array<Complex64>
+    public typealias MPReal = Array<Double>
+    public typealias MPComplex = Array<Complex64>
+    // Note: Complex numbers extend the MPReal array and are positioned at
+    // the a[0]th offset.
     
     static func mpabrt (_ ier : Int) {
         //  This routine terminates execution.  Users may wish to replace the
@@ -29,13 +31,13 @@ extension MPFUN {
         assertionFailure("*** MPABRT: Execution terminated, error code = \(ier)")
     }
     
-    static func mpcabs (_ a : MPRNumber, _ b : inout MPRNumber, _ mpnw : Int) {
+    static func mpcabs (_ a : MPReal, _ b : inout MPReal, _ mpnw : Int) {
         
         //   This routine returns the absolute value of the MPC argument A (the
         //   result is of type MPR).
         
         var la, mpnw1 : Int
-        var s0 = MPRNumber(repeating: 0, count: mpnw+7)
+        var s0 = MPReal(repeating: 0, count: mpnw+7)
         var s1 = s0; var s2 = s0
         
         // End of declaration
@@ -52,14 +54,14 @@ extension MPFUN {
         s1[0] = Double(mpnw + 7)
         s2[0] = Double(mpnw + 7)
         mpmul (a, a, &s0, mpnw1)
-        mpmul (MPRNumber(a[la...]), MPRNumber(a[la...]), &s1, mpnw1)
+        mpmul (MPReal(a[la...]), MPReal(a[la...]), &s1, mpnw1)
         mpadd (s0, s1, &s2, mpnw1)
         mpsqrt (s2, &s0, mpnw1)
         mproun (&s0, mpnw)
         mpeq (s0, &b, mpnw)
     } // mpcabs
     
-    static func mpceq (_ a : MPRNumber, _ b : inout MPRNumber, _ mpnw : Int) {
+    static func mpceq (_ a : MPReal, _ b : inout MPReal, _ mpnw : Int) {
         
         //   Sets the MPC number B equal to A.
         
@@ -116,7 +118,7 @@ extension MPFUN {
         // 120 continue
     } // mpceq
     
-    static func mpcadd (_ a : MPRNumber, _ b : MPRNumber, _ c : inout MPRNumber, _ mpnw : Int) {
+    static func mpcadd (_ a : MPReal, _ b : MPReal, _ c : inout MPReal, _ mpnw : Int) {
         
         //   This routine adds the MPC numbers A and B.
         
@@ -135,16 +137,16 @@ extension MPFUN {
         }
         
         mpadd (a, b, &c, mpnw)
-        var t = MPRNumber(c[lc...])
-        mpadd (MPRNumber(a[la...]), MPRNumber(b[lb...]), &t, mpnw)
+        var t = MPReal(c[lc...])
+        mpadd (MPReal(a[la...]), MPReal(b[lb...]), &t, mpnw)
         c[lc...] = t[0...]
     } //  mpcadd
     
-    static func mpcmul (_ a : MPRNumber, _ b : MPRNumber, _ c : inout MPRNumber, _ mpnw : Int) {
+    static func mpcmul (_ a : MPReal, _ b : MPReal, _ c : inout MPReal, _ mpnw : Int) {
         //   This routine multiplies the MPC numbers A and B.
         
         var la, lb, lc, mpnw1 : Int
-        var s0 = MPRNumber(repeating: 0, count: mpnw+7)
+        var s0 = MPReal(repeating: 0, count: mpnw+7)
         var s1 = s0; var s2 = s0; var s3 = s0
         
         // End of declaration
@@ -166,26 +168,26 @@ extension MPFUN {
         s3[0] = Double(mpnw + 7)
         
         mpmul (a, b, &s0, mpnw1)
-        mpmul (MPRNumber(a[la...]), MPRNumber(b[lb...]), &s1, mpnw1)
+        mpmul (MPReal(a[la...]), MPReal(b[lb...]), &s1, mpnw1)
         mpsub (s0, s1, &s2, mpnw1)
-        mpmul (a, MPRNumber(b[lb...]), &s0, mpnw1)
-        mpmul (MPRNumber(a[la...]), b, &s1, mpnw1)
+        mpmul (a, MPReal(b[lb...]), &s0, mpnw1)
+        mpmul (MPReal(a[la...]), b, &s1, mpnw1)
         mpadd (s0, s1, &s3, mpnw1)
         
         mproun (&s2, mpnw)
         mproun (&s3, mpnw)
         mpeq (s2, &c, mpnw)
-        var t = MPRNumber(c[lc...])
+        var t = MPReal(c[lc...])
         mpeq (s3, &t, mpnw)
         c[lc...] = t[0...]
     } // mpcmul
     
-    static func mpcdiv (_ a : MPRNumber, _ b : MPRNumber, _ c : inout MPRNumber, _ mpnw : Int) {
+    static func mpcdiv (_ a : MPReal, _ b : MPReal, _ c : inout MPReal, _ mpnw : Int) {
         
         //   This routine divides the MPC numbers A and B.
         
         var la, lb, lc, mpnw1 : Int
-        var s0 = MPRNumber(repeating: 0, count: mpnw+7)
+        var s0 = MPReal(repeating: 0, count: mpnw+7)
         var s1 = s0; var s2 = s0; var s3 = s0; var s4 = s0
         
         // End of declaration
@@ -208,15 +210,15 @@ extension MPFUN {
         s4[0] = Double(mpnw + 7)
         
         mpmul (a, b, &s0, mpnw1)
-        mpmul (MPRNumber(a[la...]), MPRNumber(b[lb...]), &s1, mpnw1)
+        mpmul (MPReal(a[la...]), MPReal(b[lb...]), &s1, mpnw1)
         mpadd (s0, s1, &s2, mpnw1)
-        mpmul (a, MPRNumber(b[lb...]), &s0, mpnw1)
+        mpmul (a, MPReal(b[lb...]), &s0, mpnw1)
         s0[2] = -s0[2]
-        mpmul (MPRNumber(a[la...]), b, &s1, mpnw1)
+        mpmul (MPReal(a[la...]), b, &s1, mpnw1)
         mpadd (s0, s1, &s3, mpnw1)
         
         mpmul (b, b, &s0, mpnw1)
-        mpmul (MPRNumber(b[lb...]), MPRNumber(b[lb...]), &s1, mpnw1)
+        mpmul (MPReal(b[lb...]), MPReal(b[lb...]), &s1, mpnw1)
         mpadd (s0, s1, &s4, mpnw1)
         mpdiv (s2, s4, &s0, mpnw1)
         mpdiv (s3, s4, &s1, mpnw1)
@@ -225,12 +227,12 @@ extension MPFUN {
         mproun (&s0, mpnw)
         mproun (&s1, mpnw)
         mpeq (s0, &c, mpnw)
-        var t = MPRNumber(c[lc...])
+        var t = MPReal(c[lc...])
         mpeq (s1, &t, mpnw)
         c[lc...] = t[0...]
     } //  mpcdiv
     
-    static func mpcsqrt (_ a : MPRNumber, _ b : inout MPRNumber, _ mpnw : Int) {
+    static func mpcsqrt (_ a : MPReal, _ b : inout MPReal, _ mpnw : Int) {
         
         //   This routine returns the square root of the MPC argument A.
         //   The formula is:
@@ -242,7 +244,7 @@ extension MPFUN {
         //   parts of A.
         
         var lb, la, mpnw1 : Int
-        var s0 = MPRNumber(repeating: 0, count: mpnw+7)
+        var s0 = MPReal(repeating: 0, count: mpnw+7)
         var s1 = s0; var s2 = s0; var s3 = s0; var s4 = s0
         
         // End of declaration
@@ -262,18 +264,18 @@ extension MPFUN {
         s4[0] = Double(mpnw + 7)
         
         mpmul (a, a, &s0, mpnw1)
-        mpmul (MPRNumber(a[la...]), MPRNumber(a[la...]), &s1, mpnw1)
+        mpmul (MPReal(a[la...]), MPReal(a[la...]), &s1, mpnw1)
         mpadd (s0, s1, &s2, mpnw1)
         mpsqrt (s2, &s0, mpnw1)
         
         if (a[2] >= 0.0) {
             mpadd (s0, a, &s1, mpnw1)
             mpsqrt (s1, &s0, mpnw1)
-            mpdiv (MPRNumber(a[la...]), s0, &s1, mpnw1)
+            mpdiv (MPReal(a[la...]), s0, &s1, mpnw1)
         } else {
             mpsub (s0, a, &s2, mpnw1)
             mpsqrt (s2, &s1, mpnw1)
-            mpdiv (MPRNumber(a[la...]), s1, &s0, mpnw1)
+            mpdiv (MPReal(a[la...]), s1, &s0, mpnw1)
             s0[2] = abs (s0[2])
             s1[2] = Double(sign (s1[2], a[la+2]))
         }
@@ -286,13 +288,13 @@ extension MPFUN {
         mproun (&s3, mpnw)
         mproun (&s4, mpnw)
         mpeq (s3, &b, mpnw)
-        var t = MPRNumber(b[lb...])
+        var t = MPReal(b[lb...])
         mpeq (s4, &t, mpnw)
         b[lb...] = t[0...]
     } // mpcsqrt
 
     
-    static func mpcsub (_ a : MPRNumber, _ b : MPRNumber, _ c : inout MPRNumber, _ mpnw : Int) {
+    static func mpcsub (_ a : MPReal, _ b : MPReal, _ c : inout MPReal, _ mpnw : Int) {
         
         //   This routine subtracts the MPC numbers A and B.
         
@@ -306,20 +308,20 @@ extension MPFUN {
         }
         
         mpsub (a, b, &c, mpnw)
-        var t = MPRNumber(c[lc...])
-        mpsub (MPRNumber(a[la...]), MPRNumber(b[lb...]), &t, mpnw)
+        var t = MPReal(c[lc...])
+        mpsub (MPReal(a[la...]), MPReal(b[lb...]), &t, mpnw)
         c[lc...] = t[0...]
     } // mpcsub
     
   
-    static func mpcpr (_ a : MPRNumber, _ b : MPRNumber, _ ic : inout Int, _ mpnw : Int) {
+    static func mpcpr (_ a : MPReal, _ b : MPReal, _ ic : inout Int, _ mpnw : Int) {
         
         //   This routine compares the MPR numbers A and B and returns in IC the value
         //   -1, 0, or 1 depending on whether A < B, A = B, or A > B.
         //   Note that the first and second words do NOT need to be the same for the
         //   result to be "equal".
         
-        var s0 = MPRNumber(repeating: 0, count:mpnw+6)
+        var s0 = MPReal(repeating: 0, count:mpnw+6)
         
         // End of declaration
         
@@ -340,7 +342,7 @@ extension MPFUN {
     } // mpcpr
     
     
-    static func mpdmc (_ a : Double, _ n : Int, _ b: inout MPRNumber, _ mpnw: Int) {
+    static func mpdmc (_ a : Double, _ n : Int, _ b: inout MPReal, _ mpnw: Int) {
         
         //   This routine converts the DP number A * 2^N to MPR form in B.
         
@@ -429,7 +431,7 @@ extension MPFUN {
         //return
     } // mpdmc
     
-    static func mpdmc40 (_ a : Double, _ n : Int, _ b: inout MPRNumber, _ mpnw: Int) {
+    static func mpdmc40 (_ a : Double, _ n : Int, _ b: inout MPReal, _ mpnw: Int) {
         
         //   This routine converts the DP number A * 2^N to MPR form in B.  In contrast
         //   to mpdmc, this routine only allows 40 significant bits (approximately
@@ -465,7 +467,7 @@ extension MPFUN {
     } // mpdmc40
     
     
-    static func mpeq (_ a : MPRNumber, _ b : inout MPRNumber, _ mpnw : Int) {
+    static func mpeq (_ a : MPReal, _ b : inout MPReal, _ mpnw : Int) {
         
         //   Sets the MPR number B equal to the MPR number A.
         
@@ -495,7 +497,7 @@ extension MPFUN {
         // 110 continue
     } // mpeq
     
-    static func mpinfr (_ a: MPRNumber, _ b: inout MPRNumber, _ c: inout MPRNumber, _ mpnw: Int) {
+    static func mpinfr (_ a: MPReal, _ b: inout MPReal, _ c: inout MPReal, _ mpnw: Int) {
         
         //   Sets B to the integer part of the MPR number A and sets C equal to the
         //   fractional part of A.  Note this is NOT the quite same as the greatest
@@ -580,12 +582,12 @@ extension MPFUN {
         // return
     } // mpinfr
     
-    static func mpadd (_ a : MPRNumber, _ b : MPRNumber, _ c : inout MPRNumber, _ mpnw : Int) {
+    static func mpadd (_ a : MPReal, _ b : MPReal, _ c : inout MPReal, _ mpnw : Int) {
         
         //   This routine adds MPR numbers A and B to yield C.
         
         var ia, ib, ish, ixa, ixb, ixd, m1, m2, m3, m4, m5, na, nb, nd, nsh : Int
-        var d = MPRNumber(repeating: 0, count: mpnw+7)
+        var d = MPReal(repeating: 0, count: mpnw+7)
         var db : Double
         
         // End of declaration
@@ -738,7 +740,7 @@ extension MPFUN {
         mpnorm (d, &c, mpnw)
     }
     
-    static func mpmul (_ a : MPRNumber, _ b : MPRNumber, _ c : inout MPRNumber, _ mpnw : Int) {
+    static func mpmul (_ a : MPReal, _ b : MPReal, _ c : inout MPReal, _ mpnw : Int) {
         
         //   This routine multiplies MPR numbers A and B to yield C.
         
@@ -752,7 +754,7 @@ extension MPFUN {
         var i1, i2, j3, ia, ib, na, nb, nc, n2 : Int
         let mpnwx = 200
         var a1, a2, c1, c2, dc, d2, t1, t2 : Double
-        var d = MPRNumber(repeating: 0, count: mpnw+6)
+        var d = MPReal(repeating: 0, count: mpnw+6)
         var b1 = d; var b2 = d
         
         // End of declaration
@@ -881,7 +883,7 @@ extension MPFUN {
         //    return
     } // mpmul
     
-    static func mpmuld (_ a : MPRNumber, _ b : Double, _ c : inout MPRNumber, _ mpnw : Int) {
+    static func mpmuld (_ a : MPReal, _ b : Double, _ c : inout MPReal, _ mpnw : Int) {
         
         //   This routine multiplies the MPR number A by the DP number B to yield C.
         
@@ -896,7 +898,7 @@ extension MPFUN {
         
         var ia, ib, na, n1 : Int
         var a1, a2, bb, b1, b2, c1, c2, dc : Double
-        var d = MPRNumber(repeating: 0, count: mpnw+6)
+        var d = MPReal(repeating: 0, count: mpnw+6)
         
         // End of declaration
         
@@ -997,7 +999,7 @@ extension MPFUN {
         //    return
     } // mpmuld
     
-    static func mpmuld40 (_ a : MPRNumber, _ b : Double, _ c : inout MPRNumber, _ mpnw : Int) {
+    static func mpmuld40 (_ a : MPReal, _ b : Double, _ c : inout MPReal, _ mpnw : Int) {
         
         //   This routine multiples the MP number A by the DP number B to yield C.
         //   In contrast to mpmuld, this routine only allows 40 significant bits
@@ -1034,14 +1036,14 @@ extension MPFUN {
         return
     } // mpmuld40
     
-    static func mpdiv (_ a: MPRNumber, _ b: MPRNumber, _ c: inout MPRNumber, _ mpnw: Int) {
+    static func mpdiv (_ a: MPReal, _ b: MPReal, _ c: inout MPReal, _ mpnw: Int) {
         
         //   This divides the MPR number A by the MP number B to yield C.
         
         var i2, i3, ia, ib, ij, iss, j, j3, md, na, nb, nc : Int
         let mpnwx = 200
         var a1, a2, b1, b2, c1, c2, dc, rb, t0, t1, t2 : Double
-        var d = MPRNumber(repeating: 0, count: mpnw+7)
+        var d = MPReal(repeating: 0, count: mpnw+7)
         
         // End of declaration
         
@@ -1192,7 +1194,7 @@ extension MPFUN {
         //return
     } // mpdiv
     
-    static func mpdivd (_ a: MPRNumber, _ b: Double, _ c: inout MPRNumber, _ mpnw: Int) {
+    static func mpdivd (_ a: MPReal, _ b: Double, _ c: inout MPReal, _ mpnw: Int) {
         
         //   This routine divides the MPR number A by the DP number B to yield C.
         
@@ -1205,7 +1207,7 @@ extension MPFUN {
         
         var iss, ia, ib, j, md, na, nc, n1 : Int
         var a1, a2, bb, b1, b2, c1, c2, dc, rb, t0, t1 : Double
-        var d = MPRNumber(repeating: 0, count: mpnw+6)
+        var d = MPReal(repeating: 0, count: mpnw+6)
         
         // End of declaration
         
@@ -1363,7 +1365,7 @@ extension MPFUN {
         //return
     } // mpdivd
     
-    static func mpdivd40 (_ a: MPRNumber, _ b: Double, _ c: inout MPRNumber, _ mpnw: Int) {
+    static func mpdivd40 (_ a: MPReal, _ b: Double, _ c: inout MPReal, _ mpnw: Int) {
         
         //   This routine divides the MPR number A by the DP number B to yield C.
         //   In contrast to mpdivd, this routine only allows 40 significant bits
@@ -1398,7 +1400,7 @@ extension MPFUN {
         }
     } // mpdivd40
     
-    static func mpmdc (_ a: MPRNumber, _ b: inout Double, _ n: inout Int, _ mpnw: Int) {
+    static func mpmdc (_ a: MPReal, _ b: inout Double, _ n: inout Int, _ mpnw: Int) {
         
         //   This returns a DP approximation the MPR number A in the form B * 2^n.
         
@@ -1444,13 +1446,13 @@ extension MPFUN {
         //   return
     } // mpmdc
     
-    static func mpnint (_ a: MPRNumber, _ b: inout MPRNumber, _ mpnw: Int) {
+    static func mpnint (_ a: MPReal, _ b: inout MPReal, _ mpnw: Int) {
         
         //   This sets B to the nearest integer to the MPR number A.
         //   Examples:  If A = 1.49, B = 1.; if A = 3.5, B = 4; if A = -2.5, B = -3.
         
         var ia, ma, na : Int
-        var s0 = MPRNumber(repeating: 0, count: mpnw+6)
+        var s0 = MPReal(repeating: 0, count: mpnw+6)
         var s1 = s0
         
         // End of declaration
@@ -1499,7 +1501,7 @@ extension MPFUN {
         //return
     } // mpnint
     
-    static func mpnorm (_ d: MPRNumber, _ a: inout MPRNumber, _ mpnw : Int) {
+    static func mpnorm (_ d: MPReal, _ a: inout MPReal, _ mpnw : Int) {
         
         //   This converts the MP number in array D to the standard normalized form
         //   in A.
@@ -1586,7 +1588,7 @@ extension MPFUN {
     } // mpnorm
     
     
-    static func mpnpwr (_ a : MPRNumber, _ n : Int, _ b : inout MPRNumber, _ mpnw : Int) {
+    static func mpnpwr (_ a : MPReal, _ n : Int, _ b : inout MPReal, _ mpnw : Int) {
         
         //   This computes the N-th power of the MPR number A and returns the result
         //   in B.  When N is zero, 1 is returned.  When N is negative, the reciprocal
@@ -1595,7 +1597,7 @@ extension MPFUN {
         var i, j, k, kk, kn, k0, k1, k2, mn, mpnw1, na, nn, nws : Int
         var t1 : Double
         let cl2 = 1.4426950408889633e0; let mprxx = 1e-14
-        var s0 = MPRNumber(repeating: 0, count: mpnw+7)
+        var s0 = MPReal(repeating: 0, count: mpnw+7)
         var s1 = s0
         var s2 = s0
         
@@ -1679,7 +1681,7 @@ extension MPFUN {
         reciprocal()
     } // mpnpwr
     
-    static func mpnrtr (_ a : MPRNumber, _ n : Int, _ b : inout MPRNumber, _ mpnw : Int) {
+    static func mpnrtr (_ a : MPReal, _ n : Int, _ b : inout MPReal, _ mpnw : Int) {
         
         //   This computes the N-th root of the MPR number A and returns result in B.
         //   N must be at least one and must not exceed 2 ^ 30.
@@ -1704,8 +1706,8 @@ extension MPFUN {
         var t1, t2, tn : Double
         let alt = 0.693147180559945309; let cl2 = 1.4426950408889633
         let nit = 3; let n30 = Int(pow(2, 30.0)); let mprxx = 1e-14
-        var f1 = MPRNumber(repeating: 0, count: 8)
-        var s0 = MPRNumber(repeating: 0, count: mpnw+6)
+        var f1 = MPReal(repeating: 0, count: 8)
+        var s0 = MPReal(repeating: 0, count: mpnw+6)
         var s1 = s0; var s2 = s0; var s3 = s0
         
         // End of declaration
@@ -1849,7 +1851,7 @@ extension MPFUN {
         mpeq (s1, &b, mpnw)
     } //  mpnrtr
     
-    static func mpoutw (_ anam : String, _ a : MPRNumber, _ mpnw : Int) {
+    static func mpoutw (_ anam : String, _ a : MPReal, _ mpnw : Int) {
         
         //   This outputs the words of A up to the end of the active mantissa.
         //   This is for internal debugging only; it should not be called by user.
@@ -1863,7 +1865,7 @@ extension MPFUN {
 //        write (iu, "(4f18.0)") (a[i], i = 0, na + 5)
     } //  mpoutw
     
-    static func mproun (_ a : inout MPRNumber, _ mpnw : Int) {
+    static func mproun (_ a : inout MPReal, _ mpnw : Int) {
         
         //   This performs rounding and truncation of the MPR number A.  It is called
         //   by MPNORM, and also by other subroutines when the precision level is
@@ -1999,7 +2001,7 @@ extension MPFUN {
         //            return
     } //  mproun
     
-    static func mpsqrt (_ a : MPRNumber, _ b : inout MPRNumber, _ mpnw : Int) {
+    static func mpsqrt (_ a : MPReal, _ b : inout MPReal, _ mpnw : Int) {
         
         //   This computes the square root of the MPR number A and returns the result in B.
         
@@ -2024,7 +2026,7 @@ extension MPFUN {
         var ia, iq, mpnw1, mq, n, na, nw1, nw2, n2 : Int
         var t1, t2 : Double
         let cl2 = 1.4426950408889633; let mprxx = 1e-14;  let nit = 3
-        var s0 = MPRNumber(repeating: 0, count: mpnw+6)
+        var s0 = MPReal(repeating: 0, count: mpnw+6)
         var s1 = s0; var s2 = s0; var s3 = s0
         
         // End of declaration
@@ -2124,12 +2126,12 @@ extension MPFUN {
 //        return
     } //  mpsqrt
     
-    static func mpsub  (_ a : MPRNumber, _ b : MPRNumber, _ c : inout MPRNumber, _ mpnw : Int)  {
+    static func mpsub  (_ a : MPReal, _ b : MPReal, _ c : inout MPReal, _ mpnw : Int)  {
         
         //   This routine subtracts MPR numbers A and B to yield C.
         
         var nb : Int
-        var s = MPRNumber(repeating: 0, count: mpnw+6)
+        var s = MPReal(repeating: 0, count: mpnw+6)
         
         // End of declaration
         
@@ -2158,7 +2160,7 @@ extension MPFUN {
     
     // ***  The following are the extra-high precision routines:
     
-    static func mpdivx (_ a : MPRNumber, _ b : MPRNumber, _ c : inout MPRNumber, _ mpnw : Int)  {
+    static func mpdivx (_ a : MPReal, _ b : MPReal, _ c : inout MPReal, _ mpnw : Int)  {
         
         //   This divides A by B and returns the result in C.
         
@@ -2183,7 +2185,7 @@ extension MPFUN {
         var iq, mpnw1, mq, n, na, nb, nw1, nw2 : Int
         var t1, t2 : Double
         let cl2 = 1.4426950408889633; let mprxx = 1e-14; let nit = 3
-        var s0 = MPRNumber(repeating: 0, count: mpnw+6)
+        var s0 = MPReal(repeating: 0, count: mpnw+6)
         var s1 = s0; var s2 = s0; var s3 = s0
         
         // End of declaration
@@ -2280,7 +2282,7 @@ extension MPFUN {
 //        return
     } //  mpdivx
     
-    static func mpfftcr (_ iss : Int, _ m : Int, _ n : Int, _ nsq : Int, _ x : inout MPRComplex, _ y : inout MPRNumber) {
+    static func mpfftcr (_ iss : Int, _ m : Int, _ n : Int, _ nsq : Int, _ x : inout MPComplex, _ y : inout MPReal) {
         
         //   This performs an N-point complex-to-real FFT, where N = 2^M.  X is the
         //   double complex input array, and Y is the double precision output array.
@@ -2290,7 +2292,7 @@ extension MPFUN {
         //   This routine is not intended to be called directly by the user.
         
         var ku, mx, n2, n4 : Int
-        var dc1 = MPRComplex(repeating:Complex64(), count:n/2)
+        var dc1 = MPComplex(repeating:Complex64(), count:n/2)
         var ai, a1, a2, x1, x2 : Complex64
 
         mx = Int(mpuu1[1].re)
@@ -2339,7 +2341,7 @@ extension MPFUN {
 
         //   Perform a normal N/2-point FFT on DC1.
         // Not sure how to deal with this?
-        guard false else { return }
+        assert(false, "Fix mpfftcr!")
        // mpfft1 (iss, m - 1, n1, n2 / n1, &dc1, &x)
 
         //   Copy DC1 to Y such that DC1(k) = Y(2k-1) + i Y(2k).
@@ -2350,7 +2352,7 @@ extension MPFUN {
 //        }
     } //  mpfftcr
     
-    static func mpfftrc (_ iss : Int, _ m : Int, _ n : Int, _ nsq : Int, _ x: MPRNumber, _ y: inout MPRComplex) {
+    static func mpfftrc (_ iss : Int, _ m : Int, _ n : Int, _ nsq : Int, _ x: MPReal, _ y: inout MPComplex) {
         
         //   This performs an N-point real-to-complex FFT, where N = 2^M.  X is the
         //   dobule precision input array, and Y is the double complex output array.
@@ -2358,7 +2360,7 @@ extension MPFUN {
         //   This routine is not intended to be called directly by the user.
         
         var mx, n2 : Int
-        var dc1 = MPRComplex(repeating:Complex64(), count:n/2)
+        var dc1 = MPComplex(repeating:Complex64(), count:n/2)
         // var ai, a1, a2, z1, z2 : Complex64
         
         mx = Int(mpuu1[1].re)
@@ -2386,7 +2388,7 @@ extension MPFUN {
         //   Perform a normal N/2-point FFT on DC1.
         
         // Not sure how to deal with this?
-        guard false else { return }
+        assert(false, "Fix mpfftrc!")
         // mpfft1 (iss, m - 1, n1, n2 / n1, &dc1, &y)
         
         //   Reconstruct the FFT of X.
@@ -2423,7 +2425,7 @@ extension MPFUN {
     } //  mpfftrc
     
 
-    static func mpfft1 (_ iss : Int, _ m : Int, _ n1 : Int, _ n2 : Int, _ x: inout [MPRComplex], _ y: inout [MPRComplex]) {
+    static func mpfft1 (_ iss : Int, _ m : Int, _ n1 : Int, _ n2 : Int, _ x: inout [MPComplex], _ y: inout [MPComplex]) {
         
         //   This routine performs a complex-to-complex FFT.  IS is the sign of the
         //   transform, N = 2^M is the size of the transform.  N1 = 2^M1 and N2 = 2^M2,
@@ -2436,8 +2438,8 @@ extension MPFUN {
         //   This employs the two-pass variant of the "four-step" FFT.  See the
         //   article by David H. Bailey in J. of Supercomputing, March 1990, p. 23-35.
         var iu, j2, ku, m1, m2, nr1, nr2 : Int
-        let zero = MPRComplex(repeating: Complex64(), count:mpnrow+mpnsp1+1)
-        var z1 = [MPRComplex](repeating: zero, count:n1+1)
+        let zero = MPComplex(repeating: Complex64(), count:mpnrow+mpnsp1+1)
+        var z1 = [MPComplex](repeating: zero, count:n1+1)
         var z2 = z1
         
       //  let n = Int(pow(2.0, Double(m)))
@@ -2515,7 +2517,7 @@ extension MPFUN {
         }
     } //  mpfft1
     
-    static func mpfft2 (_ iss : Int, _ ns : Int, _ m : Int, _ n : Int, _ x: inout [MPRComplex], _ y: inout [MPRComplex]) {
+    static func mpfft2 (_ iss : Int, _ ns : Int, _ m : Int, _ n : Int, _ x: inout [MPComplex], _ y: inout [MPComplex]) {
         
         //   This performs NS simultaneous N-point complex-to-complex FFTs, where
         //   N = 2^M.  X is the input and output array, and Y is a scratch array.
@@ -2546,7 +2548,7 @@ extension MPFUN {
         
     } //  mpfft2
     
-    static func mpfft3 (_ iss : Int, _ l : Int, _ ns : Int, _ m : Int, _ n : Int, _ x: inout [MPRComplex], _ y: inout [MPRComplex]) {
+    static func mpfft3 (_ iss : Int, _ l : Int, _ ns : Int, _ m : Int, _ n : Int, _ x: inout [MPComplex], _ y: inout [MPComplex]) {
         
         //   This performs the L-th iteration of the second variant of the Stockham FFT
         //   on the NS vectors in X.  X is input/output, and Y is a scratch array.
@@ -2668,7 +2670,7 @@ extension MPFUN {
     } //  mpinifft
    
  
-    static func mplconv (_ iq: Int, _ n: Int, _ nsq: Int, _ a: MPRNumber, _ b: MPRNumber, _ c: inout MPRNumber) {
+    static func mplconv (_ iq: Int, _ n: Int, _ nsq: Int, _ a: MPReal, _ b: MPReal, _ c: inout MPReal) {
         
         //   This computes the linear convolution of A and B, returning the result
         //   in C.  If IQ is 1, { it is presumed B = A; if IQ = 2, { A //= B.
@@ -2677,8 +2679,8 @@ extension MPFUN {
         var m1, m2, n1, n2, n4, nm : Int
         var c0, an, t1, t2 : Double
         let cl2 = 1.4426950408889633; let mprxx = 1e-14; let mpffterrmx = 0.375
-        var d1 = MPRNumber(repeating:0, count:6*n+3); var d2 = d1; var d3 = d1
-        var dc1 = MPRComplex(repeating: Complex64(), count:3*n+nsq*mpnsp1+4); var dc2 = dc1
+        var d1 = MPReal(repeating:0, count:6*n+3); var d2 = d1; var d3 = d1
+        var dc1 = MPComplex(repeating: Complex64(), count:3*n+nsq*mpnsp1+4); var dc2 = dc1
         
         t1 = Double(n)
         m1 = Int(cl2 * log (t1) + Double(1 - mprxx))
@@ -2763,7 +2765,7 @@ extension MPFUN {
     } //  mplconv
     
     
-    static func mpmulx (_ a: MPRNumber, _ b: MPRNumber, _ c: inout MPRNumber, _ mpnw: Int) {
+    static func mpmulx (_ a: MPReal, _ b: MPReal, _ c: inout MPReal, _ mpnw: Int) {
         
         //   This routine multiplies MP numbers A and B to yield the MP product C,
         //   using a FFT-convolution technique.  Before calling MPMULX, the arrays
@@ -2772,12 +2774,12 @@ extension MPFUN {
         
         var ia, ib, na, nb, nc, nn, nx : Int
         let mprxx = 1e-14
-        var d = MPRNumber(repeating: 0, count:mpnw+8)
+        var d = MPReal(repeating: 0, count:mpnw+8)
         var t0, t1, t2, t3, t4, t5 : Double
         let r16 = pow(0.5, Double(16)); let t16 = Double(1<<16); let r32 = pow(0.5, Double(32))
         let t32 = Double(1<<32); let r48 = pow(0.5, Double(48)); let t48 = Double(1<<48)
-        var d1 = MPRNumber(repeating: 0, count:3*mpnw+17); var d2 = d1
-        var d3 = MPRNumber(repeating: 0, count:6*mpnw+33)
+        var d1 = MPReal(repeating: 0, count:3*mpnw+17); var d2 = d1
+        var d3 = MPReal(repeating: 0, count:6*mpnw+33)
         
         // End of declaration
         
@@ -2874,7 +2876,7 @@ extension MPFUN {
     //>   These two subroutines are for real*16 support.  See "Uncomment" below
     //>   for differences.
     
-    static func mpmqc (_ a: MPRNumber, _ b: inout Double, _ n: inout Int, _ mpnw: Int) {
+    static func mpmqc (_ a: MPReal, _ b: inout Double, _ n: inout Int, _ mpnw: Int) {
         
         //   This returns a quad (real*16) approximation the MPR number A in the form B * 2^n.
         
@@ -2924,7 +2926,7 @@ extension MPFUN {
         // 100  continue
     } //  mpmqc
     
-    static func mpqmc (_ a: Double, _ n: Int, _ b: inout MPRNumber, _ mpnw: Int) {
+    static func mpqmc (_ a: Double, _ n: Int, _ b: inout MPReal, _ mpnw: Int) {
         
         //   This routine converts the quad (real*16) number A * 2^N to MPR form in B.
         

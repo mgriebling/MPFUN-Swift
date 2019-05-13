@@ -55,7 +55,7 @@ import Foundation
 
 extension MPFUN {
     
-    static func mpctomp (_ a: String, _ b: inout MPRNumber, _ mpnw: Int) {
+    static func mpctomp (_ a: String, _ b: inout MPReal, _ mpnw: Int) {
         
         //  Converts the string A into the MPR number B.
         //  Restrictions: (a) no embedded blanks; (b) a leading digit (possibly
@@ -74,8 +74,8 @@ extension MPFUN {
         let lexpmx = 9
 
         let d10w = pow(10.0, Double(mpndpw))
-        var f = MPRNumber(repeating: 0, count: 9)
-        var s0 = MPRNumber(repeating: 0, count: mpnw+7)
+        var f = MPReal(repeating: 0, count: 9)
+        var s0 = MPReal(repeating: 0, count: mpnw+7)
         var s1 = s0; var s2 = s0
         var a = a.trimmingCharacters(in: CharacterSet.whitespaces)   // mutable version of input string
         
@@ -323,7 +323,7 @@ extension MPFUN {
         return ca
     } // mpdigout
 
-    static func mpeformat (_ a : MPRNumber, _ nb : Int, _ nd : Int, _ b : inout String, _ mpnw : Int) {
+    static func mpeformat (_ a : MPReal, _ nb : Int, _ nd : Int, _ b : inout String, _ mpnw : Int) {
         
         //   Converts the MPR number A into character form in the character(1) array B.
         //   NB (input) is the length of the output string, and ND (input) is the
@@ -336,8 +336,8 @@ extension MPFUN {
         var ca, b2 : String
         let digits = "0123456789"
         var aa, an, t1, d10w : Double
-        var f = MPRNumber(repeating: 0, count: 9)
-        var s0 = MPRNumber(repeating: 0, count: mpnw+7)
+        var f = MPReal(repeating: 0, count: 9)
+        var s0 = MPReal(repeating: 0, count: mpnw+7)
         var s1 = s0
         
         // End of declaration
@@ -555,7 +555,7 @@ extension MPFUN {
     } // mpeformat
 
     
-    static func mpfformat (_ a : MPRNumber, _ nb : Int, _ nd : Int, _ b : inout String, _ mpnw : Int) {
+    static func mpfformat (_ a : MPReal, _ nb : Int, _ nd : Int, _ b : inout String, _ mpnw : Int) {
         
         //   Converts the MPR number A into character form in the character(1) array B.
         //   NB (input) is the length of the output string, and ND (input) is the
@@ -569,8 +569,8 @@ extension MPFUN {
         var ixp, j, mpnw1, nb2, nexp : Int
         var b2, ca : String
         var t1 : Double
-        var f = MPRNumber(repeating: 0, count: 8)
-        var s0 = MPRNumber(repeating: 0, count: mpnw+6)
+        var f = MPReal(repeating: 0, count: 8)
+        var s0 = MPReal(repeating: 0, count: mpnw+6)
         var s1 = s0
         
         // End of declaration
@@ -732,7 +732,7 @@ extension MPFUN {
         }
     } // mpfformat
 
-    static func mpinp (_ iu : InputStream, _ a : inout MPRNumber, _ mpnw : Int) {
+    static func mpinp (_ iu : InputStream, _ a : inout MPReal, _ mpnw : Int) {
         
         //   This routine reads the MPR number A from InputStream IU.  The digits of A
         //   may span more than one line, provided that a "\" appears at the end of
@@ -824,7 +824,7 @@ extension MPFUN {
         //300 return
     } // mpinp
 
-    static func mpout (_ iu : OutputStream, _ ln : Int, _ nd : Int, _ a : MPRNumber, _ mpnw : Int) {
+    static func mpout (_ iu : OutputStream, _ ln : Int, _ nd : Int, _ a : MPReal, _ mpnw : Int) {
         
         //   This routine writes MPR number A to logical unit IU in E(LN,ND) format.
         //   This is output on MPOUTL characters per line.  The value of MPOUTL is set

@@ -10,7 +10,7 @@ import Foundation
 
 extension MPFUN {
     
-    static func mpagmr (_ a: MPRNumber, _ b: MPRNumber, _ c: inout MPRNumber, _ mpnw: Int) {
+    static func mpagmr (_ a: MPReal, _ b: MPReal, _ c: inout MPReal, _ mpnw: Int) {
         
         //   This performs the arithmetic-geometric mean (AGM) iterations on A and B.
         //   The AGM algorithm is as follows: Set a_0 = a and b_0 = b, then iterate
@@ -23,7 +23,7 @@ extension MPFUN {
         
         var mpnw1 : Int
         let itrmx = 50
-        var s0 = MPRNumber(repeating: 0, count:mpnw+7)
+        var s0 = MPReal(repeating: 0, count:mpnw+7)
         var s1 = s0; var s2 = s0; var s3 = s0
         
         if mpnw < 4 || a[0] < Double(mpnw + 4) || b[0] < abs (a[2]) + 4 || c[0] < Double(mpnw + 6) {
@@ -68,7 +68,7 @@ extension MPFUN {
         
     } // mpagmr
     
-    static func mpang (_ x: MPRNumber, _ y: MPRNumber, _ a: inout MPRNumber, _ mpnw: Int) {
+    static func mpang (_ x: MPReal, _ y: MPReal, _ a: inout MPReal, _ mpnw: Int) {
         
         //   This computes the MPR angle A subtended by the MPR pair (X, Y) considered as
         //   a point in the x-y plane.  This is more useful than an arctan or arcsin
@@ -95,7 +95,7 @@ extension MPFUN {
         var t1, t2, t3 : Double
         let cl2 = 1.4426950408889633 // let cpi = 3.141592653589793
         let mprxx = 1e-14; let mpnwx = 100; let nit = 3
-        var s0 = MPRNumber(repeating: 0, count:mpnw+7)
+        var s0 = MPReal(repeating: 0, count:mpnw+7)
         var s1 = s0; var s2 = s0; var s3 = s0; var s4 = s0; var s5 = s0
         
         // End of declaration
@@ -239,7 +239,7 @@ extension MPFUN {
         
     } // mpang
     
-    static func mpangx (_ x: MPRNumber, _ y: MPRNumber, _ a: inout MPRNumber, _ mpnw: Int) {
+    static func mpangx (_ x: MPReal, _ y: MPReal, _ a: inout MPReal, _ mpnw: Int) {
         
         //   This computes the MPR angle A subtended by the MPR pair (X, Y) considered as
         //   a point in the x-y plane.  This is more useful than an arctan or arcsin
@@ -250,7 +250,7 @@ extension MPFUN {
         //   This routine simply calls mpclogx.  For modest precision, use mpang.
         
         var mp7 : Int
-        var s0 = MPRNumber(repeating: 0, count: 2*mpnw+14); var s1 = s0
+        var s0 = MPReal(repeating: 0, count: 2*mpnw+14); var s1 = s0
         
         // End of declaration
         
@@ -269,11 +269,11 @@ extension MPFUN {
         mpeq (y, &tmp, mpnw)
         s0[mp7...] = tmp[0...]
         mpclogx (s0, &s1, mpnw)
-        mpeq (MPRNumber(s1[mp7...]), &a, mpnw)
+        mpeq (MPReal(s1[mp7...]), &a, mpnw)
         
     } // mpangx
 
-    static func mpcagm (_ a: MPRNumber, _ b: MPRNumber, _ c: inout MPRNumber, _ mpnw: Int) {
+    static func mpcagm (_ a: MPReal, _ b: MPReal, _ c: inout MPReal, _ mpnw: Int) {
         
         //   This performs the arithmetic-geometric mean (AGM) iterations on A and B
         //   for MPC arguments A and B.
@@ -287,7 +287,7 @@ extension MPFUN {
         
         var la, lb, lc, mp7, mpnw1 : Int
         let itrmx = 50
-        var s0 = MPRNumber(repeating:0, count:2*mpnw+14)
+        var s0 = MPReal(repeating:0, count:2*mpnw+14)
         var s1 = s0; var s2 = s0; var s3 = s0
         
         la = Int(a[0])
@@ -316,8 +316,8 @@ extension MPFUN {
         for _ in 1...itrmx {
             mpcadd (s1, s2, &s0, mpnw1)
             mpmuld (s0, 0.5, &s3, mpnw1)
-            var t = MPRNumber(s3[mp7...])
-            mpmuld (MPRNumber(s0[mp7...]), 0.5, &t, mpnw1)
+            var t = MPReal(s3[mp7...])
+            mpmuld (MPReal(s0[mp7...]), 0.5, &t, mpnw1)
             s3[mp7...] = t[0...]
             mpcmul (s1, s2, &s0, mpnw1)
             mpcsqrt (s0, &s2, mpnw1)
@@ -340,12 +340,12 @@ extension MPFUN {
         // 100 continue
         
         mproun (&s1, mpnw)
-        var t = MPRNumber(s1[mp7...])
+        var t = MPReal(s1[mp7...])
         mproun (&t, mpnw); s1[mp7...] = t[0...]
         mpceq (s1, &c, mpnw)
     } // mpcagm
 
-    static func mpcexp (_ a: MPRNumber, _ b: inout MPRNumber, _ mpnw : Int) {
+    static func mpcexp (_ a: MPReal, _ b: inout MPReal, _ mpnw : Int) {
         
         //   This computes Exp[A], for MPC A.
         
@@ -357,7 +357,7 @@ extension MPFUN {
         
         var la, lb, mpnw1 : Int
         let mpnwx = 300
-        var s0 = MPRNumber(repeating: 0, count:mpnw+7)
+        var s0 = MPReal(repeating: 0, count:mpnw+7)
         var s1 = s0; var s2 = s0; var s3 = s0; var s4 = s0
         
         // End of declaration
@@ -384,14 +384,14 @@ extension MPFUN {
         s4[0] = Double(mpnw + 7)
         
         mpexp (a, &s0, mpnw1)
-        mpcssnr (MPRNumber(a[la...]), &s1, &s2, mpnw1)
+        mpcssnr (MPReal(a[la...]), &s1, &s2, mpnw1)
         mpmul (s0, s1, &s3, mpnw1)
         mpmul (s0, s2, &s4, mpnw1)
         
         mproun (&s3, mpnw)
         mproun (&s4, mpnw)
         mpeq (s3, &b, mpnw)
-        var t = MPRNumber(b[lb...])
+        var t = MPReal(b[lb...])
         mpeq (s4, &t, mpnw)
         b[lb...] = t[0...]
         
@@ -399,7 +399,7 @@ extension MPFUN {
         
     } // mpcexp
     
-    static func mpcexpx (_ a: MPRNumber, _ b: inout MPRNumber, _ mpnw : Int) {
+    static func mpcexpx (_ a: MPReal, _ b: inout MPReal, _ mpnw : Int) {
         
         //   This computes the exponential of the MPC number A and returns the MPC
         //   result in B.
@@ -415,9 +415,9 @@ extension MPFUN {
         var iq, la, lb, mpnw1, mp7, mq, nb, n0, n1 : Int
         var t0, t1, t2 : Double
         let cl2 = 1.4426950408889633; let nit = 3; let mprxx = 1e-14
-        var s0 = MPRNumber(repeating: 0, count:2*mpnw+14)
+        var s0 = MPReal(repeating: 0, count:2*mpnw+14)
         var s1 = s0; var s2 = s0; var s3 = s0; var s4 = s0
-        var r1 = MPRNumber(repeating: 0, count:mpnw+7); var r2 = r1
+        var r1 = MPReal(repeating: 0, count:mpnw+7); var r2 = r1
         
         // End of declaration
         
@@ -469,7 +469,7 @@ extension MPFUN {
         
         //   Check if imaginary part is too large to compute meaningful cos/sin values.
         
-        mpmdc (MPRNumber(a[la...]), &t1, &n1, mpnw)
+        mpmdc (MPReal(a[la...]), &t1, &n1, mpnw)
         if (n1 >= mpnbt * (mpnw - 1)) {
             print ("*** MPCEXPX: imaginary part is too large to compute cos or sin.")
             mpabrt (28)
@@ -502,18 +502,18 @@ extension MPFUN {
         
         mpeq (a, &s4, mpnw1)
         mpmuld (mppicon, 2.0, &s0, mpnw1)
-        mpdiv (MPRNumber(a[la...]), s0, &s1, mpnw1)
+        mpdiv (MPReal(a[la...]), s0, &s1, mpnw1)
         mpnint (s1, &s2, mpnw1)
         mpmul (s2, s0, &s1, mpnw1)
-        var t = MPRNumber(s4[mp7...])
-        mpsub (MPRNumber(a[la...]), s1, &t, mpnw1)
+        var t = MPReal(s4[mp7...])
+        mpsub (MPReal(a[la...]), s1, &t, mpnw1)
         s4[mp7...] = t[0...]
         
         //   Check if imaginary part is -pi; if so correct to +pi.
         
-        mpadd (MPRNumber(s4[mp7...]), mppicon, &s2, mpnw1)
+        mpadd (MPReal(s4[mp7...]), mppicon, &s2, mpnw1)
         if s2[2] <= 0.0 || Int(s2[3]) < -mpnw {
-            var t = MPRNumber(s4[mp7...])
+            var t = MPReal(s4[mp7...])
             mpeq (mppicon, &t, mpnw1)
             s4[mp7...] = t[0...]
         }
@@ -540,18 +540,18 @@ extension MPFUN {
         t0 = pow(2.0, (t0 * pow(2.0, Double(n0))))
         mpdmc (t0, n1, &s0, mpnw1)
         
-        mpmdc (MPRNumber(s4[mp7...]), &t0, &n0, mpnw1)
+        mpmdc (MPReal(s4[mp7...]), &t0, &n0, mpnw1)
         t0 = t0 * pow(2.0, Double(n0))
         t1 = cos (t0)
         t2 = sin (t0)
         if (abs (t1) < 1e-14) { t1 = 0.0 }
         if (abs (t2) < 1e-14) { t2 = 0.0 }
         mpdmc (t1, 0, &s1, mpnw1)
-        t = MPRNumber(s1[mp7...])
+        t = MPReal(s1[mp7...])
         mpdmc (t2, 0, &t, mpnw1); s1[mp7...] = t[0...]
         mpmul (s0, s1, &s3, mpnw1)
-        t = MPRNumber(s3[mp7...])
-        mpmul (s0, MPRNumber(s1[mp7...]), &t, mpnw1); s3[mp7...] = t[0...]
+        t = MPReal(s3[mp7...])
+        mpmul (s0, MPReal(s1[mp7...]), &t, mpnw1); s3[mp7...] = t[0...]
         iq = 0
         
         //   Perform the Newton-Raphson iteration described above with a dynamically
@@ -568,14 +568,14 @@ extension MPFUN {
                 //   Check if we need to add or subtract 2*pi to the output of imaginary part,
                 //   in order to remain consistent with previous iterations.
                 
-                mpsub (MPRNumber(s4[mp7...]), MPRNumber(s0[mp7...]), &r1, 4)
+                mpsub (MPReal(s4[mp7...]), MPReal(s0[mp7...]), &r1, 4)
                 if (r1[2] != 0.0 && r1[3] >= -1.0) {
-                    var t = MPRNumber(s0[mp7...])
+                    var t = MPReal(s0[mp7...])
                     if (r1[2] > 0.0) {
-                        mpadd (MPRNumber(s0[mp7...]), mppicon, &r1, mpnw1)
+                        mpadd (MPReal(s0[mp7...]), mppicon, &r1, mpnw1)
                         mpadd (r1, mppicon, &t, mpnw1)
                     } else {
-                        mpsub (MPRNumber(s0[mp7...]), mppicon, &r1, mpnw1)
+                        mpsub (MPReal(s0[mp7...]), mppicon, &r1, mpnw1)
                         mpsub (r1, mppicon, &t, mpnw1)
                     }
                     s0[mp7...] = t[0...]
@@ -596,7 +596,7 @@ extension MPFUN {
         //   Restore original precision level.
         
         mproun (&s1, mpnw)
-        t = MPRNumber(s1[mp7...])
+        t = MPReal(s1[mp7...])
         mproun (&t, mpnw); s1[mp7...] = t[0...]
         mpceq (s1, &b, mpnw)
         
@@ -604,7 +604,7 @@ extension MPFUN {
         
     } // mpcexpx
 
-    static func mpclog (_ a: MPRNumber, _ b: inout MPRNumber, _ mpnw : Int) {
+    static func mpclog (_ a: MPReal, _ b: inout MPReal, _ mpnw : Int) {
         
         //   This computes Log[A], for MPC A.
         
@@ -617,7 +617,7 @@ extension MPFUN {
         
         var la, lb, mpnw1 : Int
         let mpnwx = 30
-        var s0 = MPRNumber(repeating:0, count:mpnw+7)
+        var s0 = MPReal(repeating:0, count:mpnw+7)
         var s1 = s0; var s2 = s0; var s3 = s0; var s4 = s0
         
         // End of declaration
@@ -644,22 +644,22 @@ extension MPFUN {
         s4[0] = Double(mpnw + 7)
         
         mpmul (a, a, &s0, mpnw1)
-        mpmul (MPRNumber(a[la...]), MPRNumber(a[la...]), &s1, mpnw1)
+        mpmul (MPReal(a[la...]), MPReal(a[la...]), &s1, mpnw1)
         mpadd (s0, s1, &s2, mpnw1)
         mplog (s2, &s3, mpnw1)
         mpmuld (s3, 0.5, &s0, mpnw1)
-        mpang (a, MPRNumber(a[la...]), &s1, mpnw1)
+        mpang (a, MPReal(a[la...]), &s1, mpnw1)
         
         mproun (&s0, mpnw)
         mproun (&s1, mpnw)
         mpeq (s0, &b, mpnw)
-        var t = MPRNumber(b[lb...])
+        var t = MPReal(b[lb...])
         mpeq (s1, &t, mpnw); b[lb...] = t[0...]
         
         // 100 continue
     } // mpclog
     
-    static func mpclogx (_ a: MPRNumber, _ b: inout MPRNumber, _ mpnw : Int) {
+    static func mpclogx (_ a: MPReal, _ b: inout MPReal, _ mpnw : Int) {
         
         //   This computes the natural logarithm of the MP number A and returns the MP
         //   result in B.  Pi and Log(2) must be precomputed to at least MPNW words
@@ -677,8 +677,8 @@ extension MPFUN {
         var iss, la, lb, mpnw1, mp7, na1, na2, n1, n2 : Int
         var st, tol, t1, tn : Double
         let itrmax = 1000000; let rtol = pow(0.5, Double(7))
-        var f1 = MPRNumber(repeating:0, count:19); var f4 = f1
-        var s0 = MPRNumber(repeating:0, count:2*mpnw+14); var s1 = s0; var s2 = s0
+        var f1 = MPReal(repeating:0, count:19); var f4 = f1
+        var s0 = MPReal(repeating:0, count:2*mpnw+14); var s1 = s0; var s2 = s0
         var s3 = s0; var s4 = s0
         
         // End of declaration
@@ -784,8 +784,8 @@ extension MPFUN {
                 mpcmul (s1, s2, &s3, mpnw1)
                 mpceq (s3, &s2, mpnw1)
                 mpdivd (s3, st, &s4, mpnw1)
-                var t = MPRNumber(s4[mp7...])
-                mpdivd (MPRNumber(s3[mp7...]), st, &t, mpnw1)
+                var t = MPReal(s4[mp7...])
+                mpdivd (MPReal(s3[mp7...]), st, &t, mpnw1)
                 s4[mp7...] = t[0...]
                 mpcadd (s0, s4, &s3, mpnw1)
                 mpceq (s3, &s0, mpnw1)
@@ -793,7 +793,7 @@ extension MPFUN {
                     //goto 110
                     //  Restore original precision level.
                     mproun (&s0, mpnw)
-                    t = MPRNumber(s0[mp7...])
+                    t = MPReal(s0[mp7...])
                     mproun (&t, mpnw); s0[mp7...] = t[0...]
                     mpceq (s0, &b, mpnw)
                     return
@@ -811,8 +811,8 @@ extension MPFUN {
         tn = Double(n2)
         mpdmc (1.0, n2, &s1, mpnw1)
         mpmul (a, s1, &s0, mpnw1)
-        var t = MPRNumber(s0[mp7...])
-        mpmul (MPRNumber(a[la...]), s1, &t, mpnw1)
+        var t = MPReal(s0[mp7...])
+        mpmul (MPReal(a[la...]), s1, &t, mpnw1)
         s0[mp7...] = t[0...]
         
         //   Perform AGM iterations.
@@ -824,11 +824,11 @@ extension MPFUN {
         //   Compute Pi / (2 * A), where A is the limit of the AGM iterations.
         
         mpmuld (s3, 2.0, &s0, mpnw1)
-        t = MPRNumber(s0[mp7...])
-        mpmuld (MPRNumber(s3[mp7...]), 2.0, &t, mpnw1)
+        t = MPReal(s0[mp7...])
+        mpmuld (MPReal(s3[mp7...]), 2.0, &t, mpnw1)
         s0[mp7...] = t[0...]
         mpeq (mppicon, &s3, mpnw1)
-        t = MPRNumber(s3[mp7...])
+        t = MPReal(s3[mp7...])
         mpdmc (0.0, 0, &t, mpnw1)
         s3[mp7...] = t[0...]
         mpcdiv (s3, s0, &s1, mpnw1)
@@ -841,12 +841,12 @@ extension MPFUN {
         
         //   Check if imaginary part is -pi; if so correct to +pi.
         
-        mpadd (MPRNumber(s1[mp7...]), mppicon, &s2, mpnw1)
-        t = MPRNumber(s0[mp7...])
+        mpadd (MPReal(s1[mp7...]), mppicon, &s2, mpnw1)
+        t = MPReal(s0[mp7...])
         if (s2[2] <= 0.0 || Int(s2[3]) < -mpnw) {
             mpeq (mppicon, &t, mpnw1)
         } else {
-            mpeq (MPRNumber(s1[mp7...]), &t, mpnw1)
+            mpeq (MPReal(s1[mp7...]), &t, mpnw1)
         }
         s0[mp7...] = t[0...]
         
@@ -855,7 +855,7 @@ extension MPFUN {
         //  Restore original precision level.
         
         mproun (&s0, mpnw)
-        t = MPRNumber(s0[mp7...])
+        t = MPReal(s0[mp7...])
         mproun (&t, mpnw); s0[mp7...] = t[0...]
         mpceq (s0, &b, mpnw)
         
@@ -863,12 +863,12 @@ extension MPFUN {
         
     } // mpclogx
     
-    static func mpcpowcc (_ a: MPRNumber, _ b: MPRNumber, _ c: inout MPRNumber,_ mpnw : Int) {
+    static func mpcpowcc (_ a: MPReal, _ b: MPReal, _ c: inout MPReal,_ mpnw : Int) {
         
         //   This computes A^B, where A and B are MPC.
         
         var la, lb, lc : Int
-        var s1 = MPRNumber(repeating:0, count:2*mpnw+12); var s2 = s1
+        var s1 = MPReal(repeating:0, count:2*mpnw+12); var s2 = s1
         
         // End of declaration
         
@@ -893,12 +893,12 @@ extension MPFUN {
         
     } // mpcpowcc
     
-    static func mpcpowcr (_ a: MPRNumber, _ b: MPRNumber, _ c: inout MPRNumber, _ mpnw : Int) {
+    static func mpcpowcr (_ a: MPReal, _ b: MPReal, _ c: inout MPReal, _ mpnw : Int) {
         
         //   This computes A^B, where A is MPC and B is MPR.
         
         var la, lc, l3 : Int
-        var s1 = MPRNumber(repeating:0, count:2*mpnw+12); var s2 = s1
+        var s1 = MPReal(repeating:0, count:2*mpnw+12); var s2 = s1
         
         // End of declaration
         
@@ -918,18 +918,18 @@ extension MPFUN {
         s2[l3] = dl3
         mpclog (a, &s1, mpnw)
         mpmul (b, s1, &s2, mpnw)
-        var t = MPRNumber(s2[l3...])
-        mpmul (b, MPRNumber(s1[l3...]), &t, mpnw); s2[l3...] = t[0...]
+        var t = MPReal(s2[l3...])
+        mpmul (b, MPReal(s1[l3...]), &t, mpnw); s2[l3...] = t[0...]
         mpcexp (s2, &c, mpnw)
         
     } //  mpcpowcr
     
-    static func mpcpowrc (_ a: MPRNumber, _ b: MPRNumber, _ c: inout MPRNumber, _ mpnw : Int) {
+    static func mpcpowrc (_ a: MPReal, _ b: MPReal, _ c: inout MPReal, _ mpnw : Int) {
         
         //   This computes A^B, where A is MPR and and B is MPC.
         
         var lb, lc, l3 : Int
-        var s1 = MPRNumber(repeating:0, count:2*mpnw+12); var s2 = s1
+        var s1 = MPReal(repeating:0, count:2*mpnw+12); var s2 = s1
         
         // End of declaration
         
@@ -947,12 +947,12 @@ extension MPFUN {
         s2[l3] = Double(l3)
         mplog (a, &s1, mpnw)
         mpmul (s1, b, &s2, mpnw)
-        var t = MPRNumber(s2[l3...])
-        mpmul (s1, MPRNumber(b[lb...]), &t, mpnw); s2[l3...] = t[0...]
+        var t = MPReal(s2[l3...])
+        mpmul (s1, MPReal(b[lb...]), &t, mpnw); s2[l3...] = t[0...]
         mpcexp (s2, &c, mpnw)
     } // mpcpowrc
     
-    static func mpcsshr (_ a: MPRNumber, _ x: inout MPRNumber, _ y: inout MPRNumber, _ mpnw : Int) {
+    static func mpcsshr (_ a: MPReal, _ x: inout MPReal, _ y: inout MPReal, _ mpnw : Int) {
         
         //   This computes the hyperbolic cosine and sine of the MPR number A and
         //   returns the two MPR results in X and Y, respectively.  If the argument
@@ -961,8 +961,8 @@ extension MPFUN {
         
         var mpnw1, mpnw2 : Int
         let itrmx = 1000000  // let mpnwx = 700
-        var f = MPRNumber(repeating:0, count:10)
-        var s0 = MPRNumber(repeating:0, count:mpnw+7)
+        var f = MPReal(repeating:0, count:10)
+        var s0 = MPReal(repeating:0, count:mpnw+7)
         var s1 = s0; var s2 = s0; var s3 = s0
         var t2 : Double
         
@@ -1043,7 +1043,7 @@ extension MPFUN {
     } // mpcsshr
 
     
-    static func mpcssnr (_ a: MPRNumber, _ x: inout MPRNumber, _ y: inout MPRNumber, _ mpnw : Int) {
+    static func mpcssnr (_ a: MPReal, _ x: inout MPReal, _ y: inout MPReal, _ mpnw : Int) {
         
         //   This computes the cosine and sine of the MPR number A and returns the
         //   two MPR results in X and Y, respectively.  Pi must be precomputed to
@@ -1067,8 +1067,8 @@ extension MPFUN {
         var na, nq, n1 : Int
         let itrmx = 1000000; let mpnwx = 100000
         var t1, t2 : Double
-        var f1 = MPRNumber(repeating:0, count:9); var f2 = f1
-        var s0 = MPRNumber(repeating:0, count:mpnw+7); var s1 = s0; var s2 = s1; var s3 = s1
+        var f1 = MPReal(repeating:0, count:9); var f2 = f1
+        var s0 = MPReal(repeating:0, count:mpnw+7); var s1 = s0; var s2 = s1; var s3 = s1
         var s4 = s1; var s5 = s1; var s6 = s1
         
         // End of declaration
@@ -1262,7 +1262,7 @@ extension MPFUN {
         
     } //mpcssnr
     
-    static func mpcssnx (_ a: MPRNumber, _ x: inout MPRNumber, _ y: inout MPRNumber, _ mpnw : Int) {
+    static func mpcssnx (_ a: MPReal, _ x: inout MPReal, _ y: inout MPReal, _ mpnw : Int) {
         
         //   This computes the cosine and sine of the MPR number A and returns the
         //   two MPR results in X and Y, respectively.  Pi and Log(2) must be precomputed to at
@@ -1271,8 +1271,8 @@ extension MPFUN {
         //   This routine merely calls mpcexp.  For modest levels of precision, use mpcssn.
         
         var mp7 : Int
-        var f = MPRNumber(repeating:0, count:9)
-        var s0 = MPRNumber(repeating:0, count:mpnw+7); var s1 = s0
+        var f = MPReal(repeating:0, count:9)
+        var s0 = MPReal(repeating:0, count:mpnw+7); var s1 = s0
         
         // End of declaration
         
@@ -1291,12 +1291,12 @@ extension MPFUN {
         f[2] = 0.0
         f[3] = 0.0
         mpeq (f, &s0, mpnw)
-        var t = MPRNumber(s0[mp7...])
+        var t = MPReal(s0[mp7...])
         mpeq (a, &t, mpnw)
         s0[mp7...] = t[0...]
         mpcexpx (s0, &s1, mpnw)
         mpeq (s1, &x, mpnw)
-        mpeq (MPRNumber(s1[mp7...]), &y, mpnw)
+        mpeq (MPReal(s1[mp7...]), &y, mpnw)
         
     } // mpcssnx
     
@@ -1313,7 +1313,7 @@ extension MPFUN {
         }
     }
     
-    static func mpegammaq (_ egamma : inout MPRNumber, _ mpnw: Int) {
+    static func mpegammaq (_ egamma : inout MPReal, _ mpnw: Int) {
         
         //   This computes Euler"s gamma to available precision (MPNW mantissa words).
         //   The algorithm is the following, which is an improvement to a scheme due to
@@ -1325,8 +1325,8 @@ extension MPFUN {
         
         var mpnw1, neps, nn : Int
         let itrmx = 1000000
-        var f = MPRNumber(repeating:0, count:9)
-        var s0 = MPRNumber(repeating:0, count:mpnw+7); var s1 = s0; var s2 = s1; var s3 = s1
+        var f = MPReal(repeating:0, count:9)
+        var s0 = MPReal(repeating:0, count:mpnw+7); var s1 = s0; var s2 = s1; var s3 = s1
         var s4 = s1; var s5 = s1; var s6 = s1; var s7 = s1
         
         // End of declaration.
@@ -1449,7 +1449,7 @@ extension MPFUN {
         
     } // mpegammaq
     
-    static func mpexp (_ a: MPRNumber, _ b: inout MPRNumber, _ mpnw : Int) {
+    static func mpexp (_ a: MPReal, _ b: inout MPReal, _ mpnw : Int) {
         
         //   This computes the exponential function of the MPR number A and returns
         //   the MPR result in B.  Log(2) must be precomputed to at least MPNW words
@@ -1470,8 +1470,8 @@ extension MPFUN {
         var mpnw1, mpnw2, nq, nz, n1 : Int
         var t1, t2 : Double
         let itrmx = 1000000; let mpnwx = 700
-        var f = MPRNumber(repeating:0, count:9)
-        var s0 = MPRNumber(repeating:0, count:mpnw+7); var s1 = s0; var s2 = s1; var s3 = s1
+        var f = MPReal(repeating:0, count:9)
+        var s0 = MPReal(repeating:0, count:mpnw+7); var s1 = s0; var s2 = s1; var s3 = s1
         var s4 = s1
         
         // End of declaration
@@ -1633,7 +1633,7 @@ extension MPFUN {
         
     } // mpexp
     
-    static func mpexpx ( _ a: MPRNumber, _ b: inout MPRNumber, _ mpnw : Int) {
+    static func mpexpx ( _ a: MPReal, _ b: inout MPReal, _ mpnw : Int) {
         
         //   This computes the exponential of the MPR number A and returns the MPR
         //   result in B.
@@ -1649,7 +1649,7 @@ extension MPFUN {
         var iq, mpnw1, mq, n1, n2 : Int
         var t1, t2 : Double
         let cl2 = 1.4426950408889633; let nit = 3; let mprxx = 1e-14
-        var s0 = MPRNumber(repeating:0, count:mpnw+7); var s1 = s0; var s2 = s1; var s3 = s1
+        var s0 = MPReal(repeating:0, count:mpnw+7); var s1 = s0; var s2 = s1; var s3 = s1
         
         // End of declaration
         
@@ -1782,7 +1782,7 @@ extension MPFUN {
         
     } // mpinitran
     
-    static func mplog ( _ a: MPRNumber, _ b: inout MPRNumber, _ mpnw : Int) {
+    static func mplog ( _ a: MPReal, _ b: inout MPReal, _ mpnw : Int) {
         
         //   This computes the natural logarithm of the MPR number A and returns the MPR
         //   result in B.
@@ -1804,8 +1804,8 @@ extension MPFUN {
         var st, tol, t1, t2 : Double
         let alt = 0.693147180559945309; let cl2 = 1.4426950408889633
         let rtol = pow(0.5, Double(7)); let itrmax = 1000000; let nit = 3; let mprxx = 1e-14; let mpnwx = 30
-        var f1 = MPRNumber(repeating:0, count:9)
-        var s0 = MPRNumber(repeating:0, count:mpnw+7); var s1 = s0; var s2 = s1; var s3 = s1
+        var f1 = MPReal(repeating:0, count:9)
+        var s0 = MPReal(repeating:0, count:mpnw+7); var s1 = s0; var s2 = s1; var s3 = s1
         var s4 = s1
         
         // End of declaration
@@ -1927,7 +1927,7 @@ extension MPFUN {
         // 130 continue
     } // mplog
     
-    static func mplogx ( _ a: MPRNumber, _ b: inout MPRNumber, _ mpnw : Int) {
+    static func mplogx ( _ a: MPReal, _ b: inout MPReal, _ mpnw : Int) {
         
         //   This computes the natural logarithm of the MP number A and returns the MP
         //   result in B.  Pi and Log(2) must be precomputed to at least MPNW words
@@ -1945,8 +1945,8 @@ extension MPFUN {
         var ia, iss, mpnw1, na, n1, n2 : Int
         var st, tol, t1, tn : Double
         let itrmax = 1000000; let rtol = pow(0.5, Double(7))
-        var f1 = MPRNumber(repeating:0, count:9); var f4 = f1
-        var s0 = MPRNumber(repeating:0, count:mpnw+7); var s1 = s0; var s2 = s1; var s3 = s1
+        var f1 = MPReal(repeating:0, count:9); var f4 = f1
+        var s0 = MPReal(repeating:0, count:mpnw+7); var s1 = s0; var s2 = s1; var s3 = s1
         var s4 = s1
         
         // End of declaration
@@ -2070,7 +2070,7 @@ extension MPFUN {
         // 120 continue
     } // mplogx
     
-    static func mplog2q (_ pi: MPRNumber, _ alog2: inout MPRNumber, _ mpnw : Int) {
+    static func mplog2q (_ pi: MPReal, _ alog2: inout MPReal, _ mpnw : Int) {
         
         //   This computes log(2) to mpnw words precision, using an algorithm due to Salamin
         //   and Brent:  Select n > 2^m, where m is the number of bits of desired precision
@@ -2087,8 +2087,8 @@ extension MPFUN {
         var mpnw1, n, n1, n48 : Int
         var t1 : Double
         let cpi = 3.141592653589793238
-        var f1 = MPRNumber(repeating:0, count:9); var f4 = f1
-        var s0 = MPRNumber(repeating:0, count:mpnw+7); var s1 = s0; var s2 = s1; var s3 = s1
+        var f1 = MPReal(repeating:0, count:9); var f4 = f1
+        var s0 = MPReal(repeating:0, count:mpnw+7); var s1 = s0; var s2 = s1; var s3 = s1
         var s4 = s1
         
         // End of declaration
@@ -2182,7 +2182,7 @@ extension MPFUN {
         
     } // mplog2q
     
-    static func mppiq (_ pi: inout MPRNumber, _ mpnw: Int) {
+    static func mppiq (_ pi: inout MPReal, _ mpnw: Int) {
         
         //   This computes Pi to available precision (MPNW mantissa words).
         //   The algorithm that is used for computing Pi, which is due to Salamin
@@ -2202,8 +2202,8 @@ extension MPFUN {
         //   The constant cl2 (below) = 1 / log(2) (DP approximation).
         
         var mpnw1, mq : Int
-        var f = MPRNumber(repeating:0, count:9)
-        var s0 = MPRNumber(repeating:0, count:mpnw+7); var s1 = s0; var s2 = s1; var s3 = s1
+        var f = MPReal(repeating:0, count:9)
+        var s0 = MPReal(repeating:0, count:mpnw+7); var s1 = s0; var s2 = s1; var s3 = s1
         var s4 = s1
         var t1 : Double
         let cl2 = 1.4426950408889633
@@ -2287,7 +2287,7 @@ extension MPFUN {
         
     } // mppiq
     
-    static func mppower (_ a: MPRNumber, _ b: MPRNumber, _ c: inout MPRNumber, _ mpnw : Int) {
+    static func mppower (_ a: MPReal, _ b: MPReal, _ c: inout MPReal, _ mpnw : Int) {
         
         //   This computes C = A ^ B, where A, B and C are MPR.  It first checks if
         //   B is the quotient of two integers up to 10^7 in size, in which case it
@@ -2296,7 +2296,7 @@ extension MPFUN {
         var n1 : Int
         var a1, a2, a3, a4, a5, a6, q1, t0, t1, t2, t3 : Double
         let mprxx = 1.0e-14; let mprxx2 = 5.0e-10
-        var s0 = MPRNumber(repeating:0, count:mpnw+7); var s1 = s0; var s2 = s1; var s3 = s1
+        var s0 = MPReal(repeating:0, count:mpnw+7); var s1 = s0; var s2 = s1; var s3 = s1
         
         //  End of declaration
         

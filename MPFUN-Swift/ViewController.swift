@@ -15,11 +15,10 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view.
         
         // check out MPFUN functions
-        var a = MPReal()
-        var b = ""
+        let a : MPReal = "2.345"
+        let b = "\(a)"
         
-        MPFUN.mpctomp("1.0e100", &a.number, 10)
-        MPFUN.mpfformat(a.number, 140, 10, &b, 10)
+        print(b)
 
     }
 
