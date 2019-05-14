@@ -15,13 +15,13 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view.
         
         // check out MPFUN functions
-        let a : MPReal = "2.345"
-        let b = "\(a)"
+        MPReal.digitPrecision = 500
+        let a = MPReal.pi
+        let b = -MPReal.log2
         
-        print(b)
+        print(a, b)
 
     }
-
 
 }
 

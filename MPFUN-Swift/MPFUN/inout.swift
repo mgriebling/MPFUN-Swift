@@ -309,7 +309,7 @@ extension MPFUN {
         
         // End of declaration
         
-        ca = " "
+        ca = ""
         d1 = abs (a)
         
         for _ in 1...n {
@@ -370,7 +370,7 @@ extension MPFUN {
             if na >= 3 { aa = aa + mprx2 * a[6] }
             t1 = log10 (2.0) * Double(mpnbt) * a[3] + log10 (aa)
             
-            if (t1 >= 0.0) {
+            if t1 >= 0.0 {
                 nexp = Int(t1)
             } else {
                 nexp = Int(t1 - 1.0)
@@ -390,7 +390,7 @@ extension MPFUN {
             
             // 100 continue
             repeat {
-                if (s1[3] < 0.0) {
+                if s1[3] < 0.0 {
                     nexp = nexp - 1
                     mpmuld (s1, 10.0, &s0, mpnw1)
                     mpeq (s0, &s1, mpnw1)
@@ -458,7 +458,7 @@ extension MPFUN {
                 an = 0.0
             }
             
-            ca = mpdigout (an, mpndpw)
+            ca = mpdigout(an, mpndpw)
             b2 += ca
 //            for i in 1...mpndpw {
 //                ix = ix + 1

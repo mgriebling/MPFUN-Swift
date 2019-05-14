@@ -27,26 +27,21 @@ public struct MPReal : Codable {
     
     public init(_ numberWords : Int = 0) {
         //   Set initial number = 0
-        let words = numberWords == 0 ? MPReal.mpwds6 : numberWords
-        number = MPFUN.MPReal(repeating: 0, count: words)
-        number[0] = Double(words)
-        number[1] = 7
-        number[2] = 1
+        self.init(0, numberWords)
     }
     
     init(_ s : String, _ numberWords : Int = 0) {
-        let words = numberWords == 0 ? MPReal.mpwds6 : numberWords
-        self.init(words)
+        self.init(numberWords)
         MPFUN.mpctomp(s, &number, MPReal.mpwds)
     }
     
     init(_ i: Int, _ numberWords : Int = 0) {
         //   Set f = i
         let words = numberWords == 0 ? MPReal.mpwds6 : numberWords
-        self.init(words)
-        number[0] = 9
- //       number[1] = Double(numberWords)
-        number[2] = 1
+        number = MPFUN.MPReal(repeating: 0, count: words)
+        number[0] = Double(words)
+        number[1] = 7
+        number[2] = Double(MPFUN.sign(Double(i), 1))
         number[3] = 0
         number[4] = Double(i)
     }
@@ -59,8 +54,8 @@ extension MPReal : CustomStringConvertible {
     /// Support for conversion to string
     public var description: String {
         var s = ""
-        MPFUN.mpeformat(number, 50, 40, &s, MPReal.mpwds6)
-        return s
+        MPFUN.mpeformat(number, MPReal.digitPrecision+20, MPReal.digitPrecision, &s, MPReal.mpwds)
+        return s.trimmingCharacters(in: .whitespaces)
     }
     
 }
@@ -94,7 +89,7 @@ extension MPReal : Comparable {
     
     public static func < (lhs: MPReal, rhs: MPReal) -> Bool {
         var code = 0
-        MPFUN.mpcpr(lhs.number, rhs.number, &code, MPReal.mpwds6)
+        MPFUN.mpcpr(lhs.number, rhs.number, &code, MPReal.mpwds)
         return code == -1
     }
     
@@ -106,13 +101,13 @@ extension MPReal : AdditiveArithmetic {
     
     public static func - (lhs: MPReal, rhs: MPReal) -> MPReal {
         var result = MPReal()
-        MPFUN.mpsub(lhs.number, rhs.number, &result.number, MPReal.mpwds6)
+        MPFUN.mpsub(lhs.number, rhs.number, &result.number, MPReal.mpwds)
         return result
     }
     
     public static func + (lhs: MPReal, rhs: MPReal) -> MPReal {
         var result = MPReal()
-        MPFUN.mpadd(lhs.number, rhs.number, &result.number, MPReal.mpwds6)
+        MPFUN.mpadd(lhs.number, rhs.number, &result.number, MPReal.mpwds)
         return result
     }
     
@@ -138,13 +133,13 @@ extension MPReal : Numeric {
     
     public var magnitude: MPReal {
         var mag = MPReal()
-        MPFUN.mpcabs(number, &mag.number, MPReal.mpwds6)
+        MPFUN.mpcabs(number, &mag.number, MPReal.mpwds)
         return mag
     }
     
     public static func * (lhs: MPReal, rhs: MPReal) -> MPReal {
         var result = MPReal()
-        MPFUN.mpmul(lhs.number, rhs.number, &result.number, MPReal.mpwds6)
+        MPFUN.mpmul(lhs.number, rhs.number, &result.number, MPReal.mpwds)
         return result
     }
     
@@ -178,7 +173,7 @@ extension MPReal : FloatingPoint {
         var fraction = MPReal(); var whole = fraction
         
         // whole has whole part and dummy has fractional part
-        MPFUN.mpinfr(number, &whole.number, &fraction.number, MPReal.mpwds6)
+        MPFUN.mpinfr(number, &whole.number, &fraction.number, MPReal.mpwds)
         if fraction.isZero { return } // no rounding }
         
         switch rule {
@@ -193,7 +188,7 @@ extension MPReal : FloatingPoint {
                 let addend = neg ? -one : one
                 self = whole + addend
             } else {
-                MPFUN.mpnint(number, &number, MPReal.mpwds6)
+                MPFUN.mpnint(number, &number, MPReal.mpwds)
             }
         case .toNearestOrEven:
             if fraction == "0.5" {
@@ -202,7 +197,7 @@ extension MPReal : FloatingPoint {
                 let addend = neg ? -one : one
                 self = whole + addend
             } else {
-                MPFUN.mpnint(number, &number, MPReal.mpwds6)
+                MPFUN.mpnint(number, &number, MPReal.mpwds)
             }
         case .towardZero:
             self = whole
@@ -217,8 +212,8 @@ extension MPReal : FloatingPoint {
     public init(sign: FloatingPointSign, exponent: Int, significand: MPReal) {
         self = significand
         number[3] = Double(exponent)
-        number[2] = sign == .minus ? -1 : 1
-        MPFUN.mpnorm(number, &number, MPReal.mpwds6)
+        number[2] = sign == .minus ? -number[2] : number[2]
+        MPFUN.mpnorm(number, &number, MPReal.mpwds)
     }
     
     public init(signOf: MPReal, magnitudeOf: MPReal) {
@@ -236,26 +231,26 @@ extension MPReal : FloatingPoint {
     
     public static var greatestFiniteMagnitude: MPReal {
         var result = MPReal()
-        MPFUN.mpdmc(1, Int(MPFUN.mpexpmx), &result.number, MPReal.mpwds6)
+        MPFUN.mpdmc(1, Int(MPFUN.mpexpmx), &result.number, MPReal.mpwds)
         return result
     }
     
     public static var pi: MPReal {
         var result = MPReal()
-        MPFUN.mppiq(&result.number, MPReal.mpwds6)
+        MPFUN.mppiq(&result.number, MPReal.mpwds)
        return result
     }
     
     public var ulp: MPReal {
         var result = MPReal()
         let exp = exponent > 0 ? -exponent : exponent
-        MPFUN.mpdmc(1, exp, &result.number, MPReal.mpwds6)
+        MPFUN.mpdmc(1, exp, &result.number, MPReal.mpwds)
         return result
     }
     
     public static var leastNormalMagnitude: MPReal {
         var result = MPReal()
-        MPFUN.mpdmc(1, -Int(MPFUN.mpexpmx), &result.number, MPReal.mpwds6)
+        MPFUN.mpdmc(1, -Int(MPFUN.mpexpmx), &result.number, MPReal.mpwds)
         return result
     }
     
@@ -264,8 +259,7 @@ extension MPReal : FloatingPoint {
     }
     
     public var sign: FloatingPointSign {
-        let ia = MPFUN.sign(1, number[2])
-        return ia < 0 ? .minus : .plus
+        return number[2].sign
     }
     
     public var exponent: Int { return Int(number[3]) }
@@ -279,7 +273,7 @@ extension MPReal : FloatingPoint {
     
     public static func / (lhs: MPReal, rhs: MPReal) -> MPReal {
         var result = MPReal()
-        MPFUN.mpdiv(lhs.number, rhs.number, &result.number, MPReal.mpwds6)
+        MPFUN.mpdiv(lhs.number, rhs.number, &result.number, MPReal.mpwds)
         return result
     }
     
@@ -295,13 +289,13 @@ extension MPReal : FloatingPoint {
         self = self - q * other
     }
     
-    public mutating func formSquareRoot() { MPFUN.mpsqrt(self.number, &self.number, MPReal.mpwds6) }
+    public mutating func formSquareRoot() { MPFUN.mpsqrt(self.number, &self.number, MPReal.mpwds) }
     public mutating func addProduct(_ lhs: MPReal, _ rhs: MPReal) { self += lhs * rhs }
     public var nextUp: MPReal { return self + ulp }
     
     public func isEqual(to other: MPReal) -> Bool {
         var code = 0
-        MPFUN.mpcpr(number, other.number, &code, MPReal.mpwds6)
+        MPFUN.mpcpr(number, other.number, &code, MPReal.mpwds)
         return code == 0
     }
     
@@ -317,6 +311,17 @@ extension MPReal : FloatingPoint {
     public var isSignalingNaN: Bool { return false }
     public var isCanonical: Bool { return true }
     public typealias Exponent = Int
+    
+}
+
+extension MPReal {
+    
+    // Supported mathematical constants
+    public static var log2: MPReal {
+        var result = MPReal()
+        MPFUN.mplog2q(pi.number, &result.number, MPReal.mpwds)
+        return result
+    }
     
 }
 
