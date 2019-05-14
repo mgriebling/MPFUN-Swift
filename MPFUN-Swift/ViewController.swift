@@ -17,7 +17,7 @@ class ViewController: UIViewController {
         // check out MPFUN functions
         MPReal.digitPrecision = 500
         let a = MPReal.pi
-        let b = -MPReal.log2
+        let b = MPReal.log2
         
         print(a, b)
 

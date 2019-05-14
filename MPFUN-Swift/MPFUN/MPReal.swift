@@ -319,6 +319,8 @@ extension MPReal {
     // Supported mathematical constants
     public static var log2: MPReal {
         var result = MPReal()
+        var pi = MPReal()
+        MPFUN.mppiq(&pi.number, MPReal.mpwds)
         MPFUN.mplog2q(pi.number, &result.number, MPReal.mpwds)
         return result
     }

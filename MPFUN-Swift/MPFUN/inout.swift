@@ -376,12 +376,12 @@ extension MPFUN {
                 nexp = Int(t1 - 1.0)
             }
             
-            if (nexp == 0) {
+            if nexp == 0 {
                 mpeq (a, &s1, mpnw1)
-            } else if (nexp > 0) {
+            } else if nexp > 0 {
                 mpnpwr (f, nexp, &s0, mpnw1)
                 mpdiv (a, s0, &s1, mpnw1)
-            } else if (nexp < 0) {
+            } else if nexp < 0 {
                 mpnpwr (f, -nexp, &s0, mpnw1)
                 mpmul (a, s0, &s1, mpnw1)
             }
@@ -395,7 +395,7 @@ extension MPFUN {
                     mpmuld (s1, 10.0, &s0, mpnw1)
                     mpeq (s0, &s1, mpnw1)
                     // goto 100
-                } else if (s1[4] >= 10.0) {
+                } else if s1[4] >= 10.0 {
                     nexp = nexp + 1
                     mpdivd (s1, 10.0, &s0, mpnw1)
                     mpeq (s0, &s1, mpnw1)
@@ -433,7 +433,7 @@ extension MPFUN {
         f[1] = Double(mpnw1)
         f[2] = 1.0
         f[3] = 0.0
-        f[4] = an
+        f[4] = an.rounded(.towardZero)  // truncate
         f[5] = 0.0
         f[6] = 0.0
         mpsub (s1, f, &s0, mpnw1)
@@ -446,11 +446,11 @@ extension MPFUN {
         //   Insert the digits of the remaining words.
         
         for _ in 1...nl {
-            if (s1[2] != 0.0 && s1[3] == 0.0) {
+            if s1[2] != 0.0 && s1[3] == 0.0 {
                 an = s1[4]
                 f[2] = 1.0
                 f[3] = 0.0
-                f[4] = an
+                f[4] = an.rounded(.towardZero)  // truncate
             } else {
                 f[2] = 0.0
                 f[3] = 0.0
