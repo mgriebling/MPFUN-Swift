@@ -172,15 +172,45 @@ extension MPReal : Strideable {
 extension MPReal : FloatingPoint {
     
     public mutating func round(_ rule: FloatingPointRoundingRule) {
-        var dummy = MPReal()
+        let one = MPReal(1)
+        let zero = MPReal(0)
+        let neg = sign == .minus
+        var fraction = MPReal(); var whole = fraction
+        
+        // whole has whole part and dummy has fractional part
+        MPFUN.mpinfr(number, &whole.number, &fraction.number, MPReal.mpwds6)
+        if fraction.isZero { return } // no rounding }
+        
         switch rule {
-        case .awayFromZero: break
-        case .down: break
-        case .toNearestOrAwayFromZero: MPFUN.mpnint(number, &number, MPReal.mpwds6)
-        case .toNearestOrEven: MPFUN.mpnint(number, &number, MPReal.mpwds6)
-        case .towardZero: MPFUN.mpinfr(number, &number, &dummy.number, MPReal.mpwds6)
-        case .up: break
-        @unknown default: assert(false, "MPReal unknown rounding rule")
+        case .awayFromZero:
+            let addend = neg ? -one : one
+            self = whole + addend
+        case .down:
+            let addend = neg ? -one : zero
+            self = whole + addend
+        case .toNearestOrAwayFromZero:
+            if fraction == "0.5" {
+                let addend = neg ? -one : one
+                self = whole + addend
+            } else {
+                MPFUN.mpnint(number, &number, MPReal.mpwds6)
+            }
+        case .toNearestOrEven:
+            if fraction == "0.5" {
+                let x = whole.remainder(dividingBy: MPReal(2))
+                if x != one { self = whole; return }
+                let addend = neg ? -one : one
+                self = whole + addend
+            } else {
+                MPFUN.mpnint(number, &number, MPReal.mpwds6)
+            }
+        case .towardZero:
+            self = whole
+        case .up:
+            let addend = neg ? zero : one
+            self = whole + addend
+        @unknown default:
+            assertionFailure("MPReal unknown rounding rule")
         }
     }
     
