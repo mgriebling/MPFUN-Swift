@@ -1488,8 +1488,8 @@ extension MPFUN {
         
         //   Check for overflows and underflows.
         
-        if (n1 > 30) {
-            if (t1 > 0.0) {
+        if n1 > 30 {
+            if t1 > 0.0 {
                 print ("*** MPEXP: Argument is too large.")
                 mpabrt (34)
             } else {
@@ -1502,7 +1502,7 @@ extension MPFUN {
         
         t1 = t1 * pow(2.0, Double(n1))
         if abs(t1) > 1488522236.0 {
-            if (t1 > 0) {
+            if t1 > 0 {
                 print ("*** MPEXP: Argument is too large.")
                 mpabrt (34)
             } else {

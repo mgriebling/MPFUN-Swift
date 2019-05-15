@@ -330,6 +330,12 @@ extension MPReal {
         return result
     }
     
+    public static func exp(_ a: MPReal) -> MPReal {
+        var result = MPReal()
+        MPFUN.mpexp(a.number, &result.number, MPReal.mpwds)
+        return result
+    }
+    
 }
 
 
