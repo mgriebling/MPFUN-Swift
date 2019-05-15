@@ -352,7 +352,7 @@ extension MPFUN {
         //   Examples of exact binary values (good): 123456789.0, 0.25d0, -5.3125d0.
         //   Examples of inexact binary values (bad): 0.1d0, 1234567.8d0, -3333.3d0.
         
-        var gi, n1, n2 : Int
+        var n1, n2 : Int
         var aa : Double
         
         // End of declaration
@@ -382,8 +382,7 @@ extension MPFUN {
                 aa = mprdx * aa
                 if aa < mpbdx {
                     n1 = n1 + k
-                    break
-                    //goto 120
+                    break //goto 120
                 }
             }
             
@@ -393,8 +392,7 @@ extension MPFUN {
                 aa = mpbdx * aa
                 if aa >= 1 {
                     n1 = n1 - k
-                    break
-                    //goto 120
+                    break //goto 120
                 }
             }
             
@@ -413,18 +411,18 @@ extension MPFUN {
         b[7] = 0
         b[8] = 0
         
-        gi = 0
-        for i in stride(from: 6, through: 3, by: -1) {
-            gi = i
-            if b[i+1] != 0{
+        var i = 6
+        while i >= 3 {
+            if b[i+1] != 0 {
                 break //goto 140
             }
+            i -= 1
         }
         
         // 140  continue
         
         b[1] = Double(mpnw)
-        aa = Double(gi - 2)
+        aa = Double(i - 2)
         b[2] = Double(sign (aa, a))
         
         //150 continue
@@ -855,9 +853,9 @@ extension MPFUN {
                 
                 for i in i1...i2 {
                     t1 = d[i+1]
-                    t2 = Double(mprdx) * t1
+                    t2 = Double(Int(mprdx * t1))
                     d[i+1] = t1 - mpbdx * t2
-                    d[i] = d[i] + t2
+                    d[i] += t2
                 }
             }
         }
@@ -1538,7 +1536,7 @@ extension MPFUN {
             
             for i in stride(from: n4, through: 3, by: -1) {
                 t3 = t1 + d[i+1]
-                t2 = mprdx * (t3)
+                t2 = mprdx * t3
                 t1 = Double(Int(t2))
                 if t2 < 0 && t1 != t2 { t1 = t1 - 1 }
                 d[i+1] = t3 - t1 * mpbdx

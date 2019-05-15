@@ -92,6 +92,7 @@
 		47EF0A332275B3760038855B /* MPFUN-Swift */ = {
 			isa = PBXGroup;
 			children = (
+				47DF284F227D9D04005AF31A /* MPReal.swift */,
 				47EF0A542275B3A30038855B /* MPFUN */,
 				47EF0A342275B3760038855B /* AppDelegate.swift */,
 				47EF0A362275B3760038855B /* ViewController.swift */,
@@ -119,7 +120,6 @@
 				2FA565F422786DED00DA1998 /* funcs.swift */,
 				472C45252279ADEA00BD66D8 /* inout.swift */,
 				47FC8145227849DE00612B55 /* consts.swift */,
-				47DF284F227D9D04005AF31A /* MPReal.swift */,
 				47DF285122803ADB005AF31A /* special.swift */,
 				47DF285322803B73005AF31A /* trig.swift */,
 				2F65C2DC2289E8440065E767 /* complex.swift */,

@@ -46,6 +46,11 @@ public struct MPReal : Codable {
         number[4] = Double(i)
     }
     
+    init(_ n: Double, _ exp: Int, _ numberWords : Int = 0) {
+        self.init(numberWords)
+        MPFUN.mpdmc(n, exp, &number, MPReal.mpwds)
+    }
+    
 }
 
 

@@ -433,7 +433,7 @@ extension MPFUN {
         f[1] = Double(mpnw1)
         f[2] = 1.0
         f[3] = 0.0
-        f[4] = an.rounded(.towardZero)  // truncate
+        f[4] = an
         f[5] = 0.0
         f[6] = 0.0
         mpsub (s1, f, &s0, mpnw1)
@@ -450,7 +450,7 @@ extension MPFUN {
                 an = s1[4]
                 f[2] = 1.0
                 f[3] = 0.0
-                f[4] = an.rounded(.towardZero)  // truncate
+                f[4] = an
             } else {
                 f[2] = 0.0
                 f[3] = 0.0

@@ -18,8 +18,8 @@ class ViewController: UIViewController {
         MPReal.digitPrecision = 500
         let a = MPReal.pi
         let b = MPReal.log2
-        
-        print(a, b)
+        let c = "\(b)"
+        print(a, c)
 
     }
 
