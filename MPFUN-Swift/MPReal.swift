@@ -336,6 +336,12 @@ extension MPReal {
         return result
     }
     
+    public static func ** (lhs: MPReal, rhs: MPReal) -> MPReal {
+        var result = MPReal()
+        MPFUN.mppower(lhs.number, rhs.number, &result.number, MPReal.mpwds)
+        return result
+    }
+    
 }
 
 

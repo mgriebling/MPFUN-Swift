@@ -2024,7 +2024,7 @@ extension MPFUN {
         var ia, iq, mpnw1, mq, n, na, nw1, nw2, n2 : Int
         var t1, t2 : Double
         let cl2 = 1.4426950408889633; let mprxx = 1e-14;  let nit = 3
-        var s0 = MPReal(repeating: 0, count: mpnw+6)
+        var s0 = MPReal(repeating: 0, count: mpnw+7)
         var s1 = s0; var s2 = s0; var s3 = s0
         
         // End of declaration

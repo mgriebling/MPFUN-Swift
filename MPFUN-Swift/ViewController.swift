@@ -16,12 +16,15 @@ class ViewController: UIViewController {
         
         // check out MPFUN functions
         MPReal.digitPrecision = 500
-        let a = MPReal.pi
-        let b = -MPReal.log2
+        let t1 = MPReal.pi
+        let t2 = -MPReal.log2
+//        let e1 = 3141.0/8192.0
+//        let e2 = 6931.0/8192.0
+//        let one = MPReal(1, 0)
         let half = MPReal(0.5, 0)
-        let c = half*a
-        let d = MPReal.exp(half)
-        print(a, b, c, d)
+        let c = half*t1
+//        let d = MPReal.exp(half)
+        print(t1, t2, c, "\nt1+t2 = \(t1+t2)\n", "t1-t2 = \(t1-t2)\n", "t1*t2 = \(t1*t2)\n", "t1/t2 = \(t1/t2)\n", "t1**t2 = \(t1**t2)\n")
 
     }
 
