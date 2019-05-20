@@ -2300,17 +2300,17 @@ extension MPFUN {
         
         //  End of declaration
         
-        if (mpnw < 4 || Int(a[0]) < mpnw + 4 || b[0] < abs (a[2]) + 4 || Int(c[0]) < mpnw + 6) {
+        if mpnw < 4 || Int(a[0]) < mpnw + 4 || b[0] < abs (a[2]) + 4 || Int(c[0]) < mpnw + 6 {
             print ("*** MPPOWER: uninitialized or inadequately sized arrays")
             mpabrt (99)
         }
         
         //   Check if A <= 0 (error), or A = 1 or B = 0 or B = 1.
         
-        if (a[2] <= 0.0) {
+        if a[2] <= 0.0 {
             print ("*** MPPOWER: A^B, where A is less than zero.")
             mpabrt (61)
-        } else if ((a[2] == 1.0 && a[3] == 0.0 && a[4] == 1.0) || b[2] == 0.0) {
+        } else if (a[2] == 1.0 && a[3] == 0.0 && a[4] == 1.0) || b[2] == 0.0 {
             c[1] = Double(mpnw)
             c[2] = 1.0
             c[3] = 0.0
@@ -2318,7 +2318,7 @@ extension MPFUN {
             c[5] = 0.0
             c[6] = 0.0
             return // goto 200
-        } else if (b[2] == 1.0 && b[3] == 0.0 && b[4] == 1.0) {
+        } else if b[2] == 1.0 && b[3] == 0.0 && b[4] == 1.0 {
             mpeq (a, &c, mpnw)
             return // goto 200
         }
@@ -2332,7 +2332,7 @@ extension MPFUN {
         n1 = 0; t1 = 0
         mpmdc (b, &t1, &n1, mpnw)
         a3 = 0; a4 = 0; t0 = 0
-        if (n1 >= -mpnbt && n1 <= mpnbt) {
+        if n1 >= -mpnbt && n1 <= mpnbt {
             t0 = abs (t1 * pow(2.0, Double(n1)))
             t1 = max (t0, 1.0)
             t2 = min (t0, 1.0)
@@ -2353,7 +2353,7 @@ extension MPFUN {
                 a2 = a4
                 a3 = a5
                 a4 = a6
-                if (t2 < mprxx2) { flag = true; break /* goto 100 */ }
+                if t2 < mprxx2 { flag = true; break /* goto 100 */ }
             }
             
             // goto 110

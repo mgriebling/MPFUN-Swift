@@ -1402,7 +1402,7 @@ extension MPFUN {
         
         //   This returns a DP approximation the MPR number A in the form B * 2^n.
         
-        var n, na : Int
+        var na : Int
         var aa : Double
         
         // End of declaration
@@ -1424,7 +1424,7 @@ extension MPFUN {
         if na >= 3 { aa = aa + mprx2 * a[6] }
         if na >= 4 { aa = aa + mprdx * mprx2 * a[7] }
         
-        n = mpnbt * Int(a[3])
+        n = Int(Double(mpnbt) * a[3])
         b = Double(sign (aa, Double(a[2])))
         
         //   Reduce b to within 1 and 2.
@@ -1936,7 +1936,7 @@ extension MPFUN {
             }
             
             //   Release of carries due to rounding continued all the way to the start --
-            //   i.e. number was entirely 9"s.
+            //   i.e. number was entirely 9's.
             if !flag {
                 a[4] = a[3]
                 na = 1
@@ -2023,13 +2023,13 @@ extension MPFUN {
         
         var ia, iq, mpnw1, mq, n, na, nw1, nw2, n2 : Int
         var t1, t2 : Double
-        let cl2 = 1.4426950408889633; let mprxx = 1e-14;  let nit = 3
+        let cl2 = 1.4426950408889633; let mprxx = 1e-14; let nit = 3
         var s0 = MPReal(repeating: 0, count: mpnw+7)
         var s1 = s0; var s2 = s0; var s3 = s0
         
         // End of declaration
         
-        if mpnw < 4 || a[0] < abs (a[2]) + 4 || b[0] < Double(mpnw + 6) {
+        if mpnw < 4 || a[0] < abs(a[2])+4 || Int(b[0]) < mpnw+6 {
             print ("*** MPSQRT: uninitialized or inadequately sized arrays")
             mpabrt (99)
         }
@@ -2046,7 +2046,6 @@ extension MPFUN {
         if ia < 0 {
             print("*** MPSQRT: Argument is negative.")
             mpabrt (70)
-            return
         }
         
         s0[0] = Double(mpnw + 7)
@@ -2057,7 +2056,7 @@ extension MPFUN {
         //   Determine the least integer MQ such that 2 ^ MQ .GE. MPNW.
         
         t1 = Double(mpnw)
-        mq = Int(cl2 * log (t1) + Double(1 - mprxx))
+        mq = Int(cl2 * log(t1) + 1.0 - mprxx)
         
         //   Compute the initial approximation of 1 / Sqrt(A).
         n = 0
@@ -2076,7 +2075,7 @@ extension MPFUN {
         //   Perform the Newton-Raphson iteration described above with a dynamically
         //   changing precision level MPNW (one greater than powers of two).
         
-        for k in 1...mq - 1 {
+        for k in 1..<mq {
             if k > 2 {
                 nw1 = mpnw1
                 mpnw1 = min (2 * mpnw1 - 2, mpnw) + 1
@@ -2084,6 +2083,7 @@ extension MPFUN {
             }
             
             // 100  continue
+            repeatloop:
             repeat {
                 mpmul (s2, s2, &s0, nw2)
                 mpmul (a, s0, &s1, nw2)
@@ -2097,12 +2097,12 @@ extension MPFUN {
                     iq = 1
                     // goto 100
                 } else {
-                    break
+                    break repeatloop
                 }
             } while true
         }
         
-        //   Perform last iteration using Karp"s trick.
+        //   Perform last iteration using Karp's trick.
         
         nw1 = mpnw1
         mpnw1 = min (2 * mpnw1 - 2, mpnw) + 1

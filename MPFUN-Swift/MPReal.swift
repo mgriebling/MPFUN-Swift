@@ -94,8 +94,10 @@ extension MPReal : Comparable {
     
     public static func < (lhs: MPReal, rhs: MPReal) -> Bool {
         var code = 0
-        MPFUN.mpcpr(lhs.number, rhs.number, &code, MPReal.mpwds)
-        return code == -1
+        var mpnw = max(Int(lhs.number[1]), Int(rhs.number[1]))
+        mpnw = min(mpnw, MPReal.mpwds)
+        MPFUN.mpcpr(lhs.number, rhs.number, &code, mpnw)
+        return code < 0
     }
     
 }
@@ -106,13 +108,17 @@ extension MPReal : AdditiveArithmetic {
     
     public static func - (lhs: MPReal, rhs: MPReal) -> MPReal {
         var result = MPReal()
-        MPFUN.mpsub(lhs.number, rhs.number, &result.number, MPReal.mpwds)
+        var mpnw = max(Int(lhs.number[1]), Int(rhs.number[1]))
+        mpnw = min(mpnw, MPReal.mpwds)
+        MPFUN.mpsub(lhs.number, rhs.number, &result.number, mpnw)
         return result
     }
     
     public static func + (lhs: MPReal, rhs: MPReal) -> MPReal {
         var result = MPReal()
-        MPFUN.mpadd(lhs.number, rhs.number, &result.number, MPReal.mpwds)
+        var mpnw = max(Int(lhs.number[1]), Int(rhs.number[1]))
+        mpnw = min(mpnw, MPReal.mpwds)
+        MPFUN.mpadd(lhs.number, rhs.number, &result.number, mpnw)
         return result
     }
     
@@ -138,13 +144,17 @@ extension MPReal : Numeric {
     
     public var magnitude: MPReal {
         var mag = MPReal()
-        MPFUN.mpcabs(number, &mag.number, MPReal.mpwds)
+        let mpnw = min(Int(number[1]), MPReal.mpwds)
+        MPFUN.mpeq(number, &mag.number, mpnw)
+        mag.number[2] = abs(number[2])
         return mag
     }
     
     public static func * (lhs: MPReal, rhs: MPReal) -> MPReal {
         var result = MPReal()
-        MPFUN.mpmul(lhs.number, rhs.number, &result.number, MPReal.mpwds)
+        var mpnw = max(Int(lhs.number[1]), Int(rhs.number[1]))
+        mpnw = min(mpnw, MPReal.mpwds)
+        MPFUN.mpmul(lhs.number, rhs.number, &result.number, mpnw)
         return result
     }
     
@@ -157,14 +167,8 @@ extension MPReal : SignedNumeric { }
 
 extension MPReal : Strideable {
     
-    public func distance(to other: MPReal) -> MPReal {
-        return other - self
-    }
-    
-    public func advanced(by n: MPReal) -> MPReal {
-        return self + n
-    }
-    
+    public func distance(to other: MPReal) -> MPReal { return other - self }
+    public func advanced(by n: MPReal) -> MPReal { return self + n }
     public typealias Stride = MPReal
     
 }
@@ -259,14 +263,8 @@ extension MPReal : FloatingPoint {
         return result
     }
     
-    public static var leastNonzeroMagnitude: MPReal {
-        return leastNormalMagnitude
-    }
-    
-    public var sign: FloatingPointSign {
-        return number[2].sign
-    }
-    
+    public static var leastNonzeroMagnitude: MPReal { return leastNormalMagnitude }
+    public var sign: FloatingPointSign { return number[2].sign }
     public var exponent: Int { return Int(number[3]) }
     
     public var significand: MPReal {
@@ -278,7 +276,9 @@ extension MPReal : FloatingPoint {
     
     public static func / (lhs: MPReal, rhs: MPReal) -> MPReal {
         var result = MPReal()
-        MPFUN.mpdiv(lhs.number, rhs.number, &result.number, MPReal.mpwds)
+        var mpnw = max(Int(lhs.number[1]), Int(rhs.number[1]))
+        mpnw = min(mpnw, MPReal.mpwds)
+        MPFUN.mpdiv(lhs.number, rhs.number, &result.number, mpnw)
         return result
     }
     
@@ -300,7 +300,9 @@ extension MPReal : FloatingPoint {
     
     public func isEqual(to other: MPReal) -> Bool {
         var code = 0
-        MPFUN.mpcpr(number, other.number, &code, MPReal.mpwds)
+        var mpnw = max(Int(number[1]), Int(other.number[1]))
+        mpnw = min(mpnw, MPReal.mpwds)
+        MPFUN.mpcpr(number, other.number, &code, mpnw)
         return code == 0
     }
     
@@ -321,7 +323,7 @@ extension MPReal : FloatingPoint {
 
 extension MPReal {
     
-    // Supported mathematical constants
+    // Supported mathematical constants & operations
     public static var log2: MPReal {
         var result = MPReal()
         var pi = MPReal()
@@ -338,9 +340,63 @@ extension MPReal {
     
     public static func ** (lhs: MPReal, rhs: MPReal) -> MPReal {
         var result = MPReal()
-        MPFUN.mppower(lhs.number, rhs.number, &result.number, MPReal.mpwds)
+        let mpnw = min(Int(lhs.number[1]), MPReal.mpwds)
+        MPFUN.mppower(lhs.number, rhs.number, &result.number, mpnw)
         return result
     }
+    
+    public static func ** (lhs: MPReal, rhs: Int) -> MPReal {
+        var result = MPReal()
+        let mpnw = min(Int(lhs.number[1]), MPReal.mpwds)
+        MPFUN.mpnpwr(lhs.number, rhs, &result.number, mpnw)
+        return result
+    }
+    
+    public static func + (lhs: MPReal, rhs: Double) -> MPReal {
+        var result = MPReal()
+        let mpnw = min(Int(lhs.number[1]), MPReal.mpwds)
+        MPFUN.mpdmc40(rhs, 0, &result.number, mpnw)
+        MPFUN.mpadd(result.number, lhs.number, &result.number, mpnw)
+        return result
+    }
+    
+    public static func - (lhs: MPReal, rhs: Double) -> MPReal {
+        var result = MPReal()
+        let mpnw = min(Int(lhs.number[1]), MPReal.mpwds)
+        MPFUN.mpdmc40(rhs, 0, &result.number, mpnw)
+        MPFUN.mpsub(result.number, lhs.number, &result.number, mpnw)
+        return result
+    }
+    
+    public static func * (lhs: MPReal, rhs: Double) -> MPReal {
+        var result = MPReal()
+        let mpnw = min(Int(lhs.number[1]), MPReal.mpwds)
+        MPFUN.mpmuld40(lhs.number, rhs, &result.number, mpnw)
+        return result
+    }
+    
+    public static func / (lhs: MPReal, rhs: Double) -> MPReal {
+        var result = MPReal()
+        let mpnw = min(Int(lhs.number[1]), MPReal.mpwds)
+        MPFUN.mpdivd40(lhs.number, rhs, &result.number, mpnw)
+        return result
+    }
+    
+    public static func + (lhs: MPReal, rhs: Int) -> MPReal { return lhs + Double(rhs) }
+    public static func + (lhs: Int, rhs: MPReal) -> MPReal { return rhs + Double(lhs) }
+    public static func + (lhs: Double, rhs: MPReal) -> MPReal { return rhs + lhs }
+    
+    public static func - (lhs: MPReal, rhs: Int) -> MPReal { return lhs - Double(rhs) }
+    public static func - (lhs: Int, rhs: MPReal) -> MPReal { return Double(lhs) + (-rhs) }
+    public static func - (lhs: Double, rhs: MPReal) -> MPReal { return lhs + (-rhs) }
+    
+    public static func * (lhs: MPReal, rhs: Int) -> MPReal { return lhs * Double(rhs) }
+    public static func * (lhs: Int, rhs: MPReal) -> MPReal { return rhs * Double(lhs) }
+    public static func * (lhs: Double, rhs: MPReal) -> MPReal { return rhs * lhs }
+    
+    public static func / (lhs: MPReal, rhs: Int) -> MPReal { return lhs / Double(rhs) }
+    public static func / (lhs: Int, rhs: MPReal) -> MPReal { return Double(lhs) / rhs }
+    public static func / (lhs: Double, rhs: MPReal) -> MPReal { return MPReal(lhs, 0) / rhs }
     
 }
 
