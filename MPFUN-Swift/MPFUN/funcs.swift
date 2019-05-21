@@ -1209,7 +1209,7 @@ extension MPFUN {
         
         // End of declaration
         
-        if mpnw < 4 || a[0] < abs (a[2]) + 4 || c[0] < Double(mpnw + 6) {
+        if mpnw < 4 || a[0] < abs (a[2]) + 4 || Int(c[0]) < mpnw + 6 {
             print("*** MPDIVD: uninitialized or inadequately sized arrays")
             mpabrt (99)
         }
@@ -1271,8 +1271,7 @@ extension MPFUN {
             d[1] = Double(mpnw)
             mpdmc (bb, n1 * mpnbt, &d, mpnw)
             mpdiv (a, d, &c, mpnw)
-            return
-            // goto 190
+            return // goto 190
         }
         
         //   Compute double precision approximation to trial divisor and its reciprocal.
